@@ -1,0 +1,18 @@
+# my_app/urls.py
+from django.urls import path
+from . import views
+
+
+urlpatterns = [
+    path('', views.my_view, name='index'),  # The root URL maps to my_view
+    path('page-login', views.page_login, name='page-login'),  # The root URL maps to my_view
+    path('page-register', views.page_register, name='page-register'),  # The root URL maps to my_view
+
+    path('chart-flot', views.chart_flot, name='chart-flot'),  # The root URL maps to my_view
+    path('chart-morris', views.chart_morris, name='chart-morris'),  # The root URL maps to my_view
+    path('chart-chartjs', views.chart_chartjs, name='chart-chartjs'),  # The root URL maps to my_view
+    path('chart-chartist', views.chart_chartist, name='chart-chartist'),  # The root URL maps to my_view
+    path('chart-sparkline', views.chart_sparkline, name='chart-sparkline'),  # The root URL maps to my_view
+    path('chart-peity', views.chart_peity, name='chart-peity'),  # The root URL maps to my_view
+
+]
