@@ -39,3 +39,7 @@ def chart_morris(request):
 
 def chart_flot(request):
     return render(request, 'chart-flot.html')
+
+
+def dashboard(request):
+    return render(request, 'blank.html')
