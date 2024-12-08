@@ -8,7 +8,9 @@
                 <ul class="metismenu" id="menu">
                     <li class="nav-label">Dashboard</li>
                     <li>
-                       <a href="{% url 'index' %}">Home 1</a>
+                       <a href="{% url 'index' %}">
+                           <i class="icon-speedometer menu-icon"></i><span class="nav-text">Home</span>
+                       </a>
                     </li>
 
 
@@ -23,10 +25,10 @@
                         </ul>
                     </li>
 
-                    <li class="nav-label">Models</li>
+                    <li class="nav-label">ML Models</li>
                     <li>
                         <a class="has-arrow" href="#" aria-expanded="false">
-                            <i class="icon-notebook menu-icon"></i><span class="nav-text">ML Models</span>
+                            <i class="icon-grid menu-icon"></i><span class="nav-text">ML Models</span>
                         </a>
                         <ul aria-expanded="false">
                             <li><a href="{% url 'index' %}">SVM</a></li>
@@ -41,9 +43,10 @@
                         </ul>
                     </li>
 
+                    <li class="nav-label">DL Models</li>
                     <li>
                         <a class="has-arrow" href="#" aria-expanded="false">
-                            <i class="icon-notebook menu-icon"></i><span class="nav-text">Deep Learning</span>
+                            <i class="icon-globe-alt menu-icon"></i><span class="nav-text">Deep Learning</span>
                         </a>
                         <ul aria-expanded="false">
                             <li><a href="{% url 'index' %}">Neural Network</a></li>

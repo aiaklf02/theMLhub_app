@@ -50,3 +50,7 @@ def tablePage(request):
 
 def tableData(request):
     return render(request, 'table-datatable.html')
+
+
+def app_profile(request):
+    return render(request, 'app-profile.html')
