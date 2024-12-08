@@ -5,7 +5,7 @@ from django.shortcuts import render
 
 
 def my_view(request):
-    return render(request, 'index.html')
+    return render(request, 'Dashboard.html')
 
 
 def page_login(request):
@@ -41,5 +41,12 @@ def chart_flot(request):
     return render(request, 'chart-flot.html')
 
 
-def dashboard(request):
-    return render(request, 'blank.html')
+# def dashboard(request):
+#
+#     return render(request, 'Dashboard.html')
+def tablePage(request):
+    return render(request, 'tablePage.html')
+
+
+def tableData(request):
+    return render(request, 'table-datatable.html')

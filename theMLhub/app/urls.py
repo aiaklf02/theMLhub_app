@@ -5,9 +5,10 @@ from . import views
 
 urlpatterns = [
     path('', views.my_view, name='index'),  # The root URL maps to my_view
-    path('Dashboard', views.dashboard, name='dashboard'),  # The root URL maps to my_view
     path('page-login', views.page_login, name='page-login'),  # The root URL maps to my_view
     path('page-register', views.page_register, name='page-register'),  # The root URL maps to my_view
+    path('tablePage', views.tablePage, name='tablePage'),  # The root URL maps to my_view
+    path('tableData', views.tableData, name='tableData'),  # The root URL maps to my_view
 
     path('chart-flot', views.chart_flot, name='chart-flot'),  # The root URL maps to my_view
     path('chart-morris', views.chart_morris, name='chart-morris'),  # The root URL maps to my_view
