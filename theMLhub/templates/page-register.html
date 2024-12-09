@@ -11,7 +11,7 @@
     <title>Quixlab - Bootstrap Admin Dashboard Template by Themefisher.com</title>
     <!-- Favicon icon -->
     <link rel="icon" type="image/png" sizes="16x16" href="{% static '../../assets/images/favicon.png' %}">
-    <link rel="stylesheet" href="{% static 'https://use.fontawesome.com/releases/v5.5.0/css/all.css' %}" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
     <link href="{% static 'css/style.css' %}" rel="stylesheet">
     
 </head>
@@ -46,18 +46,65 @@
                                 
                                     <a class="text-center" href="{% url 'index' %}"> <h4>Rosella</h4></a>
         
-                                <form class="mt-5 mb-5 login-input">
-                                    <div class="form-group">
-                                        <input type="text" class="form-control"  placeholder="Name" required>
-                                    </div>
-                                    <div class="form-group">
-                                        <input type="email" class="form-control"  placeholder="Email" required>
-                                    </div>
-                                    <div class="form-group">
-                                        <input type="password" class="form-control" placeholder="Password" required>
-                                    </div>
-                                    <button class="btn login-form__btn submit w-100">Sign in</button>
-                                </form>
+<form class="mt-5 mb-5 login-input" method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <div class="form-group">
+        <label for="{{ form.username.id }}">Username</label>
+        <input type="text" name="username" class="form-control" id="{{ form.username.id }}" value="{{ form.username.value }}">
+    </div>
+
+    <div class="form-group">
+        <label for="{{ form.email.id }}">Email</label>
+        <input type="email" name="email" class="form-control" id="{{ form.email.id }}" value="{{ form.email.value }}">
+    </div>
+
+    <div class="form-group">
+        <label for="{{ form.password.id }}">Password</label>
+        <input type="password" name="password" class="form-control" id="{{ form.password.id }}" value="{{ form.password.value }}">
+    </div>
+
+    <div class="form-group">
+        <label for="{{ form.profile_picture_path.id }}">Profile Picture</label>
+        <input type="file" name="profile_picture_path" class="form-control" id="{{ form.profile_picture_path.id }}">
+    </div>
+
+    <div class="form-group">
+        <label for="{{ form.country.id }}">Country</label>
+        <input type="text" name="country" class="form-control" id="{{ form.country.id }}" value="{{ form.country.value }}">
+    </div>
+
+    <div class="form-group">
+        <label for="{{ form.full_name.id }}">Full Name</label>
+        <input type="text" name="full_name" class="form-control" id="{{ form.full_name.id }}" value="{{ form.full_name.value }}">
+    </div>
+
+    <div class="form-group">
+        <label for="{{ form.bio.id }}">Bio</label>
+        <textarea name="bio" class="form-control" id="{{ form.bio.id }}">{{ form.bio.value }}</textarea>
+    </div>
+
+    <div class="form-group">
+        <label for="{{ form.mobile_number.id }}">Mobile Number</label>
+        <input type="text" name="mobile_number" class="form-control" id="{{ form.mobile_number.id }}" value="{{ form.mobile_number.value }}">
+    </div>
+
+    <button type="submit" class="btn login-form__btn submit w-100">Sign Up</button>
+</form>
+
+{% if form.errors %}
+    <div class="alert alert-danger mt-3">
+        <ul>
+            {% for field in form %}
+                {% for error in field.errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+            {% endfor %}
+        </ul>
+    </div>
+{% endif %}
+
+
                                     <p class="mt-5 login-form__footer">Have account <a href="{% url 'page-login' %}" class="text-primary">Login </a> now</p>
                                     </p>
                                 </div>
