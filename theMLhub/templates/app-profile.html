@@ -52,19 +52,25 @@
                         <div class="card">
                             <div class="card-body">
                                 <div class="media align-items-center mb-4">
-                                    <img class="mr-3" src="{% static 'images/avatar/11.png' %}" width="80" height="80" alt="">
+                                    <img class="mr-3" src="media/{{ user.profile_picture_path }}" width="200" height="200" alt="">
                                     <div class="media-body">
-                                        <h3 class="mb-0">Pikamy Cha</h3>
-                                        <p class="text-muted mb-0">Canada</p>
+                                        <h3 class="mb-0">{{ user.full_name }}</h3>
+                                        <p class="text-muted mb-0">{{ user.country }}</p>
+                                        <div style="padding-top: 40px">
+
+
+                                          <h4>About Me</h4>
+
+<!--                                <p class="text-muted">Hi, I'm Pikamy, has been the industry standard dummy text ever since the 1500s.</p>-->
+                                <ul class="card-profile__info">
+                                    <li class="mb-1"><strong class="text-dark mr-4">Username</strong> <span>{{ user.username }}</span></li>
+                                    <li class="mb-1"><strong class="text-dark mr-4">Status</strong> <span>{{ user.status }}</span></li>
+                                    <li><strong class="text-dark mr-4">Email</strong> <span>{{ user.email }}</span></li>
+                                </ul>
                                     </div>
                                 </div>
                                 
-                                <h4>About Me</h4>
-                                <p class="text-muted">Hi, I'm Pikamy, has been the industry standard dummy text ever since the 1500s.</p>
-                                <ul class="card-profile__info">
-                                    <li class="mb-1"><strong class="text-dark mr-4">Mobile</strong> <span>01793931609</span></li>
-                                    <li><strong class="text-dark mr-4">Email</strong> <span>name@domain.com</span></li>
-                                </ul>
+
                             </div>
                         </div>  
                     </div>
