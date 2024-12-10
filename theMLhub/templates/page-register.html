@@ -60,8 +60,12 @@
     </div>
 
     <div class="form-group">
-        <label for="{{ form.password.id }}">Password</label>
-        <input type="password" name="password" class="form-control" id="{{ form.password.id }}" value="{{ form.password.value }}">
+        <label for="{{ form.password1.id }}">Password</label>
+        <input type="password" name="password1" class="form-control" id="{{ form.password1.id }}" value="{{ form.password1.value }}">
+    </div>
+    <div class="form-group">
+        <label for="{{ form.password2.id }}">ReType Password</label>
+        <input type="password" name="password2" class="form-control" id="{{ form.password2.id }}" value="{{ form.password2.value }}">
     </div>
 
     <div class="form-group">
@@ -79,15 +83,18 @@
         <input type="text" name="full_name" class="form-control" id="{{ form.full_name.id }}" value="{{ form.full_name.value }}">
     </div>
 
-    <div class="form-group">
-        <label for="{{ form.bio.id }}">Bio</label>
-        <textarea name="bio" class="form-control" id="{{ form.bio.id }}">{{ form.bio.value }}</textarea>
-    </div>
+<div class="form-group">
+    <label for="{{ form.status.id_for_label }}">Status</label>
+    <select name="status" class="form-control" id="{{ form.status.id_for_label }}">
+        {% for value, display in form.status.field.choices %}
+            <option value="{{ value }}" {% if form.status.value == value %}selected{% endif %}>
+                {{ display }}
+            </option>
+        {% endfor %}
+    </select>
+</div>
 
-    <div class="form-group">
-        <label for="{{ form.mobile_number.id }}">Mobile Number</label>
-        <input type="text" name="mobile_number" class="form-control" id="{{ form.mobile_number.id }}" value="{{ form.mobile_number.value }}">
-    </div>
+
 
     <button type="submit" class="btn login-form__btn submit w-100">Sign Up</button>
 </form>

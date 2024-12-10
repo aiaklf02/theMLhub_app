@@ -4,7 +4,7 @@ from . import views
 
 
 urlpatterns = [
-    path('home', views.my_view, name='index'),  # The root URL maps to my_view
+    path('', views.my_view, name='index'),  # The root URL maps to my_view
     path('page-login', views.page_login, name='page-login'),  # The root URL maps to my_view
     path('page-register', views.page_register, name='page-register'),  # The root URL maps to my_view
     path('tablePage', views.tablePage, name='tablePage'),  # The root URL maps to my_view

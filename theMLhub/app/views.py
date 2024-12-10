@@ -34,7 +34,8 @@ def page_login(request):
             login(request, user)
             return redirect('index')  # Redirect to a success page (e.g., home)
         else:
-            messages.error(request, 'Invalid username or password')
+            message = 'Invalid username or password'
+            return render(request, 'page-login.html', {'f': 'Invalid username or password' })
 
     return render(request, 'page-login.html')
 
@@ -46,7 +47,7 @@ def page_register(request):
         if form.is_valid():
             form.save()
             messages.success(request, 'Account created successfully! You can now log in.')
-            return redirect('login')
+            return redirect('page-login')
         else:
             print(form.errors)  # Add this to log the errors
 

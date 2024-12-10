@@ -8,9 +8,12 @@ class Utilisateur(AbstractUser):
     profile_picture_path = models.FileField(upload_to='Profile_pictures/', null=True, blank=True)
     country = models.CharField(max_length=100, null=True, blank=True)
     full_name = models.CharField(max_length=150, null=True, blank=True)
-    bio = models.TextField(null=True, blank=True)
-    mobile_number = models.CharField(max_length=15, null=True, blank=True)
-
+    STATUS_CHOICES = [
+        ('Student', 'Student'),
+        ('Professor', 'Professor'),
+        ('Employee', 'Employee'),
+    ]
+    status = models.CharField(max_length=50, choices=STATUS_CHOICES, null=True, blank=True)
 
 class RawDataset(models.Model):
     utilisateur = models.ForeignKey(Utilisateur, on_delete=models.CASCADE)
