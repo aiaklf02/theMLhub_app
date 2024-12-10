@@ -7,10 +7,11 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>My Profile</title>
+    <title>Upload Data</title>
     <!-- Favicon icon -->
     <link rel="icon" type="image/png" sizes="16x16" href="{% static 'images/favicon.png' %}">
     <!-- Custom Stylesheet -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.10/css/all.css">
     <link href="{% static 'css/style.css' %}" rel="stylesheet">
 
 </head>
@@ -35,44 +36,31 @@
     <!--**********************************
         Main wrapper start
     ***********************************-->
-    <div id="main-wrapper">
+    <div id="main-wrapper"  style="height: 130vh !important;">
 
-      {% include "navbar.html" %}
+{% include "navbar.html" %}
 
-    {% include "sideBar.html" %}
+{% include "sideBar.html" %}
+
 
         <!--**********************************
             Content body start
         ***********************************-->
         <div class="content-body">
 
+<!--            <div class="row page-titles mx-0">-->
+<!--                <div class="col p-md-0">-->
+<!--                    <ol class="breadcrumb">-->
+<!--                        <li class="breadcrumb-item"><a href="#">Dashboard</a></li>-->
+<!--                        <li class="breadcrumb-item active"><a href="#">Home</a></li>-->
+<!--                    </ol>-->
+<!--                </div>-->
+<!--            </div>-->
+            <!-- row -->
+
             <div class="container-fluid">
-                <div class="row justify-content-center">
-                    <div class="col-12">
-                        <div class="card">
-                            <div class="card-body">
-                                <div class="media align-items-center mb-4">
-                                    <img class="mr-3" src="media/{{ user.profile_picture_path }}" width="200" height="200" alt="">
-                                    <div class="media-body">
-                                        <h3 class="mb-0">{{ user.full_name }}</h3>
-                                        <p class="text-muted mb-0">{{ user.country }}</p>
-                                        <div style="padding-top: 40px">
-
-                                          <h4>About Me</h4>
-
-                                <ul class="card-profile__info">
-                                    <li class="mb-1"><strong class="text-dark mr-4">Username</strong> <span>{{ user.username }}</span></li>
-                                    <li class="mb-1"><strong class="text-dark mr-4">Status</strong> <span>{{ user.status }}</span></li>
-                                    <li><strong class="text-dark mr-4">Email</strong> <span>{{ user.email }}</span></li>
-                                </ul>
-                                    </div>
-                                </div>
-                                
-
-                            </div>
-                        </div>  
-                    </div>
-
+                <div class="row">
+                    {% include 'inputFileForm.html'%}
                 </div>
             </div>
             <!-- #/ container -->
@@ -82,13 +70,8 @@
         ***********************************-->
         
         
-        <!--**********************************
-            Footer start
-        ***********************************-->
-      {% include "footer.html" %}
-        <!--**********************************
-            Footer end
-        ***********************************-->
+{% include "footer.html" %}
+
 
     </div>
     <!--**********************************

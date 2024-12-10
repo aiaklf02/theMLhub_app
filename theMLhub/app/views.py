@@ -98,3 +98,7 @@ def tableData(request):
 # @login_required_custom
 def app_profile(request):
     return render(request, 'app-profile.html')
+
+
+def uploadDataFile(request):
+    return render(request, 'uploadDataFile.html')

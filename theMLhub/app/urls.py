@@ -11,6 +11,8 @@ urlpatterns = [
     path('tableData', views.tableData, name='tableData'),  # The root URL maps to my_view
     path('app-profile', views.app_profile, name='app_profile'),  # The root URL maps to my_view
 
+    path('uploadDataFile', views.uploadDataFile, name='uploadDataFile'),  # The root URL maps to my_view
+
     path('chart-flot', views.chart_flot, name='chart-flot'),  # The root URL maps to my_view
     path('chart-morris', views.chart_morris, name='chart-morris'),  # The root URL maps to my_view
     path('chart-chartjs', views.chart_chartjs, name='chart-chartjs'),  # The root URL maps to my_view
