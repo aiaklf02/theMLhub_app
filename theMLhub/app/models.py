@@ -19,6 +19,7 @@ class Utilisateur(AbstractUser):
 class RawDataset(models.Model):
     utilisateur = models.ForeignKey(Utilisateur, on_delete=models.CASCADE)
     file_raw_dataset = models.FileField(upload_to='raw_datasets/')
+    datasetCostumName = models.CharField(max_length=100, default='DataSetFile' ,null=True, blank=True)
     uploaded_at = models.DateTimeField(auto_now_add=True)
     selectedTargetColumn = models.CharField(max_length=255, null=False, default='target')
 

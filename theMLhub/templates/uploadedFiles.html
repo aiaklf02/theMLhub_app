@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+{% load static %}
+
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Uploaded Files</title>
+    <!-- Favicon icon -->
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'images/favicon.png' %}">
+    <!-- Custom Stylesheet -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.10/css/all.css">
+    <link href="{% static 'css/style.css' %}" rel="stylesheet">
+
+</head>
+
+<body>
+
+    <!--*******************
+        Preloader start
+    ********************-->
+    <div id="preloader">
+        <div class="loader">
+            <svg class="circular" viewBox="25 25 50 50">
+                <circle class="path" cx="50" cy="50" r="20" fill="none" stroke-width="3" stroke-miterlimit="10" />
+            </svg>
+        </div>
+    </div>
+    <!--*******************
+        Preloader end
+    ********************-->
+
+    
+    <!--**********************************
+        Main wrapper start
+    ***********************************-->
+    <div id="main-wrapper"  style="height: 130vh !important;">
+
+{% include "navbar.html" %}
+
+{% include "sideBar.html" %}
+
+
+        <!--**********************************
+            Content body start
+        ***********************************-->
+        <div class="content-body">
+
+
+            <div class="container-fluid">
+                <div class="row">
+<!-- loop over uploaded files by that user -->
+                   {% for file in files %}
+                 <div class="col-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="text-center">
+                                    <span class="display-5">
+                                        <i class="fas fa-file-alt" data-fa-transform="shrink-2 up-4"></i>
+                                        </span>
+                                    <h2 class="mt-3">{{ file.datasetCostumName }}</h2>
+                                    <p>Uploaded: {{file.uploaded_at}}</p><a href="#" class="btn gradient-1 btn-lg border-0 btn-rounded px-5">Preproccess
+                                        now</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% endfor %}
+                </div>
+            </div>
+            <!-- #/ container -->
+        </div>
+        <!--**********************************
+            Content body end
+        ***********************************-->
+        
+        
+{% include "footer.html" %}
+
+
+    </div>
+    <!--**********************************
+        Main wrapper end
+    ***********************************-->
+
+    <!--**********************************
+        Scripts
+    ***********************************-->
+    <script src="{% static 'plugins/common/common.min.js' %}"></script>
+    <script src="{% static 'js/custom.min.js' %}"></script>
+    <script src="{% static 'js/settings.js' %}"></script>
+    <script src="{% static 'js/gleek.js' %}"></script>
+    <script src="{% static 'js/styleSwitcher.js' %}"></script>
+
+</body>
+
+</html>

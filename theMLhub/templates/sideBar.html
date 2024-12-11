@@ -14,16 +14,18 @@
                     </li>
 
 
-                    <li class="nav-label">Data Tables</li>
+                    <li class="nav-label">Datasets</li>
                     <li>
                         <a class="has-arrow" href="#" aria-expanded="false">
-                            <i class="icon-menu menu-icon"></i><span class="nav-text">Table</span>
+                            <i class="icon-menu menu-icon"></i><span class="nav-text">Files</span>
                         </a>
                         <ul aria-expanded="false">
                             <li><a href="{% url 'uploadDataFile' %}" aria-expanded="false">Upload Data</a></li>
+                            <li><a href="{% url 'uploadedFiles' %}" aria-expanded="false">My Uploaded Files</a></li>
 
-                            <li><a href="{% url 'tablePage' %}" aria-expanded="false">Basic Table</a></li>
-                            <li><a href="{% url 'tableData' %}" aria-expanded="false">Data Table</a></li>
+<!--                            <li><a href="{% url 'tablePage' %}" aria-expanded="false">Basic Table</a></li>-->
+<!--                            <li><a href="{% url 'tableData' %}" aria-expanded="false">Data Table</a></li>-->
+
                         </ul>
                     </li>
 

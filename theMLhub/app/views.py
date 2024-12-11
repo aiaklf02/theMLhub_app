@@ -1,4 +1,3 @@
-
 from django.contrib.auth import authenticate, login
 from django.contrib.auth import get_user_model
 from django.shortcuts import render, redirect
@@ -6,7 +5,6 @@ from django.contrib import messages
 from django.views.decorators.csrf import csrf_exempt
 
 from .forms import SignupForm  # Import your SignupForm
-
 
 from django.http import HttpResponseRedirect, JsonResponse
 from django.urls import reverse
@@ -20,12 +18,12 @@ def login_required_custom(view_func):
         if not request.user.is_authenticated:
             return HttpResponseRedirect(reverse('page-login'))  # Redirect to login page
         return view_func(request, *args, **kwargs)
+
     return _wrapped_view
 
 
 # @login_required_custom
 def my_view(request):
-
     return render(request, 'Dashboard.html')
 
 
@@ -40,10 +38,9 @@ def page_login(request):
             return redirect('index')  # Redirect to a success page (e.g., home)
         else:
             message = 'Invalid username or password'
-            return render(request, 'page-login.html', {'f': 'Invalid username or password' })
+            return render(request, 'page-login.html', {'f': 'Invalid username or password'})
 
     return render(request, 'page-login.html')
-
 
 
 def page_register(request):
@@ -63,8 +60,6 @@ def page_register(request):
     return render(request, 'page-register.html', {'form': form})
 
 
-
-
 # @login_required_custom
 def chart_peity(request):
     return render(request, 'chart-peity.html')
@@ -74,21 +69,26 @@ def chart_peity(request):
 def chart_sparkline(request):
     return render(request, 'chart-sparkline.html')
 
+
 # @login_required_custom
 def chart_chartist(request):
     return render(request, 'chart-chartist.html')
+
 
 # @login_required_custom
 def chart_chartjs(request):
     return render(request, 'chart-chartjs.html')
 
+
 # @login_required_custom
 def chart_morris(request):
     return render(request, 'chart-morris.html')
 
+
 # @login_required_custom
 def chart_flot(request):
     return render(request, 'chart-flot.html')
+
 
 # @login_required_custom
 def tablePage(request):
@@ -108,11 +108,10 @@ def app_profile(request):
 @csrf_exempt
 def uploadDataFile(request):
     if request.method == 'POST':
-        # Retrieve file and target column from the request
         uploaded_file = request.FILES.get('file')
         target_column = request.POST.get('target_column')
+        custom_name = request.POST.get('custom_name')
         utilisateur = request.user  # Assuming the user is authenticated
-        print(f"File: {uploaded_file}, Target Column: {target_column}")  # Add logging
 
         # Validate inputs
         if not uploaded_file:
@@ -121,18 +120,24 @@ def uploadDataFile(request):
         if not target_column:
             return JsonResponse({'error': 'Target column is required.'}, status=400)
 
-        # Save the file and target column using the RawDataset model
+        if not custom_name:
+            return JsonResponse({'error': 'Dataset custom name is required.'}, status=400)
+
+        # Save the file and dataset details using the RawDataset model
         raw_dataset = RawDataset.objects.create(
             utilisateur=utilisateur,
             file_raw_dataset=uploaded_file,
-            selectedTargetColumn=target_column
+            selectedTargetColumn=target_column,
+            datasetCostumName=custom_name
         )
 
-        return JsonResponse({'success': 'File and target column submitted successfully!'}, status=200)
+        return JsonResponse({'message': 'File uploaded successfully!'}, status=200)
 
     return render(request, 'uploadDataFile.html')
 
 
+@login_required_custom
 def uploadedFiles(request):
-    return render(request, 'uploadedFiles.html')
-
+    uploadedfilesbyme = RawDataset.objects.filter(utilisateur=request.user)
+    print(f'my uploaded files {str(uploadedfilesbyme)}')
+    return render(request, 'uploadedFiles.html', {'files': uploadedfilesbyme})

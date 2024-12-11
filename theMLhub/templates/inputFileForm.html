@@ -139,11 +139,16 @@ h1 {
 <div id="modal" class="modal" style="display: none;">
   <div class="modal-content">
     <span class="close-btn" onclick="closeModal()">×</span>
-    <h2>Select Target Column</h2>
-    <form id="target-column-form"></form>
+    <h2>Dataset Details</h2>
+    <form id="target-column-form">
+
+      <h3>Select Target Column</h3>
+      <!-- Target column options will be dynamically added here -->
+    </form>
     <button onclick="submitTargetColumn()" class="btn login-form__btn submit w-100 mt-3">Submit</button>
   </div>
 </div>
+
 
 
 <script>
@@ -202,8 +207,16 @@ function showModal(columns) {
   const form = document.getElementById('target-column-form');
   form.innerHTML = ''; // Clear previous content
 
+  // Add the custom-name input field
+  form.innerHTML += `
+    <div>
+      <label for="custom-name">Dataset Custom Name:</label>
+      <input type="text" id="custom-name" style="padding: 5px; width: 220px" name="custom-name" placeholder="Enter a name for the dataset " required>
+    </div>
+  `;
+
   if (columns.length === 0) {
-    form.innerHTML = '<p>No columns found. Please check the file format.</p>';
+    form.innerHTML += '<p>No columns found. Please check the file format.</p>';
   } else {
     columns.forEach((column) => {
       const radioBtn = `<label>
@@ -212,6 +225,10 @@ function showModal(columns) {
       form.innerHTML += radioBtn;
     });
   }
+
+  // Log the current form HTML for debugging
+  console.log(form.innerHTML);
+
   modal.style.display = 'block';
 }
 
@@ -224,43 +241,89 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // document.getElementById('sbmtbtn').addEventListener('click',ReadFileColumns);
-
 function submitTargetColumn() {
   const selectedColumn = document.querySelector('input[name="target-column"]:checked')?.value;
-  console.log('selectedcolumn :'+selectedColumn)
+  const customName = document.getElementById('custom-name').value;
 
-  // const selectedColumn = document.querySelector('input[name="target-column"]:checked').value;
+  if (!customName) {
+    alert('Please provide a custom name for the dataset.');
+    return;
+  }
+
+  if (!selectedColumn) {
+    alert('Please select a target column.');
+    return;
+  }
+
   const fileInput = document.getElementById('file-upload');
   const file = fileInput.files[0];
-const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+  const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
 
   const formData = new FormData();
   formData.append('file', file);
   formData.append('target_column', selectedColumn);
+  formData.append('custom_name', customName);
 
-fetch('/uploadDataFile', {
-  method: 'POST',
-  body: formData,
-  headers: {
-    'X-CSRFToken': csrftoken,  // Include the CSRF token in the request header
-  },
-})
-.then(response => {
-  // Check if the response status is 200
-  if (response.status === 200) {
-    return response.json();  // If successful, parse the JSON response
-  } else {
-    return Promise.reject('Error: ' + response.status);  // If error, reject with the status code
-  }
-})
-.then(data => {
-  alert('File and target column submitted successfully!');  // Alert success
-});
+  fetch('/uploadDataFile', {
+    method: 'POST',
+    body: formData,
+    headers: {
+      'X-CSRFToken': csrftoken,  // Include the CSRF token in the request header
+    },
+  })
+    .then(response => {
+      if (response.status === 200) {
+        return response.json();
+      } else {
+        return Promise.reject('Error: ' + response.status);
+      }
+    })
+    .then(data => {
+      window.location.href = '/uploadedFiles'; // Redirect to /home
+    })
+    .catch(error => {
+      console.error(error);
+    });
 
-closeModal();
-    window.location.href = '/'; // Redirect to index
-
+  closeModal();
 }
+
+// function submitTargetColumn() {
+//   const selectedColumn = document.querySelector('input[name="target-column"]:checked')?.value;
+//   console.log('selectedcolumn :'+selectedColumn)
+//
+//   // const selectedColumn = document.querySelector('input[name="target-column"]:checked').value;
+//   const fileInput = document.getElementById('file-upload');
+//   const file = fileInput.files[0];
+// const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+//
+//   const formData = new FormData();
+//   formData.append('file', file);
+//   formData.append('target_column', selectedColumn);
+//
+// fetch('/uploadDataFile', {
+//   method: 'POST',
+//   body: formData,
+//   headers: {
+//     'X-CSRFToken': csrftoken,  // Include the CSRF token in the request header
+//   },
+// })
+// .then(response => {
+//   // Check if the response status is 200
+//   if (response.status === 200) {
+//     return response.json();  // If successful, parse the JSON response
+//   } else {
+//     return Promise.reject('Error: ' + response.status);  // If error, reject with the status code
+//   }
+// })
+// .then(data => {
+//   alert('File and target column submitted successfully!');  // Alert success
+// });
+//
+// closeModal();
+//     window.location.href = '/'; // Redirect to index
+//
+// }
 
 
 const dropArea = document.querySelector('.border-container');
