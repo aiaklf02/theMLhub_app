@@ -15,10 +15,12 @@ class Utilisateur(AbstractUser):
     ]
     status = models.CharField(max_length=50, choices=STATUS_CHOICES, null=True, blank=True)
 
+
 class RawDataset(models.Model):
     utilisateur = models.ForeignKey(Utilisateur, on_delete=models.CASCADE)
     file_raw_dataset = models.FileField(upload_to='raw_datasets/')
     uploaded_at = models.DateTimeField(auto_now_add=True)
+    selectedTargetColumn = models.CharField(max_length=255, null=False, default='target')
 
 
 class PreprocessedDataset(models.Model):

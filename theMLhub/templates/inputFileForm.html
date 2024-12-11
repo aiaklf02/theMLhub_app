@@ -1,28 +1,5 @@
 {% load static %}
 
-
-                    <div class="col-lg-12">
-                        <div class="card">
-                            <div class="card-body">
-                                <h4 class="card-title">Upload File</h4>
-                                <div class="basic-form">
-                                    <form>
-                                            {% csrf_token %}
-
-                                        <div class="form-group">
-                                            <input type="file" class="form-control-file">
-                                        </div>
-
-                                        <button type="submit" class="btn login-form__btn submit w-100">Upload</button>
-
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-<br>
-
 <style>
     * {
   box-sizing: border-box;
@@ -95,20 +72,53 @@ h1 {
   color: #95afc0;
   opacity: 0.55;
 }
+
+
+.modal {
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+.modal-content {
+  background-color: #fefefe;
+  margin: 15% auto;
+  padding: 20px;
+  border: 1px solid #888;
+  width: 50%;
+  border-radius: 10px;
+  text-align: left;
+}
+
+.close-btn {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.close-btn:hover,
+.close-btn:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
+}
 </style>
 
-<script>
-    $("#file-upload").css("opacity", "0");
 
-$("#file-browser").click(function(e) {
-  e.preventDefault();
-  $("#file-upload").trigger("click");
-});
 
-</script>
+
+
+
 <div class="wrapper">
   <div class="container">
-    <h1>Upload a file</h1>
+    <h1>Upload a Dataset</h1>
     <div class="upload-container">
       <div class="border-container">
         <div class="icons fa-4x">
@@ -116,9 +126,167 @@ $("#file-browser").click(function(e) {
           <i class="fas fa-file-alt" data-fa-transform="shrink-2 up-4"></i>
           <i class="fas fa-file-pdf" data-fa-transform="shrink-3 down-2 right-6 rotate-45"></i>
         </div>
-        <input type="file" style="display: none" id="file-upload">
-        <p>Drag and drop files here, or<a href="#" id="file-browser">browse</a> your computer.</p>
+        <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+
+        <input type="file" style="display: none" id="file-upload" accept=".csv, .xlsx, .xls">
+        <p>Drag and drop files here, or <a onclick="uploadFile()" id="file-browser">browse</a> your computer.</p>
       </div>
+        <button id="sbmtbtn" style="display: none" type="submit" class="btn login-form__btn submit w-100 mt-3">Proceed</button>
     </div>
   </div>
 </div>
+
+<div id="modal" class="modal" style="display: none;">
+  <div class="modal-content">
+    <span class="close-btn" onclick="closeModal()">×</span>
+    <h2>Select Target Column</h2>
+    <form id="target-column-form"></form>
+    <button onclick="submitTargetColumn()" class="btn login-form__btn submit w-100 mt-3">Submit</button>
+  </div>
+</div>
+
+
+<script>
+    // $("#file-upload").css("opacity", "0");
+function uploadFile() {
+    document.getElementById('file-upload').click();
+    document.getElementById('sbmtbtn').style.display = '';
+}
+
+    function ReadFileColumns() {
+  const fileInput = document.getElementById('file-upload');
+  const file = fileInput.files[0];
+
+  if (!file) {
+    alert('Please upload a valid file.');
+    return;
+  }
+
+  const fileType = file.type;
+  if (fileType === 'text/csv' || fileType === 'application/vnd.ms-excel') {
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      const content = e.target.result;
+      const columns = parseColumns(content, fileType);
+      showModal(columns);
+    };
+    reader.readAsText(file);
+  } else {
+    alert('Invalid file type. Please upload a CSV or Excel file.');
+  }
+}
+
+function parseColumns(content, fileType) {
+  let columns = [];
+  if (fileType === 'text/csv') {
+    const rows = content.split('\n');
+    columns = rows[0].split(','); // Assuming the first row contains headers
+  } else if (fileType.includes('excel')) {
+    const workbook = XLSX.read(content, { type: 'binary' });
+    const sheetName = workbook.SheetNames[0];
+    const sheet = workbook.Sheets[sheetName];
+    const headers = XLSX.utils.sheet_to_json(sheet, { header: 1 })[0];
+    columns = headers || [];
+  }
+  return columns;
+}
+
+
+function closeModal() {
+  const modal = document.getElementById('modal');
+  modal.style.display = 'none';
+}
+
+function showModal(columns) {
+  const modal = document.getElementById('modal');
+  const form = document.getElementById('target-column-form');
+  form.innerHTML = ''; // Clear previous content
+
+  if (columns.length === 0) {
+    form.innerHTML = '<p>No columns found. Please check the file format.</p>';
+  } else {
+    columns.forEach((column) => {
+      const radioBtn = `<label>
+        <input type="radio" name="target-column" value=${column}> ${column}
+      </label><br>`;
+      form.innerHTML += radioBtn;
+    });
+  }
+  modal.style.display = 'block';
+}
+
+
+document.addEventListener('DOMContentLoaded', () => {
+  const proceedButton = document.getElementById('sbmtbtn');
+  if (proceedButton) {
+    proceedButton.addEventListener('click', ReadFileColumns);
+  }
+});
+
+// document.getElementById('sbmtbtn').addEventListener('click',ReadFileColumns);
+
+function submitTargetColumn() {
+  const selectedColumn = document.querySelector('input[name="target-column"]:checked')?.value;
+  console.log('selectedcolumn :'+selectedColumn)
+
+  // const selectedColumn = document.querySelector('input[name="target-column"]:checked').value;
+  const fileInput = document.getElementById('file-upload');
+  const file = fileInput.files[0];
+const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('target_column', selectedColumn);
+
+fetch('/uploadDataFile', {
+  method: 'POST',
+  body: formData,
+  headers: {
+    'X-CSRFToken': csrftoken,  // Include the CSRF token in the request header
+  },
+})
+.then(response => {
+  // Check if the response status is 200
+  if (response.status === 200) {
+    return response.json();  // If successful, parse the JSON response
+  } else {
+    return Promise.reject('Error: ' + response.status);  // If error, reject with the status code
+  }
+})
+.then(data => {
+  alert('File and target column submitted successfully!');  // Alert success
+});
+
+closeModal();
+    window.location.href = '/'; // Redirect to index
+
+}
+
+
+const dropArea = document.querySelector('.border-container');
+
+dropArea.addEventListener('dragover', (e) => {
+  e.preventDefault();
+  dropArea.style.backgroundColor = '#dcdcdc';
+});
+
+dropArea.addEventListener('dragleave', (e) => {
+  e.preventDefault();
+  dropArea.style.backgroundColor = 'rgb(239, 239, 239)';
+});
+
+dropArea.addEventListener('drop', (e) => {
+  e.preventDefault();
+  dropArea.style.backgroundColor = 'rgb(239, 239, 239)';
+  const files = e.dataTransfer.files;
+  document.getElementById('file-upload').files = files;
+  document.getElementById('sbmtbtn').style.display = '';
+});
+
+
+function handleErrors(message) {
+  alert(message);
+}
+
+
+</script>

@@ -3,12 +3,17 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth import get_user_model
 from django.shortcuts import render, redirect
 from django.contrib import messages
+from django.views.decorators.csrf import csrf_exempt
+
 from .forms import SignupForm  # Import your SignupForm
 
 
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, JsonResponse
 from django.urls import reverse
 from django.contrib.auth.decorators import user_passes_test
+
+from .models import RawDataset
+
 
 def login_required_custom(view_func):
     def _wrapped_view(request, *args, **kwargs):
@@ -100,5 +105,34 @@ def app_profile(request):
     return render(request, 'app-profile.html')
 
 
+@csrf_exempt
 def uploadDataFile(request):
+    if request.method == 'POST':
+        # Retrieve file and target column from the request
+        uploaded_file = request.FILES.get('file')
+        target_column = request.POST.get('target_column')
+        utilisateur = request.user  # Assuming the user is authenticated
+        print(f"File: {uploaded_file}, Target Column: {target_column}")  # Add logging
+
+        # Validate inputs
+        if not uploaded_file:
+            return JsonResponse({'error': 'File is required.'}, status=400)
+
+        if not target_column:
+            return JsonResponse({'error': 'Target column is required.'}, status=400)
+
+        # Save the file and target column using the RawDataset model
+        raw_dataset = RawDataset.objects.create(
+            utilisateur=utilisateur,
+            file_raw_dataset=uploaded_file,
+            selectedTargetColumn=target_column
+        )
+
+        return JsonResponse({'success': 'File and target column submitted successfully!'}, status=200)
+
     return render(request, 'uploadDataFile.html')
+
+
+def uploadedFiles(request):
+    return render(request, 'uploadedFiles.html')
+
