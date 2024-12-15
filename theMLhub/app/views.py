@@ -3,6 +3,7 @@ from django.contrib.auth import get_user_model
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.views.decorators.csrf import csrf_exempt
+import pandas as pd
 
 from .forms import SignupForm  # Import your SignupForm
 
@@ -115,6 +116,8 @@ def app_profile(request):
 
 
 @csrf_exempt
+
+
 def uploadDataFile(request):
     if request.method == 'POST':
         uploaded_file = request.FILES.get('file')
@@ -132,17 +135,32 @@ def uploadDataFile(request):
         if not custom_name:
             return JsonResponse({'error': 'Dataset custom name is required.'}, status=400)
 
-        # Save the file and dataset details using the RawDataset model
-        raw_dataset = RawDataset.objects.create(
-            utilisateur=utilisateur,
-            file_raw_dataset=uploaded_file,
-            TargetColumn=target_column,
-            datasetCostumName=custom_name
-        )
+        # Validate file type (accepting only CSV for now)
+        if not uploaded_file.name.endswith('.csv'):
+            return JsonResponse({'error': 'Only CSV files are supported.'}, status=400)
 
-        return JsonResponse({'message': 'File uploaded successfully!'}, status=200)
+        try:
+            # Read the file to validate its content
+            df = pd.read_csv(uploaded_file)
+
+            # Check if the target column exists
+            if target_column not in df.columns:
+                return JsonResponse({'error': f'Target column "{target_column}" not found in the uploaded file.'}, status=400)
+
+            # Save the file and dataset details using the RawDataset model
+            raw_dataset = RawDataset.objects.create(
+                utilisateur=utilisateur,
+                file_raw_dataset=uploaded_file,
+                TargetColumn=target_column,
+                datasetCostumName=custom_name
+            )
+
+            return JsonResponse({'message': 'File uploaded successfully!'}, status=200)
+        except Exception as e:
+            return JsonResponse({'error': f'An error occurred while processing the file: {str(e)}'}, status=500)
 
     return render(request, 'uploadDataFile.html')
+
 
 
 @login_required_custom

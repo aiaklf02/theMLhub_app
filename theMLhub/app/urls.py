@@ -20,5 +20,5 @@ urlpatterns = [
     path('chart-chartist', views.chart_chartist, name='chart-chartist'),  # The root URL maps to my_view
     path('chart-sparkline', views.chart_sparkline, name='chart-sparkline'),  # The root URL maps to my_view
     path('chart-peity', views.chart_peity, name='chart-peity'),  # The root URL maps to my_view
-
+    
 ]
