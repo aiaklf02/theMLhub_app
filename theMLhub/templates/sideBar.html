@@ -1,0 +1,65 @@
+{% load static %}
+
+      <!--**********************************
+            Sidebar start
+        ***********************************-->
+        <div class="nk-sidebar">
+            <div class="nk-nav-scroll">
+                <ul class="metismenu" id="menu">
+                    <li class="nav-label">Dashboard</li>
+                    <li>
+                       <a href="{% url 'index' %}">
+                           <i class="icon-speedometer menu-icon"></i><span class="nav-text">Home</span>
+                       </a>
+                    </li>
+
+
+                    <li class="nav-label">Datasets</li>
+                    <li>
+                        <a class="has-arrow" href="#" aria-expanded="false">
+                            <i class="icon-menu menu-icon"></i><span class="nav-text">Files</span>
+                        </a>
+                        <ul aria-expanded="false">
+                            <li><a href="{% url 'uploadDataFile' %}" aria-expanded="false">Upload Data</a></li>
+                            <li><a href="{% url 'uploadedFiles' %}" aria-expanded="false">My DataSets</a></li>
+
+<!--                            <li><a href="{% url 'tablePage' %}" aria-expanded="false">Basic Table</a></li>-->
+<!--                            <li><a href="{% url 'tableData' %}" aria-expanded="false">Data Table</a></li>-->
+
+                        </ul>
+                    </li>
+
+                    <li class="nav-label">ML Models</li>
+                    <li>
+                        <a class="has-arrow" href="#" aria-expanded="false">
+                            <i class="icon-grid menu-icon"></i><span class="nav-text">ML Models</span>
+                        </a>
+                        <ul aria-expanded="false">
+                            <li><a href="{% url 'index' %}">SVM</a></li>
+                            <li><a href="{% url 'index' %}">LightGBM</a></li>
+                            <li><a href="{% url 'index' %}">Decision Tree</a></li>
+                            <li><a href="{% url 'index' %}">Random Forest</a></li>
+                            <li><a href="{% url 'index' %}">Logistic Regression</a></li>
+                            <li><a href="{% url 'index' %}">Linear Regression</a></li>
+                            <li><a href="{% url 'index' %}">KNN</a></li>
+                            <li><a href="{% url 'index' %}">K-means</a></li>
+                            <li><a href="{% url 'index' %}">K-means</a></li>
+                        </ul>
+                    </li>
+
+                    <li class="nav-label">DL Models</li>
+                    <li>
+                        <a class="has-arrow" href="#" aria-expanded="false">
+                            <i class="icon-globe-alt menu-icon"></i><span class="nav-text">Deep Learning</span>
+                        </a>
+                        <ul aria-expanded="false">
+                            <li><a href="{% url 'index' %}">Neural Network</a></li>
+                        </ul>
+                    </li>
+
+                </ul>
+            </div>
+        </div>
+        <!--**********************************
+            Sidebar end
+        ***********************************-->
