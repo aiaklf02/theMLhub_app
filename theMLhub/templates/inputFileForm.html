@@ -1,285 +1,312 @@
-{% load static %}
+  {% load static %}
 
-<style>
-    * {
-  box-sizing: border-box;
-  -moz-box-sizing: border-box;
-  -webkit-box-sizing: border-box;
-}
-
-body {
-  font-family: 'Montserrat', sans-serif;
-}
-
-.wrapper {
-  margin: auto;
-  max-width: 640px;
-  padding-top: 60px;
-  text-align: center;
-}
-
-.container {
-  background-color: #7571f9;
-  padding: 20px;
-  border-radius: 10px;
-  /*border: 0.5px solid rgba(130, 130, 130, 0.25);*/
-  /*box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1),
-              0 0 0 1px rgba(0, 0, 0, 0.1);*/
-}
-
-h1 {
-  color: #ffffff;
-  font-family: 'Varela Round', sans-serif;
-  letter-spacing: -.5px;
-  font-weight: 700;
-  padding-bottom: 10px;
-}
-
-.upload-container {
-  background-color: rgb(239, 239, 239);
-  border-radius: 6px;
-  padding: 10px;
-}
-
-.border-container {
-  border: 5px dashed rgba(198, 198, 198, 0.65);
-/*   border-radius: 4px; */
-  padding: 20px;
-}
-
-.border-container p {
-  color: #130f40;
-  font-weight: 600;
-  font-size: 1.1em;
-  letter-spacing: -1px;
-  margin-top: 30px;
-  margin-bottom: 0;
-  opacity: 0.65;
-}
-
-#file-browser {
-  text-decoration: none;
-  color: rgb(22,42,255);
-  border-bottom: 3px dotted rgba(22, 22, 255, 0.85);
-}
-
-#file-browser:hover {
-  color: rgb(0, 0, 255);
-  border-bottom: 3px dotted rgba(0, 0, 255, 0.85);
-}
-
-.icons fa-4x {
-  color: #95afc0;
-  opacity: 0.55;
-}
-
-
-.modal {
-  position: fixed;
-  z-index: 1000;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  overflow: auto;
-  background-color: rgba(0, 0, 0, 0.4);
-}
-
-.modal-content {
-  background-color: #fefefe;
-  margin: 15% auto;
-  padding: 20px;
-  border: 1px solid #888;
-  width: 50%;
-  border-radius: 10px;
-  text-align: left;
-}
-
-.close-btn {
-  color: #aaa;
-  float: right;
-  font-size: 28px;
-  font-weight: bold;
-  cursor: pointer;
-}
-
-.close-btn:hover,
-.close-btn:focus {
-  color: #7571f9;
-  text-decoration: none;
-  cursor: pointer;
-}
-
-
-.form-group {
-    display: flex;
-    align-items: center;
-    margin-bottom: 20px;
+  <style>
+      * {
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
   }
 
-  .form-group label {
-    flex: 1;
+  body {
+    font-family: 'Montserrat', sans-serif;
+  }
+
+  .wrapper {
+    margin: auto;
+    max-width: 640px;
+    padding-top: 60px;
+    text-align: center;
+  }
+
+  .container {
+    background-color: #7571f9;
+    padding: 20px;
+    border-radius: 10px;
+    /*border: 0.5px solid rgba(130, 130, 130, 0.25);*/
+    /*box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1),
+                0 0 0 1px rgba(0, 0, 0, 0.1);*/
+  }
+
+  h1 {
+    color: #ffffff;
+    font-family: 'Varela Round', sans-serif;
+    letter-spacing: -.5px;
+    font-weight: 700;
+    padding-bottom: 10px;
+  }
+
+  .upload-container {
+    background-color: rgb(239, 239, 239);
+    border-radius: 6px;
+    padding: 10px;
+  }
+
+  .border-container {
+    border: 5px dashed rgba(198, 198, 198, 0.65);
+  /*   border-radius: 4px; */
+    padding: 20px;
+  }
+
+  .border-container p {
+    color: #130f40;
+    font-weight: 600;
+    font-size: 1.1em;
+    letter-spacing: -1px;
+    margin-top: 30px;
+    margin-bottom: 0;
+    opacity: 0.65;
+  }
+
+  #file-browser {
+    text-decoration: none;
+    color: rgb(22,42,255);
+    border-bottom: 3px dotted rgba(22, 22, 255, 0.85);
+  }
+
+  #file-browser:hover {
+    color: rgb(0, 0, 255);
+    border-bottom: 3px dotted rgba(0, 0, 255, 0.85);
+  }
+
+  .icons fa-4x {
+    color: #95afc0;
+    opacity: 0.55;
+  }
+
+
+  .modal {
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.4);
+  }
+
+  .modal-content {
+    background-color: #fefefe;
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 50%;
+    border-radius: 10px;
     text-align: left;
-    margin-right: 10px;
   }
 
-  .form-group input {
-    flex: 2;
-    padding: 5px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-  }
-
-  .form-group button {
-    margin-left: 10px;
-    padding: 5px 15px;
-    background-color: #7571f9;
-    color: white;
-    border: none;
-    border-radius: 4px;
+  .close-btn {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
     cursor: pointer;
   }
 
-  .form-group button:hover {
-    background-color: #5a4fcf;
-  }
-  #buttonSubmit{
-    margin-left: 10px;
-    padding: 5px 15px;
-    background-color: #7571f9;
-    color: white;
-    border: none;
-    border-radius: 4px;
+  .close-btn:hover,
+  .close-btn:focus {
+    color: #7571f9;
+    text-decoration: none;
     cursor: pointer;
-    width:40%;
-    align-self: center;
   }
-</style>
+
+
+  .form-group {
+      display: flex;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      flex: 1;
+      text-align: left;
+      margin-right: 10px;
+    }
+
+    .form-group input {
+      flex: 2;
+      padding: 5px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    .form-group button {
+      margin-left: 10px;
+      padding: 5px 15px;
+      background-color: #7571f9;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .form-group button:hover {
+      background-color: #5a4fcf;
+    }
+    #buttonSubmit{
+      margin-left: 10px;
+      padding: 5px 15px;
+      background-color: #7571f9;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      width:40%;
+      align-self: center;
+    }
+  </style>
 
 
 
 
-<div class="wrapper">
-  <div class="container">
-    <h1>Upload a Dataset</h1>
-    <div class="upload-container">
-      <div class="border-container">
-        <div class="icons fa-4x">
-          <i class="fas fa-file-image" data-fa-transform="shrink-3 down-2 left-6 rotate--45"></i>
-          <i class="fas fa-file-alt" data-fa-transform="shrink-2 up-4"></i>
-          <i class="fas fa-file-pdf" data-fa-transform="shrink-3 down-2 right-6 rotate-45"></i>
+  <div class="wrapper">
+    <div class="container">
+      <h1>Upload a Dataset</h1>
+      <div class="upload-container">
+        <div class="border-container">
+          <div class="icons fa-4x">
+            <i class="fas fa-file-image" data-fa-transform="shrink-3 down-2 left-6 rotate--45"></i>
+            <i class="fas fa-file-alt" data-fa-transform="shrink-2 up-4"></i>
+            <i class="fas fa-file-pdf" data-fa-transform="shrink-3 down-2 right-6 rotate-45"></i>
+          </div>
+          <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+
+          <input type="file" style="display: none" id="file-upload" accept=".csv">
+          <p>Drag and drop files here, or <a onclick="uploadFile()" id="file-browser">browse</a> your computer.</p>
         </div>
-        <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
-
-        <input type="file" style="display: none" id="file-upload" accept=".csv">
-        <p>Drag and drop files here, or <a onclick="uploadFile()" id="file-browser">browse</a> your computer.</p>
       </div>
-      <button id="sbmtbtn" style="display: none" type="submit" class="btn login-form__btn submit w-100 mt-3">Preprocess</button>
     </div>
   </div>
-</div>
 
-<div id="modal" class="modal" style="display: none;">
-  <div class="modal-content">
-    <span class="close-btn" onclick="closeModal()">×</span>
-    <h2>Dataset Details</h2>
-    <br><br>
-    <form id="target-column-form">
-  <div class ="form-group">
-      <label  for="custom-name" >Dataset Name:</label>
-      <input  style="padding:5px 60px;" type="text" id="custom-name" name="custom-name" required>
-  </div>
-      <div class="form-group">
-        <label for="target-column">Target Column:</label>
-      <input type="text" id="target-column" name="target-column"  required>
+  <div id="modal" class="modal" style="display: none;">
+    <div class="modal-content">
+      <span class="close-btn" onclick="closeModal()">×</span>
+      <h2>Dataset Details</h2>
       <br><br>
-      <button type="button"  id ="buttonCheck" onclick="checkTarget()">Check Target</button>
-      </div>
-    </form>
-    <br>
-    <button  id="buttonSubmit" onclick="submitForm()">Submit</button>
+      <form id="target-column-form" method="POST"enctype="multipart/form-data">
+    <div class ="form-group">
+        <label  for="custom-name" >Dataset Name:</label>
+        <input  style="padding:5px 60px;" type="text" id="custom-name" name="custom-name" required>
+    </div>
+        <div class="form-group">
+          <label for="target-column">Target Column:</label>
+        <input type="text" id="target-column" name="target-column"  required>
+        <br><br>
+        <button type="button"  id ="buttonCheck" onclick="checkTarget()">Check Target</button>
+        </div>
+      </form>
+      <br>
+      <button  id="buttonSubmit"  type="submit" onclick="submitForm()">Submit</button>
+    </div>
   </div>
-</div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script>
-let columns = [];
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script>
+  let columns = [];
 
-function uploadFile() {
-  document.getElementById('file-upload').click();
-}
-
-document.getElementById('file-upload').addEventListener('change', ReadFileColumns);
-
-function ReadFileColumns() {
-  const fileInput = document.getElementById('file-upload');
-  const file = fileInput.files[0];
-
-  if (!file) {
-    alert('Please upload a valid file.');
-    return;
+  function uploadFile() {
+    document.getElementById('file-upload').click();
   }
 
-  const fileType = file.type;
-  if (fileType === 'text/csv') {
-    const reader = new FileReader();
-    reader.onload = function (e) {
-      const content = e.target.result;
-      columns = parseCSV(content);
-      if (columns.length > 0) {
-        showModal(columns);
-      } else {
-        alert('No valid columns found. Please check your file.');
-      }
-    };
-    reader.readAsText(file);
-  } else {
-    alert('Invalid file type. Please upload a CSV file.');
-  }
-}
+  document.getElementById('file-upload').addEventListener('change', ReadFileColumns);
 
-function parseCSV(content) {
-  const rows = content.split('\n').filter(row => row.trim() !== '');
-  if (rows.length > 0) {
-    return rows[0].split(',').map(col => col.trim());
-  }
-  return [];
-}
+  function ReadFileColumns() {
+    const fileInput = document.getElementById('file-upload');
+    const file = fileInput.files[0];
 
-function showModal(columns) {
-  const modal = document.getElementById('modal');
-  modal.style.display = 'block';
-}
+    if (!file) {
+      alert('Please upload a valid file.');
+      return;
+    }
 
-function closeModal() {
-  const modal = document.getElementById('modal');
-  modal.style.display = 'none';
-}
-
-function checkTarget() {
-  const targetColumn = document.getElementById('target-column').value.trim();
-  if (columns.includes(targetColumn)) {
-    alert(`Target column "${targetColumn}" exists.`);
-  } else {
-    alert('Target column does not exist. Please enter another.');
-  }
-}
-
-function submitForm() {
-  const customName = document.getElementById('custom-name').value.trim();
-  const targetColumn = document.getElementById('target-column').value.trim();
-
-  if (!customName || !targetColumn) {
-    alert('Please fill all fields.');
-    return;
+    const fileType = file.type;
+    if (fileType === 'text/csv') {
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        const content = e.target.result;
+        columns = parseCSV(content);
+        if (columns.length > 0) {
+          showModal(columns);
+        } else {
+          alert('No valid columns found. Please check your file.');
+        }
+      };
+      reader.readAsText(file);
+    } else {
+      alert('Invalid file type. Please upload a CSV file.');
+    }
   }
 
-  if (!columns.includes(targetColumn)) {
-    alert('Invalid target column. Please check.');
-    return;
+  function parseCSV(content) {
+    const rows = content.split('\n').filter(row => row.trim() !== '');
+    if (rows.length > 0) {
+      return rows[0].split(',').map(col => col.trim());
+    }
+    return [];
   }
 
-  alert(`Dataset "${customName}" with target column "${targetColumn}" submitted successfully.`);
-  closeModal();
+  function showModal(columns) {
+    const modal = document.getElementById('modal');
+    modal.style.display = 'block';
+  }
+
+  function closeModal() {
+    const modal = document.getElementById('modal');
+    modal.style.display = 'none';
+  }
+
+  function checkTarget() {
+    const targetColumn = document.getElementById('target-column').value.trim();
+    if (columns.includes(targetColumn)) {
+      alert(`Target column "${targetColumn}" exists.`);
+    } else {
+      alert('Target column does not exist. Please enter another.');
+    }
+  }
+
+  function submitForm() {
+    const customName = document.getElementById('custom-name').value.trim();
+    const targetColumn = document.getElementById('target-column').value.trim();
+    const fileInput = document.getElementById('file-upload');
+    const file = fileInput.files[0];
+
+    if (!customName || !targetColumn || !file) {
+        alert('Please fill all fields and upload a file.');
+        return;
+    }
+
+    if (!columns.includes(targetColumn)) {
+        alert('Invalid target column. Please check.');
+        return;
+    }
+
+    // Create FormData object to send file with other data
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('custom_name', customName);
+    formData.append('target_column', targetColumn);
+
+    // Send the data to the server via AJAX
+    fetch('', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.error) {
+            alert(data.error);
+        } else {
+            alert(data.message);
+            window.location.href = data.preprocessing_url;
+        }
+    })
+    .catch(error => {
+        alert('An error occurred while uploading the file.');
+    });
 }
-</script>
+
+
+  </script>

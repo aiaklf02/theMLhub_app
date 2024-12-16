@@ -1,6 +1,8 @@
 # my_app/urls.py
 from django.urls import path
 from . import views
+from django.conf import settings
+from django.conf.urls.static import static
 
 
 urlpatterns = [
@@ -21,4 +23,4 @@ urlpatterns = [
     path('chart-sparkline', views.chart_sparkline, name='chart-sparkline'),  # The root URL maps to my_view
     path('chart-peity', views.chart_peity, name='chart-peity'),  # The root URL maps to my_view
     
-]
+]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

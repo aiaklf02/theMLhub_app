@@ -115,7 +115,7 @@ def app_profile(request):
     return render(request, 'app-profile.html')
 
 
-@csrf_exempt
+@csrf_exempt    
 
 
 def uploadDataFile(request):
@@ -128,20 +128,21 @@ def uploadDataFile(request):
         # Validate inputs
         if not uploaded_file:
             return JsonResponse({'error': 'File is required.'}, status=400)
-
         if not target_column:
             return JsonResponse({'error': 'Target column is required.'}, status=400)
-
         if not custom_name:
             return JsonResponse({'error': 'Dataset custom name is required.'}, status=400)
 
-        # Validate file type (accepting only CSV for now)
-        if not uploaded_file.name.endswith('.csv'):
-            return JsonResponse({'error': 'Only CSV files are supported.'}, status=400)
+        # Validate file type (accepting both CSV and Excel)
+        if not (uploaded_file.name.endswith('.csv') or uploaded_file.name.endswith('.xlsx')):
+            return JsonResponse({'error': 'Only CSV and Excel files are supported.'}, status=400)
 
         try:
             # Read the file to validate its content
-            df = pd.read_csv(uploaded_file)
+            if uploaded_file.name.endswith('.csv'):
+                df = pd.read_csv(uploaded_file)
+            else:
+                df = pd.read_excel(uploaded_file)
 
             # Check if the target column exists
             if target_column not in df.columns:
@@ -155,16 +156,17 @@ def uploadDataFile(request):
                 datasetCostumName=custom_name
             )
 
-            return JsonResponse({'message': 'File uploaded successfully!'}, status=200)
+            return JsonResponse({'message': 'File uploaded successfully!', 'preprocessing_url': '/preprocessing/'}, status=200)
+
         except Exception as e:
+            # Log the exception for debugging
+            print(f"Error processing file: {e}")
             return JsonResponse({'error': f'An error occurred while processing the file: {str(e)}'}, status=500)
 
     return render(request, 'uploadDataFile.html')
 
-
-
 @login_required_custom
 def uploadedFiles(request):
     uploadedfilesbyme = RawDataset.objects.filter(utilisateur=request.user)
-    print(f'my uploaded files {str(uploadedfilesbyme)}')
+    print(f'My uploaded files: {uploadedfilesbyme}')
     return render(request, 'uploadedFiles.html', {'files': uploadedfilesbyme})
