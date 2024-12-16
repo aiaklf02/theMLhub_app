@@ -11,7 +11,7 @@ from django.http import HttpResponseRedirect, JsonResponse
 from django.urls import reverse
 from django.contrib.auth.decorators import user_passes_test
 
-from .models import RawDataset
+from .models import RawDataset, PreprocessedDataset
 
 
 def login_required_custom(view_func):
@@ -156,6 +156,17 @@ def uploadDataFile(request):
                 datasetCostumName=custom_name
             )
 
+            # if df:
+            #     # PreprocessedDataset
+            #
+            #     X_train, X_test, y_train, y_test = process_data(df, target_column=target_column)
+            #
+            #     preprocessedDataset = PreprocessedDataset.objects.create(
+            #         raw_dataset=raw_dataset,
+            #         # file_preprocessed_data=
+            #         preprocessedCostumName=custom_name,
+            #     )
+
             return JsonResponse({'message': 'File uploaded successfully!', 'preprocessing_url': '/preprocessing/'}, status=200)
 
         except Exception as e:
@@ -207,9 +218,11 @@ def process_data(df, target_column):
     y = df[target_column]
     #balance the dataset using smote if the data is imbalanced
     if df[target_column].value_counts().min() < 0.6 * df[target_column].value_counts().max():
+
         from imblearn.over_sampling import SMOTE
         smote = SMOTE()
         X, y = smote.fit_resample(df.drop(target_column, axis=1), df[target_column])
+
     from sklearn.model_selection import train_test_split
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
     return X_train, X_test, y_train, y_test
