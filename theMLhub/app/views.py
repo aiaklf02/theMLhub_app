@@ -170,3 +170,54 @@ def uploadedFiles(request):
     uploadedfilesbyme = RawDataset.objects.filter(utilisateur=request.user)
     print(f'My uploaded files: {uploadedfilesbyme}')
     return render(request, 'uploadedFiles.html', {'files': uploadedfilesbyme})
+
+
+
+def process_data(df, target_column):
+    #first check if the target column is categorical or numerical
+    if df[target_column].dtype == 'object':
+        # Convert the target column to numerical using label encoding
+        df[target_column] = df[target_column].astype('category').cat.codes
+    else:
+        # The column is already numerical
+        pass
+    #drop duplicates
+    df = df.drop_duplicates()
+    #drop missing values if data is large 
+    if df.shape[0] > 1000:
+        df = df.dropna()
+    else:
+        #fill missing values with the mean
+        df = df.fillna(df.mean())
+    #detect outliers
+    if df.shape[0] > 1000:
+        #detect outliers using z-score
+        from scipy import stats
+        import numpy as np
+        z = np.abs(stats.zscore(df))
+        df = df[(z < 3).all(axis=1)]
+    else:
+        #detect outliers using IQR
+        Q1 = df.quantile(0.25)
+        Q3 = df.quantile(0.75)
+        IQR = Q3 - Q1
+        df = df[~((df <  (Q1 - 1.5 * IQR)) | (df > (Q3 + 1.5 * IQR))).any(axis=1)]
+     #split the data into features and target
+    X = df.drop(target_column, axis=1)
+    y = df[target_column]
+    #balance the dataset using smote if the data is imbalanced
+    if df[target_column].value_counts().min() < 0.6 * df[target_column].value_counts().max():
+        from imblearn.over_sampling import SMOTE
+        smote = SMOTE()
+        X, y = smote.fit_resample(df.drop(target_column, axis=1), df[target_column])
+    from sklearn.model_selection import train_test_split
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    return X_train, X_test, y_train, y_test
+
+
+
+   
+    
+    
+        
+
