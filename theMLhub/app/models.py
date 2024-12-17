@@ -2,7 +2,13 @@ import os
 
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-
+import pandas as pd 
+import numpy as np
+from scipy import stats
+from sklearn.model_selection import train_test_split
+from imblearn.over_sampling import SMOTE
+from sklearn.preprocessing import StandardScaler
+from django.core.files.storage import default_storage
 
 
 class Utilisateur(AbstractUser):
@@ -27,13 +33,83 @@ class RawDataset(models.Model):
         return self.datasetCostumName
     #load the data from the file
 
-    
+
+from django.http import JsonResponse
 
 class PreprocessedDataset(models.Model):
     raw_dataset = models.ForeignKey(RawDataset, on_delete=models.CASCADE)
     file_preprocessed_data = models.FileField(upload_to='processed_datasets/')
     processed_at = models.DateTimeField(auto_now_add=True)
     preprocessedCostumName = models.CharField(max_length=100, default='PreprocessedDataSetFile', null=True, blank=True)
+
+    def process_data(self, target_column):
+    # Charger le dataset brut
+        raw_file_path = self.raw_dataset.file_raw_dataset.path
+        if not os.path.exists(raw_file_path):
+            raise FileNotFoundError(f"The file {raw_file_path} does not exist.")
+
+        df = pd.read_csv(raw_file_path)
+
+        # Vérifications initiales
+        if target_column not in df.columns:
+            raise ValueError(f"The target column '{target_column}' is not found in the dataset.")
+
+        # Convertir les colonnes cibles catégoriques
+        if df[target_column].dtype == 'object':
+            df[target_column] = df[target_column].astype('category').cat.codes
+
+        df = df.drop_duplicates()
+
+        # Gérer les valeurs manquantes
+        if df.shape[0] > 1000:
+            df = df.dropna()
+        else:
+            df = df.fillna(df.median())
+
+        # Séparer X et y
+        X = df.drop(target_column, axis=1)
+        y = df[target_column]
+
+        # Équilibrage des données avec SMOTE
+        if y.value_counts().min() < 0.6 * y.value_counts().max():
+            smote = SMOTE()
+            X, y = smote.fit_resample(X, y)
+
+        # Séparer les ensembles de données
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+        # Normalisation
+        sc = StandardScaler()
+        X_train = sc.fit_transform(X_train)
+        X_test = sc.transform(X_test)
+
+        # Sauvegarde des ensembles dans un CSV
+        train_data = pd.DataFrame(X_train, columns=X.columns)
+        train_data['target'] = y_train
+        train_data['set'] = 'train'
+
+        test_data = pd.DataFrame(X_test, columns=X.columns)
+        test_data['target'] = y_test
+        test_data['set'] = 'test'
+
+        processed_data = pd.concat([train_data, test_data], ignore_index=True)
+
+        # Création du fichier
+        processed_datasets_dir = os.path.join('media', 'processed_datasets')
+        os.makedirs(processed_datasets_dir, exist_ok=True)
+        processed_file_path = os.path.join(processed_datasets_dir, f'{self.preprocessedCostumName}.csv')
+
+        processed_data.to_csv(processed_file_path, index=False)
+
+        # Sauvegarder dans le modèle
+        with open(processed_file_path, 'rb') as f:
+            self.file_preprocessed_data.save(f'{self.preprocessedCostumName}.csv', f)
+
+     
+
+        return X_train, X_test, y_train, y_test
+
+
 
 
 

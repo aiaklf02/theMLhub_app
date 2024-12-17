@@ -114,10 +114,8 @@ def tableData(request):
 def app_profile(request):
     return render(request, 'app-profile.html')
 
-
+import os
 @csrf_exempt    
-
-
 def uploadDataFile(request):
     if request.method == 'POST':
         uploaded_file = request.FILES.get('file')
@@ -148,6 +146,9 @@ def uploadDataFile(request):
             if target_column not in df.columns:
                 return JsonResponse({'error': f'Target column "{target_column}" not found in the uploaded file.'}, status=400)
 
+            if df.empty:
+                return JsonResponse({'error': 'The dataset is empty.'}, status=400)
+
             # Save the file and dataset details using the RawDataset model
             raw_dataset = RawDataset.objects.create(
                 utilisateur=utilisateur,
@@ -156,18 +157,18 @@ def uploadDataFile(request):
                 datasetCostumName=custom_name
             )
 
-            # if df:
-            #     # PreprocessedDataset
-            #
-            #     X_train, X_test, y_train, y_test = process_data(df, target_column=target_column)
-            #
-            #     preprocessedDataset = PreprocessedDataset.objects.create(
-            #         raw_dataset=raw_dataset,
-            #         # file_preprocessed_data=
-            #         preprocessedCostumName=custom_name,
-            #     )
+            file_path = raw_dataset.file_raw_dataset.path  
+            print(f"File path: {file_path}")
+            if not os.path.exists(file_path):
+                return JsonResponse({'error': f'File path {file_path} does not exist.'}, status=500)
 
-            return JsonResponse({'message': 'File uploaded successfully!', 'preprocessing_url': '/preprocessing/'}, status=200)
+            # Process the data
+            preprocessed_dataset = PreprocessedDataset.objects.create(raw_dataset=raw_dataset)
+            X_train, X_test, y_train, y_test = preprocessed_dataset.process_data(target_column)
+
+            # You can also return a URL for the preprocessed dataset if needed
+            return JsonResponse({'message': 'File uploaded and processed successfully!', 
+                                  'preprocessing_url': '/preprocessing/'}, status=200)
 
         except Exception as e:
             # Log the exception for debugging
@@ -176,6 +177,9 @@ def uploadDataFile(request):
 
     return render(request, 'uploadDataFile.html')
 
+
+
+
 @login_required_custom
 def uploadedFiles(request):
     uploadedfilesbyme = RawDataset.objects.filter(utilisateur=request.user)
@@ -183,49 +187,6 @@ def uploadedFiles(request):
     return render(request, 'uploadedFiles.html', {'files': uploadedfilesbyme})
 
 
-
-def process_data(df, target_column):
-    #first check if the target column is categorical or numerical
-    if df[target_column].dtype == 'object':
-        # Convert the target column to numerical using label encoding
-        df[target_column] = df[target_column].astype('category').cat.codes
-    else:
-        # The column is already numerical
-        pass
-    #drop duplicates
-    df = df.drop_duplicates()
-    #drop missing values if data is large 
-    if df.shape[0] > 1000:
-        df = df.dropna()
-    else:
-        #fill missing values with the mean
-        df = df.fillna(df.mean())
-    #detect outliers
-    if df.shape[0] > 1000:
-        #detect outliers using z-score
-        from scipy import stats
-        import numpy as np
-        z = np.abs(stats.zscore(df))
-        df = df[(z < 3).all(axis=1)]
-    else:
-        #detect outliers using IQR
-        Q1 = df.quantile(0.25)
-        Q3 = df.quantile(0.75)
-        IQR = Q3 - Q1
-        df = df[~((df <  (Q1 - 1.5 * IQR)) | (df > (Q3 + 1.5 * IQR))).any(axis=1)]
-     #split the data into features and target
-    X = df.drop(target_column, axis=1)
-    y = df[target_column]
-    #balance the dataset using smote if the data is imbalanced
-    if df[target_column].value_counts().min() < 0.6 * df[target_column].value_counts().max():
-
-        from imblearn.over_sampling import SMOTE
-        smote = SMOTE()
-        X, y = smote.fit_resample(df.drop(target_column, axis=1), df[target_column])
-
-    from sklearn.model_selection import train_test_split
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-    return X_train, X_test, y_train, y_test
 
 
 
