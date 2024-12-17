@@ -101,10 +101,8 @@ class PreprocessedDataset(models.Model):
 
         processed_data.to_csv(processed_file_path, index=False)
 
-        # Sauvegarder dans le modèle
         with open(processed_file_path, 'rb') as f:
             self.file_preprocessed_data.save(f'{self.preprocessedCostumName}.csv', f)
-
      
 
         return X_train, X_test, y_train, y_test
