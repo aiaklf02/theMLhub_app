@@ -122,15 +122,13 @@ import os
 def uploadDataFile(request):
     if request.method == 'POST':
         uploaded_file = request.FILES.get('file')
-        target_column = request.POST.get('target_column')
+        target_column = request.POST.get('target_column')  # Optional for unsupervised
         custom_name = request.POST.get('custom_name')
         utilisateur = request.user  # Assuming the user is authenticated
 
         # Validate inputs
         if not uploaded_file:
             return JsonResponse({'error': 'File is required.'}, status=400)
-        if not target_column:
-            return JsonResponse({'error': 'Target column is required.'}, status=400)
         if not custom_name:
             return JsonResponse({'error': 'Dataset custom name is required.'}, status=400)
 
@@ -141,29 +139,31 @@ def uploadDataFile(request):
         try:
             # Handle CSV and Excel files
             if uploaded_file.name.endswith('.csv'):
-                # Detect file encoding (use chardet to auto-detect encoding)
+                # Detect file encoding
                 raw_data = uploaded_file.read(1000)
                 result = chardet.detect(raw_data)
                 encoding = result['encoding'] or 'ISO-8859-1'  # Default to 'ISO-8859-1' if detection fails
                 uploaded_file.seek(0)  # Reset file pointer after reading
-                df = pd.read_csv(uploaded_file, encoding=encoding, errors='ignore')  # Handle CSV encoding
+                df = pd.read_csv(uploaded_file, encoding=encoding)
             elif uploaded_file.name.endswith('.xlsx'):
                 df = pd.read_excel(uploaded_file, engine='openpyxl')  # For newer Excel files
             elif uploaded_file.name.endswith('.xls'):
                 df = pd.read_excel(uploaded_file, engine='xlrd')  # For older Excel files
 
-            # Check if the target column exists
-            if target_column not in df.columns:
-                return JsonResponse({'error': f'Target column "{target_column}" not found in the uploaded file.'}, status=400)
-
+            # Check if the dataset is empty
             if df.empty:
                 return JsonResponse({'error': 'The dataset is empty.'}, status=400)
+
+            # For supervised learning, validate target column
+            if target_column:
+                if target_column not in df.columns:
+                    return JsonResponse({'error': f'Target column "{target_column}" not found in the uploaded file.'}, status=400)
 
             # Save the file and dataset details using the RawDataset model
             raw_dataset = RawDataset.objects.create(
                 utilisateur=utilisateur,
                 file_raw_dataset=uploaded_file,
-                TargetColumn=target_column,
+                TargetColumn=target_column if target_column else None,
                 datasetCostumName=custom_name
             )
 
@@ -174,15 +174,24 @@ def uploadDataFile(request):
 
             # Process the data
             preprocessed_dataset = PreprocessedDataset.objects.create(raw_dataset=raw_dataset)
-            try:
-                X_train, X_test, y_train, y_test = preprocessed_dataset.process_data(target_column)
-            except Exception as e:
-                print(f"Error during data processing: {e}")
-                return JsonResponse({'error': 'An error occurred during data preprocessing.'}, status=500)
+            if target_column:
+                # Supervised workflow
+                try:
+                    X_train, X_test, y_train, y_test = preprocessed_dataset.process_data(target_column)
+                except Exception as e:
+                    print(f"Error during supervised data processing: {e}")
+                    return JsonResponse({'error': 'An error occurred during data preprocessing.'}, status=500)
+            else:
+                # Unsupervised workflow
+                try:
+                    processed_data = preprocessed_dataset.process_data_unsupervised()
+                except Exception as e:
+                    print(f"Error during unsupervised data processing: {e}")
+                    return JsonResponse({'error': 'An error occurred during unsupervised data processing.'}, status=500)
 
-            # You can also return a URL for the preprocessed dataset if needed
-            return JsonResponse({'message': 'File uploaded and processed successfully!', 
-                                  'preprocessing_url': '/preprocessing/'}, status=200)
+            # Return a success response
+            return JsonResponse({'message': 'File uploaded and processed successfully!',
+                                 'preprocessing_url': '/preprocessing/'}, status=200)
 
         except Exception as e:
             # Log the exception for debugging
@@ -190,7 +199,6 @@ def uploadDataFile(request):
             return JsonResponse({'error': f'An error occurred while processing the file: {str(e)}'}, status=500)
 
     return render(request, 'uploadDataFile.html')
-
 
 
 @login_required_custom

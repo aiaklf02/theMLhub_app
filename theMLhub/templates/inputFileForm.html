@@ -280,53 +280,58 @@
   }
 
   function submitForm() {
-    const customName = document.getElementById('custom-name').value.trim();
-    const targetColumn = document.getElementById('target-column').value.trim();
-    const fileInput = document.getElementById('file-upload');
-    const file = fileInput.files[0];
-    const learningType = document.querySelector('input[name="learning-type"]:checked');
+  const customName = document.getElementById('custom-name').value.trim();
+  const targetColumn = document.getElementById('target-column').value.trim();
+  const fileInput = document.getElementById('file-upload');
+  const file = fileInput.files[0];
+  const learningType = document.querySelector('input[name="learning-type"]:checked');
 
-    if (!customName || !file || !learningType) {
-      alert('Please fill all fields and upload a file.');
-      return;
-    }
-
-    if (learningType.value === 'supervised' && !targetColumn) {
-      alert('Please provide a target column for supervised learning.');
-      return;
-    }
-
-    if (learningType.value === 'supervised' && !columns.includes(targetColumn)) {
-      alert('Invalid target column. Please check.');
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('custom_name', customName);
-    formData.append('target_column', targetColumn);
-    formData.append('learning_type', learningType.value);
-
-    fetch('', {
-      method: 'POST',
-      body: formData,
-      headers: {
-        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
-      }
-    })
-    .then(response => response.json())
-    .then(data => {
-      if (data.error) {
-        alert(data.error);
-      } else {
-        alert(data.message);
-        window.location.href = data.preprocessing_url;
-      }
-    })
-    .catch(error => {
-      alert('An error occurred while uploading the file.');
-    });
+  if (!customName || !file || !learningType) {
+    alert('Please fill all fields and upload a file.');
+    return;
   }
+
+  if (learningType.value === 'supervised' && !targetColumn) {
+    alert('Please provide a target column for supervised learning.');
+    return;
+  }
+
+  if (learningType.value === 'supervised' && !columns.includes(targetColumn)) {
+    alert('Invalid target column. Please check.');
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('custom_name', customName);
+  formData.append('target_column', targetColumn);
+  formData.append('learning_type', learningType.value);
+
+  fetch('', {
+    method: 'POST',
+    body: formData,
+    headers: {
+      'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+    }
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.error) {
+      alert(data.error);
+    } else {
+      alert(data.message);
+      window.location.href = data.preprocessing_url;
+      
+      // Reset form and close modal
+      document.getElementById('target-column-form').reset(); // Reset the form fields
+      closeModal(); // Close the modal
+      document.getElementById('file-upload').value = ''; // Clear file input
+    }
+  })
+  .catch(error => {
+    alert('An error occurred while uploading the file.');
+  });
+}
 
   // Event listener for radio buttons to toggle visibility and requirements
   document.querySelectorAll('input[name="learning-type"]').forEach(radio => {

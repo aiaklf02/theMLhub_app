@@ -28,7 +28,7 @@ class RawDataset(models.Model):
     file_raw_dataset = models.FileField(upload_to='raw_datasets/')
     datasetCostumName = models.CharField(max_length=100, default='DataSetFile' ,null=True, blank=True)
     uploaded_at = models.DateTimeField(auto_now_add=True)
-    TargetColumn = models.CharField(max_length=255, null=False, default='target')
+    TargetColumn = models.CharField(max_length=255, null=True,blank=True,default='target')
     def __str__(self):
         return self.datasetCostumName
     #load the data from the file
@@ -114,7 +114,50 @@ class PreprocessedDataset(models.Model):
      
         return X_train, X_test, y_train, y_test
 
+    def process_data_unsupervised(self):
+        # Load the raw dataset
+        raw_file_path = self.raw_dataset.file_raw_dataset.path
+        if not os.path.exists(raw_file_path):
+            raise FileNotFoundError(f"The file {raw_file_path} does not exist.")
+        
+        # Read the dataset based on file type++-
+        if raw_file_path.endswith('.csv'):
+            df = pd.read_csv(raw_file_path)
+        elif raw_file_path.endswith('.xls') or raw_file_path.endswith('.xlsx'):
+            df = pd.read_excel(raw_file_path, engine='openpyxl' if raw_file_path.endswith('.xlsx') else 'xlrd')
+        else:
+            raise ValueError(f"Unsupported file type: {raw_file_path}")
 
+        # Drop duplicates
+        df = df.drop_duplicates()
+
+        # Handle missing values
+        for col in df.columns:
+            if df[col].dtype == 'object':  # For categorical columns
+                df[col] = df[col].fillna(df[col].mode()[0])
+            else:  # For numerical columns
+                df[col] = df[col].fillna(df[col].median())
+
+        # Encode categorical variables
+        for col in df.select_dtypes(include=['object']).columns:
+            df[col] = df[col].astype('category').cat.codes
+
+        # Normalize numerical columns
+        numeric_cols = df.select_dtypes(include=['float64', 'int64']).columns
+        scaler = StandardScaler()
+        df[numeric_cols] = scaler.fit_transform(df[numeric_cols])
+
+        # Save the processed dataset
+        processed_datasets_dir = os.path.join('media', 'processed_datasets')
+        os.makedirs(processed_datasets_dir, exist_ok=True)
+        processed_file_path = os.path.join(processed_datasets_dir, f'{self.preprocessedCostumName}_unsupervised.csv')
+
+        df.to_csv(processed_file_path, index=False)
+
+        with open(processed_file_path, 'rb') as f:
+            self.file_preprocessed_data.save(f'{self.preprocessedCostumName}_unsupervised.csv', f)
+
+        return df
 
 
 class AiModel(models.Model):
