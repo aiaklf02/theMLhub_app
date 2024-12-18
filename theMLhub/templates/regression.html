@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+{% load static %}
+
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Regression Models</title>
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'images/favicon.png' %}">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.10/css/all.css">
+    <link href="{% static 'css/style.css' %}" rel="stylesheet">
+</head>
+
+<body>
+
+    <div id="preloader">
+        <div class="loader">
+            <svg class="circular" viewBox="25 25 50 50">
+                <circle class="path" cx="50" cy="50" r="20" fill="none" stroke-width="3" stroke-miterlimit="10" />
+            </svg>
+        </div>
+    </div>
+
+    <div id="main-wrapper" style="min-height: 130vh !important;">
+
+        {% include "navbar.html" %}
+        {% include "sideBar.html" %}
+
+        <div class="content-body">
+
+            <div class="container-fluid">
+                <h3 style="padding: 10px">Choose a Machine Learning Model To Train</h3>
+                <div class="row">
+
+                    <div class="col-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="text-center">
+                                    <span class="display-5">
+                                        <i class="fas fa-file-alt" data-fa-transform="shrink-2 up-4"></i>
+                                    </span>
+                                    <h2 class="mt-1">Linear Regression</h2>
+                                    <p>Regression</p>
+                                    <button class="btn gradient-8 btn-md border-0 btn-rounded px-5"
+                                            onclick="openModal(this)">
+                                        Train
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="text-center">
+                                    <span class="display-5">
+                                        <i class="fas fa-file-alt" data-fa-transform="shrink-2 up-4"></i>
+                                    </span>
+                                    <h2 class="mt-1">Logistic Regression</h2>
+                                    <p>Binary Classification</p>
+                                    <button class="btn gradient-8 btn-md border-0 btn-rounded px-5"
+                                            onclick="openModal(this)">
+                                        Train
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        {% include "footer.html" %}
+    </div>
+
+    <!-- Modal -->
+<div class="modal" id="trainModal" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="trainModalLabel">Train Model</h5>
+                <button type="button" class="btn-close" onclick="closeModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <form id="trainForm">
+                    <div class="mb-3">
+                        <label for="modelName" class="form-label">Model</label>
+                        <input type="text" class="form-control" id="modelName" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label for="ChosentrainingFile" class="form-label">Select Training Dataset</label>
+<!--                        <input type="file" class="form-control" id="trainingFile" required>-->
+                        <select style="width: 100% ; padding: 6px" name="ChosentrainingFile" id="ChosentrainingFile">
+                        {% for file in processeddatasets %}
+                          <option value="{{file.id}}">{{file.raw_dataset.datasetCostumName}}</option>
+                        {% endfor %}
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModal()">Close</button>
+                <button type="button" class="btn btn-primary" onclick="startTraining()">Start Training</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <style>
+        .modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: none; /* Hidden by default */
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-dialog {
+    background: transparent;
+    border-radius: 5px;
+    width: 100%;
+    max-width: 500px;
+    padding: 20px;
+}
+
+.modal-content {
+    position: relative;
+    background: white;
+    border-radius: 10px;
+}
+
+.modal-header,
+.modal-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.btn-close {
+    background: transparent;
+    border: none;
+    font-size: 1.5rem;
+    line-height: 1;
+    cursor: pointer;
+}
+
+    </style>
+
+    <script>
+      function openModal(clickedmodel) {
+    modelNameElement = clickedmodel.parentNode.querySelector('h2');
+    document.getElementById('modelName').value = modelNameElement.innerText;
+    const modal = document.getElementById('trainModal');
+    modal.style.display = 'flex'; // Show modal
+}
+
+function closeModal() {
+    const modal = document.getElementById('trainModal');
+    modal.style.display = 'none'; // Hide modal
+}
+
+function startTraining() {
+    const fileInput = document.getElementById('trainingFile');
+    if (fileInput.files.length === 0) {
+        alert('Please select a file to train.');
+        return;
+    }
+    const modelName = document.getElementById('modelName').value;
+    const file = fileInput.files[0];
+
+    alert(`Training ${modelName} with file: ${file.name}`);
+    closeModal();
+}
+
+
+
+    </script>
+
+
+
+
+    <script src="{% static 'plugins/common/common.min.js' %}"></script>
+    <script src="{% static 'js/custom.min.js' %}"></script>
+    <script src="{% static 'js/settings.js' %}"></script>
+    <script src="{% static 'js/gleek.js' %}"></script>
+    <script src="{% static 'js/styleSwitcher.js' %}"></script>
+
+
+</body>
+
+</html>

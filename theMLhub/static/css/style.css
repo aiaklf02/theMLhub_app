@@ -14039,6 +14039,10 @@ html[dir="rtl"] [direction="rtl"][data-sidebar-style="compact"]:not([data-layout
 [data-nav-headerbg="color_10"] .nav-header {
   background-color: #558b2f !important; }
 
+[data-nav-headerbg="color_11"] .nav-header {
+  background-color: #8154f9 !important; }
+
+
 [data-headerbg="color_1"] .header {
   background-color: #fff; }
 
