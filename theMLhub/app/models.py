@@ -77,12 +77,14 @@ class PreprocessedDataset(models.Model):
         # Séparer X et y
         X = df.drop(target_column, axis=1)
         y = df[target_column]
-
-        # Équilibrage des données avec SMOTE
-        if y.value_counts().min() < 0.6 * y.value_counts().max():
-            smote = SMOTE()
-            X, y = smote.fit_resample(X, y)
-
+        if pd.api.types.is_numeric_dtype(y):
+            pass
+        else:
+              # Équilibrage des données avec SMOTE
+            if y.value_counts().min() < 0.6 * y.value_counts().max():
+                smote = SMOTE()
+                X, y = smote.fit_resample(X, y)
+            
         # Séparer les ensembles de données
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
