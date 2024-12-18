@@ -50,7 +50,7 @@
 
 
             <div class="container-fluid">
-                <h2 style="padding: 10px">My Raw DataSets</h2>
+                <h3 style="padding: 10px">My Raw DataSets</h3>
                 <div class="row">
 <!-- loop over uploaded files by that user -->
                    {% for file in uploadedfiles %}
@@ -61,8 +61,8 @@
                                     <span class="display-5">
                                         <i class="fas fa-file-alt" data-fa-transform="shrink-2 up-4"></i>
                                         </span>
-                                    <h2 class="mt-3">{{ file.datasetCostumName }}</h2>
-                                    <p>Uploaded: {{file.uploaded_at}}</p><a href="#" class="btn gradient-1 btn-lg border-0 btn-rounded px-5">Preproccess
+                                    <h4 class="mt-1">{{ file.datasetCostumName }}</h4>
+                                    <p>Uploaded: {{file.uploaded_at}}</p><a href="#" class="btn gradient-1 btn-md border-0 btn-rounded px-5">Preproccess
                                         now</a>
                                 </div>
                             </div>
@@ -71,7 +71,7 @@
 
                     {% endfor %}
                 </div>
-                <h2  style="padding: 10px" >My Pre-Proccessed DataSets</h2>
+                <h3  style="padding: 10px" >My Pre-Proccessed DataSets</h3>
                 <div class="row">
 <!-- loop over uploaded files by that user -->
                    {% for file in processeddatasets %}
@@ -82,8 +82,8 @@
                                     <span class="display-5">
                                         <i class="fas fa-file-alt" data-fa-transform="shrink-2 up-4"></i>
                                         </span>
-                                    <h2 class="mt-3">{{ file.raw_dataset.datasetCostumName }}</h2>
-                                    <p>Proccessed: {{file.processed_at}}</p><a href="#" class="btn gradient-2 btn-lg border-0 btn-rounded px-5">Train a Model
+                                    <h4 class="mt-1">{{ file.raw_dataset.datasetCostumName }}</h4>
+                                    <p>Proccessed: {{file.processed_at}}</p><a href="#" class="btn gradient-2 btn-md border-0 btn-rounded px-5">Train a Model
                                         now</a>
                                 </div>
                             </div>
