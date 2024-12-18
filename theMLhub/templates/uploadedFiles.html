@@ -50,6 +50,32 @@
 
 
             <div class="container-fluid">
+
+
+
+                 <h3  style="padding: 10px" >My Pre-Proccessed DataSets</h3>
+                <div class="row">
+<!-- loop over uploaded files by that user -->
+                   {% for file in processeddatasets %}
+                 <div class="col-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="text-center">
+                                    <span class="display-5">
+                                        <i class="fas fa-file-alt" data-fa-transform="shrink-2 up-4"></i>
+                                        </span>
+                                    <h4 class="mt-1">{{ file.raw_dataset.datasetCostumName }}</h4>
+                                    <p>Proccessed: {{file.processed_at}}</p><a href="#" data-value="{{file.id}}" class="btn gradient-8 btn-md border-0 btn-rounded px-5">Use For Training</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% endfor %}
+                </div>
+
+
+
                 <h3 style="padding: 10px">My Raw DataSets</h3>
                 <div class="row">
 <!-- loop over uploaded files by that user -->
@@ -62,8 +88,8 @@
                                         <i class="fas fa-file-alt" data-fa-transform="shrink-2 up-4"></i>
                                         </span>
                                     <h4 class="mt-1">{{ file.datasetCostumName }}</h4>
-                                    <p>Uploaded: {{file.uploaded_at}}</p><a href="#" class="btn gradient-1 btn-md border-0 btn-rounded px-5">Preproccess
-                                        now</a>
+                                    <p>Uploaded: {{file.uploaded_at}}</p>
+                                    <a href="#" class="btn gradient-1 btn-md border-0 btn-rounded px-5">Delete</a>
                                 </div>
                             </div>
                         </div>
@@ -71,27 +97,7 @@
 
                     {% endfor %}
                 </div>
-                <h3  style="padding: 10px" >My Pre-Proccessed DataSets</h3>
-                <div class="row">
-<!-- loop over uploaded files by that user -->
-                   {% for file in processeddatasets %}
-                 <div class="col-3">
-                        <div class="card">
-                            <div class="card-body">
-                                <div class="text-center">
-                                    <span class="display-5">
-                                        <i class="fas fa-file-alt" data-fa-transform="shrink-2 up-4"></i>
-                                        </span>
-                                    <h4 class="mt-1">{{ file.raw_dataset.datasetCostumName }}</h4>
-                                    <p>Proccessed: {{file.processed_at}}</p><a href="#" class="btn gradient-2 btn-md border-0 btn-rounded px-5">Train a Model
-                                        now</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
 
-                    {% endfor %}
-                </div>
 
 
             </div>

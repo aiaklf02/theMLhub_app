@@ -192,23 +192,36 @@ def uploadDataFile(request):
     return render(request, 'uploadDataFile.html')
 
 
+def getUploadedDatasets(request):
+    uploadedfiles = RawDataset.objects.filter(utilisateur=request.user)
+    processeddatasets = PreprocessedDataset.objects.filter(raw_dataset__utilisateur=request.user)
+    return uploadedfiles, processeddatasets
 
 @login_required_custom
 def uploadedFiles(request):
-    uploadedfiles = RawDataset.objects.filter(utilisateur=request.user)
-    processeddatasets = PreprocessedDataset.objects.filter(raw_dataset__utilisateur=request.user)
-
-
-    return render(request, 'uploadedFiles.html', {'uploadedfiles': uploadedfiles,'processeddatasets':processeddatasets})
+    uploadedfiles, processeddatasets = getUploadedDatasets(request)
+    form = {'uploadedfiles': uploadedfiles,'processeddatasets':processeddatasets}
+    return render(request, 'uploadedFiles.html', form)
 
 @login_required_custom
 def classification(request):
-    return render(request, 'classification.html')
+    uploadedfiles, processeddatasets = getUploadedDatasets(request)
+    form = {'uploadedfiles': uploadedfiles,'processeddatasets':processeddatasets}
+
+    return render(request, 'classification.html', form)
 
 @login_required_custom
 def regression(request):
-    return render(request, 'regression.html')
+    uploadedfiles, processeddatasets = getUploadedDatasets(request)
+    form = {'uploadedfiles': uploadedfiles,'processeddatasets':processeddatasets}
+
+    return render(request, 'regression.html', form)
 
 @login_required_custom
 def clustering(request):
-    return render(request, 'clustering.html')
+    uploadedfiles, processeddatasets = getUploadedDatasets(request)
+    form = {'uploadedfiles': uploadedfiles,'processeddatasets':processeddatasets}
+
+    return render(request, 'clustering.html', form)
+
+

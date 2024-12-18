@@ -50,7 +50,7 @@
 
 
             <div class="container-fluid">
-                <h3 style="padding: 10px">Choose an UnSupervised clustering Model To Train</h3>
+                <h3 style="padding: 10px">Choose a Machine Learning Model To Train</h3>
                 <div class="row">
 <!-- loop over uploaded files by that user -->
                  <div class="col-3 ">
@@ -61,7 +61,11 @@
                                         <i class="fas fa-file-alt" data-fa-transform="shrink-2 up-4"></i>
                                         </span>
                                     <h2 class="mt-3">K-Means</h2>
-                                    <p>Clustering</p><a href="#" class="btn gradient-1 btn-lg border-0 btn-rounded px-5">Train</a>
+                                    <p>Clustering</p>
+                                    <button class="btn gradient-1 btn-md border-0 btn-rounded px-5"
+                                            onclick="openModal(this)">
+                                        Train
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -69,28 +73,6 @@
 
                 </div>
 
-
-<!--                <h2  style="padding: 10px" >Deep learning Models</h2>-->
-<!--                <div class="row">-->
-<!--                &lt;!&ndash; loop over uploaded files by that user &ndash;&gt;-->
-<!--                   {% for file in processeddatasets %}-->
-<!--                 <div class="col-3">-->
-<!--                        <div class="card">-->
-<!--                            <div class="card-body">-->
-<!--                                <div class="text-center">-->
-<!--                                    <span class="display-5">-->
-<!--                                        <i class="fas fa-file-alt" data-fa-transform="shrink-2 up-4"></i>-->
-<!--                                        </span>-->
-<!--                                    <h2 class="mt-3">{{ file.raw_dataset.datasetCostumName }}</h2>-->
-<!--                                    <p>Proccessed: {{file.processed_at}}</p><a href="#" class="btn gradient-2 btn-lg border-0 btn-rounded px-5">Train a Model-->
-<!--                                        now</a>-->
-<!--                                </div>-->
-<!--                            </div>-->
-<!--                        </div>-->
-<!--                    </div>-->
-
-<!--                    {% endfor %}-->
-<!--                </div>-->
 
 
             </div>
@@ -108,6 +90,117 @@
     <!--**********************************
         Main wrapper end
     ***********************************-->
+
+        <!-- Modal -->
+<div class="modal" id="trainModal" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="trainModalLabel">Train Model</h5>
+                <button type="button" class="btn-close" onclick="closeModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <form id="trainForm">
+                    <div class="mb-3">
+                        <label for="modelName" class="form-label">Model</label>
+                        <input type="text" class="form-control" id="modelName" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label for="ChosentrainingFile" class="form-label">Select Training Dataset</label>
+<!--                        <input type="file" class="form-control" id="trainingFile" required>-->
+                        <select style="width: 100% ; padding: 6px" name="ChosentrainingFile" id="ChosentrainingFile">
+                        {% for file in processeddatasets %}
+                          <option value="{{file.id}}">{{file.raw_dataset.datasetCostumName}}</option>
+                        {% endfor %}
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModal()">Close</button>
+                <button type="button" class="btn btn-primary" onclick="startTraining()">Start Training</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <style>
+        .modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: none; /* Hidden by default */
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-dialog {
+    background: transparent;
+    border-radius: 5px;
+    width: 100%;
+    max-width: 500px;
+    padding: 20px;
+}
+
+.modal-content {
+    position: relative;
+    background: white;
+    border-radius: 10px;
+}
+
+.modal-header,
+.modal-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.btn-close {
+    background: transparent;
+    border: none;
+    font-size: 1.5rem;
+    line-height: 1;
+    cursor: pointer;
+}
+
+    </style>
+
+
+    <script>
+      function openModal(clickedmodel) {
+    modelNameElement = clickedmodel.parentNode.querySelector('h2');
+    document.getElementById('modelName').value = modelNameElement.innerText;
+    const modal = document.getElementById('trainModal');
+    modal.style.display = 'flex'; // Show modal
+}
+
+function closeModal() {
+    const modal = document.getElementById('trainModal');
+    modal.style.display = 'none'; // Hide modal
+}
+
+function startTraining() {
+    const fileInput = document.getElementById('trainingFile');
+    if (fileInput.files.length === 0) {
+        alert('Please select a file to train.');
+        return;
+    }
+    const modelName = document.getElementById('modelName').value;
+    const file = fileInput.files[0];
+
+    alert(`Training ${modelName} with file: ${file.name}`);
+    closeModal();
+}
+
+
+
+    </script>
+
+
 
     <!--**********************************
         Scripts
