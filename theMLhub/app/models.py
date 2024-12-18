@@ -43,28 +43,36 @@ class PreprocessedDataset(models.Model):
     preprocessedCostumName = models.CharField(max_length=100, default='PreprocessedDataSetFile', null=True, blank=True)
 
     def process_data(self, target_column):
-    # Charger le dataset brut
+        # Charger le dataset brut
         raw_file_path = self.raw_dataset.file_raw_dataset.path
         if not os.path.exists(raw_file_path):
             raise FileNotFoundError(f"The file {raw_file_path} does not exist.")
-
-        df = pd.read_csv(raw_file_path)
+        
+        # Vérifier l'extension du fichier pour choisir la méthode de lecture appropriée
+        if raw_file_path.endswith('.csv'):
+            df = pd.read_csv(raw_file_path)
+        elif raw_file_path.endswith('.xls') or raw_file_path.endswith('.xlsx'):
+            df = pd.read_excel(raw_file_path, engine='openpyxl' if raw_file_path.endswith('.xlsx') else 'xlrd')
+        else:
+            raise ValueError(f"Unsupported file type: {raw_file_path}")
 
         # Vérifications initiales
         if target_column not in df.columns:
             raise ValueError(f"The target column '{target_column}' is not found in the dataset.")
-
+        
         # Convertir les colonnes cibles catégoriques
         if df[target_column].dtype == 'object':
             df[target_column] = df[target_column].astype('category').cat.codes
 
+        # Enlever les doublons
         df = df.drop_duplicates()
 
-        # Gérer les valeurs manquantes
-        if df.shape[0] > 1000:
-            df = df.dropna()
-        else:
-            df = df.fillna(df.median())
+        # Gérer les valeurs manquantes - Traitement séparé pour les colonnes numériques et catégoriques
+        for col in df.columns:
+            if df[col].dtype == 'object':  # Si la colonne est catégorique
+                df[col] = df[col].fillna(df[col].mode()[0])  # Remplacer les NaN par la valeur la plus fréquente
+            else:  # Si la colonne est numérique
+                df[col] = df[col].fillna(df[col].median())  # Remplacer les NaN par la médiane
 
         # Séparer X et y
         X = df.drop(target_column, axis=1)
@@ -78,10 +86,11 @@ class PreprocessedDataset(models.Model):
         # Séparer les ensembles de données
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-        # Normalisation
+        # Normalisation (seulement pour les colonnes numériques)
+        numeric_cols = X.select_dtypes(include=['float64', 'int64']).columns  # Sélection des colonnes numériques
         sc = StandardScaler()
-        X_train = sc.fit_transform(X_train)
-        X_test = sc.transform(X_test)
+        X_train[numeric_cols] = sc.fit_transform(X_train[numeric_cols])
+        X_test[numeric_cols] = sc.transform(X_test[numeric_cols])
 
         # Sauvegarde des ensembles dans un CSV
         train_data = pd.DataFrame(X_train, columns=X.columns)
@@ -94,7 +103,6 @@ class PreprocessedDataset(models.Model):
 
         processed_data = pd.concat([train_data, test_data], ignore_index=True)
 
-        # Création du fichier
         processed_datasets_dir = os.path.join('media', 'processed_datasets')
         os.makedirs(processed_datasets_dir, exist_ok=True)
         processed_file_path = os.path.join(processed_datasets_dir, f'{self.preprocessedCostumName}.csv')
@@ -104,9 +112,7 @@ class PreprocessedDataset(models.Model):
         with open(processed_file_path, 'rb') as f:
             self.file_preprocessed_data.save(f'{self.preprocessedCostumName}.csv', f)
      
-
         return X_train, X_test, y_train, y_test
-
 
 
 

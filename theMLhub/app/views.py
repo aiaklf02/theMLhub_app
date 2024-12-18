@@ -114,8 +114,11 @@ def tableData(request):
 def app_profile(request):
     return render(request, 'app-profile.html')
 
+import chardet 
+
 import os
 @csrf_exempt    
+
 def uploadDataFile(request):
     if request.method == 'POST':
         uploaded_file = request.FILES.get('file')
@@ -132,15 +135,22 @@ def uploadDataFile(request):
             return JsonResponse({'error': 'Dataset custom name is required.'}, status=400)
 
         # Validate file type (accepting both CSV and Excel)
-        if not (uploaded_file.name.endswith('.csv') or uploaded_file.name.endswith('.xlsx')):
+        if not (uploaded_file.name.endswith('.csv') or uploaded_file.name.endswith('.xlsx') or uploaded_file.name.endswith('.xls')):
             return JsonResponse({'error': 'Only CSV and Excel files are supported.'}, status=400)
 
         try:
-            # Read the file to validate its content
+            # Handle CSV and Excel files
             if uploaded_file.name.endswith('.csv'):
-                df = pd.read_csv(uploaded_file)
-            else:
-                df = pd.read_excel(uploaded_file)
+                # Detect file encoding (use chardet to auto-detect encoding)
+                raw_data = uploaded_file.read(1000)
+                result = chardet.detect(raw_data)
+                encoding = result['encoding'] or 'ISO-8859-1'  # Default to 'ISO-8859-1' if detection fails
+                uploaded_file.seek(0)  # Reset file pointer after reading
+                df = pd.read_csv(uploaded_file, encoding=encoding, errors='ignore')  # Handle CSV encoding
+            elif uploaded_file.name.endswith('.xlsx'):
+                df = pd.read_excel(uploaded_file, engine='openpyxl')  # For newer Excel files
+            elif uploaded_file.name.endswith('.xls'):
+                df = pd.read_excel(uploaded_file, engine='xlrd')  # For older Excel files
 
             # Check if the target column exists
             if target_column not in df.columns:
@@ -157,14 +167,18 @@ def uploadDataFile(request):
                 datasetCostumName=custom_name
             )
 
-            file_path = raw_dataset.file_raw_dataset.path  
+            file_path = raw_dataset.file_raw_dataset.path
             print(f"File path: {file_path}")
             if not os.path.exists(file_path):
                 return JsonResponse({'error': f'File path {file_path} does not exist.'}, status=500)
 
             # Process the data
             preprocessed_dataset = PreprocessedDataset.objects.create(raw_dataset=raw_dataset)
-            X_train, X_test, y_train, y_test = preprocessed_dataset.process_data(target_column)
+            try:
+                X_train, X_test, y_train, y_test = preprocessed_dataset.process_data(target_column)
+            except Exception as e:
+                print(f"Error during data processing: {e}")
+                return JsonResponse({'error': 'An error occurred during data preprocessing.'}, status=500)
 
             # You can also return a URL for the preprocessed dataset if needed
             return JsonResponse({'message': 'File uploaded and processed successfully!', 
@@ -176,7 +190,6 @@ def uploadDataFile(request):
             return JsonResponse({'error': f'An error occurred while processing the file: {str(e)}'}, status=500)
 
     return render(request, 'uploadDataFile.html')
-
 
 
 
