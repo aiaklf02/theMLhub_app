@@ -195,16 +195,20 @@ def uploadDataFile(request):
 
 @login_required_custom
 def uploadedFiles(request):
-    uploadedfilesbyme = RawDataset.objects.filter(utilisateur=request.user)
-    print(f'My uploaded files: {uploadedfilesbyme}')
-    return render(request, 'uploadedFiles.html', {'files': uploadedfilesbyme})
+    uploadedfiles = RawDataset.objects.filter(utilisateur=request.user)
+    processeddatasets = PreprocessedDataset.objects.filter(raw_dataset__utilisateur=request.user)
 
 
+    return render(request, 'uploadedFiles.html', {'uploadedfiles': uploadedfiles,'processeddatasets':processeddatasets})
 
+@login_required_custom
+def classification(request):
+    return render(request, 'classification.html')
 
+@login_required_custom
+def regression(request):
+    return render(request, 'regression.html')
 
-   
-    
-    
-        
-
+@login_required_custom
+def clustering(request):
+    return render(request, 'clustering.html')

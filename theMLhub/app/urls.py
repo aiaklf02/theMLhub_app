@@ -15,6 +15,9 @@ urlpatterns = [
     path('uploadDataFile', views.uploadDataFile, name='uploadDataFile'),  # The root URL maps to my_view
 
     path('uploadedFiles', views.uploadedFiles, name='uploadedFiles'),  # The root URL maps to my_view
+    path('classification', views.classification, name='classification'),  # The root URL maps to my_view
+    path('regression', views.regression, name='regression'),  # The root URL maps to my_view
+    path('clustering', views.clustering, name='clustering'),  # The root URL maps to my_view
 
     path('chart-flot', views.chart_flot, name='chart-flot'),  # The root URL maps to my_view
     path('chart-morris', views.chart_morris, name='chart-morris'),  # The root URL maps to my_view

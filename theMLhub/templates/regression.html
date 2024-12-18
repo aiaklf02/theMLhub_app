@@ -7,7 +7,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>Uploaded Files</title>
+    <title>Regression Models</title>
     <!-- Favicon icon -->
     <link rel="icon" type="image/png" sizes="16x16" href="{% static 'images/favicon.png' %}">
     <!-- Custom Stylesheet -->
@@ -50,48 +50,64 @@
 
 
             <div class="container-fluid">
-                <h2 style="padding: 10px">My Raw DataSets</h2>
+                <h3 style="padding: 10px">Choose a Supervised Regression Machine Learning Model To Train</h3>
                 <div class="row">
-<!-- loop over uploaded files by that user -->
-                   {% for file in uploadedfiles %}
-                 <div class="col-3">
+
+            <!-- loop over uploaded files by that user -->
+                 <div class="col-3 ">
                         <div class="card">
                             <div class="card-body">
                                 <div class="text-center">
                                     <span class="display-5">
                                         <i class="fas fa-file-alt" data-fa-transform="shrink-2 up-4"></i>
                                         </span>
-                                    <h2 class="mt-3">{{ file.datasetCostumName }}</h2>
-                                    <p>Uploaded: {{file.uploaded_at}}</p><a href="#" class="btn gradient-1 btn-lg border-0 btn-rounded px-5">Preproccess
-                                        now</a>
+                                    <h2 class="mt-3">Linear Regression</h2>
+                                    <p>Regression</p><a href="#" class="btn gradient-1 btn-lg border-0 btn-rounded px-5">Train</a>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    {% endfor %}
-                </div>
-                <h2  style="padding: 10px" >My Pre-Proccessed DataSets</h2>
-                <div class="row">
-<!-- loop over uploaded files by that user -->
-                   {% for file in processeddatasets %}
-                 <div class="col-3">
+                      <div class="col-3 ">
                         <div class="card">
                             <div class="card-body">
                                 <div class="text-center">
                                     <span class="display-5">
                                         <i class="fas fa-file-alt" data-fa-transform="shrink-2 up-4"></i>
                                         </span>
-                                    <h2 class="mt-3">{{ file.raw_dataset.datasetCostumName }}</h2>
-                                    <p>Proccessed: {{file.processed_at}}</p><a href="#" class="btn gradient-2 btn-lg border-0 btn-rounded px-5">Train a Model
-                                        now</a>
+                                    <h2 class="mt-3">Logistic Regression</h2>
+                                    <p>binary classification</p><a href="#" class="btn gradient-1 btn-lg border-0 btn-rounded px-5">Train</a>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    {% endfor %}
+
+
                 </div>
+
+
+<!--                <h2  style="padding: 10px" >Deep learning Models</h2>-->
+<!--                <div class="row">-->
+<!--                &lt;!&ndash; loop over uploaded files by that user &ndash;&gt;-->
+<!--                   {% for file in processeddatasets %}-->
+<!--                 <div class="col-3">-->
+<!--                        <div class="card">-->
+<!--                            <div class="card-body">-->
+<!--                                <div class="text-center">-->
+<!--                                    <span class="display-5">-->
+<!--                                        <i class="fas fa-file-alt" data-fa-transform="shrink-2 up-4"></i>-->
+<!--                                        </span>-->
+<!--                                    <h2 class="mt-3">{{ file.raw_dataset.datasetCostumName }}</h2>-->
+<!--                                    <p>Proccessed: {{file.processed_at}}</p><a href="#" class="btn gradient-2 btn-lg border-0 btn-rounded px-5">Train a Model-->
+<!--                                        now</a>-->
+<!--                                </div>-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                    </div>-->
+
+<!--                    {% endfor %}-->
+<!--                </div>-->
 
 
             </div>
