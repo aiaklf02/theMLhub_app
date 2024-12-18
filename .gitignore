@@ -1,9 +1,12 @@
-
+# Ignore IDE config folders
 /.idea
+
 # Ignore Python bytecode files
 *.pyc
 *.pyo
 
 # Ignore __pycache__ directories
 __pycache__/
-env/pyvenv.cfg
+
+# Ignore the virtual environment folder (env)
+env/
