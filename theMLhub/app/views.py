@@ -324,7 +324,7 @@ def visualize_data(request, dataset_id):
 
             # After generating visualizations, retrieve them
             data_visualizations = DataVisualization.objects.filter(dataset=dataset)
-
+        
         # Pass the visualizations to the template
         return render(request, 'visualisation_data.html', {
             'data_visualizations': data_visualizations,
