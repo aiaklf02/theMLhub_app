@@ -10,3 +10,5 @@ __pycache__/
 
 # Ignore the virtual environment folder (env)
 env/
+/env
+env/pyvenv.cfg

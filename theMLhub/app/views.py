@@ -10,6 +10,9 @@ from .forms import SignupForm  # Import your SignupForm
 from django.http import HttpResponseRedirect, JsonResponse
 from django.urls import reverse
 from django.contrib.auth.decorators import user_passes_test
+from django.core.files.base import File
+from joblib import dump
+from sklearn.metrics import accuracy_score, f1_score, mean_squared_error, mean_absolute_error
 
 from .models import RawDataset, PreprocessedDataset
 
@@ -235,3 +238,71 @@ def clustering(request):
     return render(request, 'clustering.html', form)
 
 
+
+from .ML_Models import train_linear_regression, generate_visualizations, train_logistic_regression
+
+# A dictionary mapping model names to their corresponding functions
+MODEL_FUNCTIONS = {
+    "Linear Regression": train_linear_regression,
+    "Logistic Regression": train_logistic_regression,
+    # Add more models here as needed
+}
+
+@login_required_custom
+def train_model_view(request):
+    if request.method == "POST":
+
+        selected_model = request.POST.get('SelectedModel')
+        selected_dataset_id = request.POST.get('selectedDataset')
+
+        # Ensure both model and dataset are provided
+        if not selected_model or not selected_dataset_id:
+            return JsonResponse({"error": "Model and dataset must be selected"}, status=400)
+
+        # Fetch the PreprocessedDataset object
+        preprocessed_dataset = PreprocessedDataset.objects.get(id=selected_dataset_id)
+
+        # Fetch the target column from the associated RawDataset
+        target_column = preprocessed_dataset.raw_dataset.TargetColumn
+
+        if target_column:
+            processedData = preprocessed_dataset.process_data(target_column)
+        else:
+            target_column = None
+            processedData = preprocessed_dataset.process_data_unsupervised()
+
+        # Check if the selected model exists in the mapping
+        model_function = MODEL_FUNCTIONS.get(selected_model)
+
+        try:
+            # Execute the associated function, passing the file path and target column
+            result = model_function(processedData, target_column)
+
+            return JsonResponse({
+                "message": f"Model '{selected_model}' trained successfully",
+                "result": result,  # Include function output
+            })
+        except Exception as e:
+            return JsonResponse({"error": f"Error during training: {str(e)}"}, status=500)
+    else:
+        return JsonResponse({"error": "Invalid request method"}, status=400)
+
+
+@login_required_custom
+def visualize_data_view(request):
+    selected_dataset_id = request.POST.get('selectedDataset')
+    target_column = request.POST.get('TargetColumn')
+
+    # Fetch the dataset
+    try:
+        preprocessed_data = PreprocessedDataset.objects.get(id=selected_dataset_id)
+        file_path = preprocessed_data.file_preprocessed_data.path
+    except PreprocessedDataset.DoesNotExist:
+        return JsonResponse({"error": f"Dataset with ID {selected_dataset_id} does not exist"}, status=404)
+
+    # Generate visualizations
+    visualizations = generate_visualizations(file_path, target_column)
+    if "error" in visualizations:
+        return JsonResponse({"error": visualizations["error"]}, status=400)
+
+    return JsonResponse({"visualizations": visualizations})
