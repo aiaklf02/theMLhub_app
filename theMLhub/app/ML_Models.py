@@ -24,6 +24,7 @@ import time
 def remove_none_values(d):
     return {k: v for k, v in d.items() if v is not None}
 
+
 def encode_categorical_data(data, supervised=None):
     """
     Encodes categorical data based on whether it's supervised or unsupervised.
@@ -51,6 +52,9 @@ def encode_categorical_data(data, supervised=None):
 
     elif supervised is False:
         # Handle unsupervised case: DataFrame (df)
+        if isinstance(data, tuple):
+            raise ValueError("For unsupervised learning, the input data must be a DataFrame, not a tuple.")
+
         df = data
 
         # Encode categorical features in the entire dataframe
@@ -64,6 +68,7 @@ def encode_categorical_data(data, supervised=None):
         return data
     else:
         raise ValueError("Invalid value for 'supervised'. It must be True, False, or None.")
+
 
 
 def train_linear_regression(preprocesseddata, params, target_column=None):
@@ -235,6 +240,60 @@ def train_regression_LightGBM(preprocesseddata, params, target_column=None):
         return obj
     else:
         raise Exception('Target column is required for LightGBM Regression.')
+
+from sklearn.cluster import KMeans
+from sklearn.metrics import silhouette_score
+
+def KMeansClustering(preprocesseddata, params, target_column=None):
+    try:
+        # Encode the categorical data (if needed) for unsupervised learning
+        df = encode_categorical_data(preprocesseddata, supervised=False)
+
+        # Track training time
+        start_train_time = time.time()
+        print('training started kmeans')
+
+        if params and "n_clusters" in params:
+            n_clusters = params.get('n_clusters', 3)
+        else:
+            n_clusters = 3
+        # Train the KMeans model
+        model = KMeans(n_clusters=n_clusters, random_state=42)
+        model.fit(df)
+
+        end_train_time = time.time()
+        training_time = end_train_time - start_train_time
+
+        # Track testing (prediction) time
+        start_test_time = time.time()
+
+        # Predict on the test set (assign cluster labels to the data)
+        cluster_labels = model.predict(df)
+
+        end_test_time = time.time()
+        testing_time = end_test_time - start_test_time
+
+        # Generate plots (optional)
+        plots = generate_visualizations(df, df, None, None, model)
+
+        # Calculate clustering metrics
+        silhouette = silhouette_score(df, cluster_labels)
+
+        metric_results = {
+            "silhouette_score": silhouette,
+            "training time": training_time,
+            "testing time": testing_time,
+        }
+
+        obj = {
+            "metric_results": remove_none_values(metric_results),
+            "plots": remove_none_values(plots),
+            "model": model,  # Include the trained model
+        }
+
+        return obj
+    except Exception as e:
+        raise e
 
 
 # lightgbm classification

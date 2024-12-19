@@ -250,18 +250,19 @@ MODEL_FUNCTIONS = {
     "Logistic Regression": train_logistic_regression,
     "Regression LightGBM": train_regression_LightGBM,
     "Classification LightGBM": train_classification_LightGBM,
+    "K-Means": KMeansClustering,
     # Add more models here as needed
 }
 
 @login_required_custom
-def train_model_view(request, model_name, processed_file_id):
+def train_model_view(request, model_name, processed_file_id,supervised):
     # Fetch the PreprocessedDataset object
     preprocessed_dataset = PreprocessedDataset.objects.get(id=processed_file_id)
 
     # Fetch the target column from the associated RawDataset
     target_column = preprocessed_dataset.raw_dataset.TargetColumn
 
-    if target_column:
+    if supervised == "supervised":
         processedData = preprocessed_dataset.process_data(target_column)
     else:
         target_column = None
@@ -291,6 +292,8 @@ def train_model_view(request, model_name, processed_file_id):
         }
 
     except Exception as e:
+        raise e
+
         context = {
             "message": f"Error during training",
             "result": f'{str(e)}',
@@ -301,26 +304,6 @@ def train_model_view(request, model_name, processed_file_id):
 
     return render(request, 'train_result.html', context)
 
-
-# @login_required_custom
-# def visualize_data_view(request):
-#     selected_dataset_id = request.POST.get('selectedDataset')
-#     target_column = request.POST.get('TargetColumn')
-#
-#     # Fetch the dataset
-#     try:
-#         preprocessed_data = PreprocessedDataset.objects.get(id=selected_dataset_id)
-#         file_path = preprocessed_data.file_preprocessed_data.path
-#     except PreprocessedDataset.DoesNotExist:
-#         return JsonResponse({"error": f"Dataset with ID {selected_dataset_id} does not exist"}, status=404)
-#
-#     # Generate visualizations
-#     visualizations = generate_visualizations(file_path, target_column)
-#     if "error" in visualizations:
-#         return JsonResponse({"error": visualizations["error"]}, status=400)
-#
-#     return JsonResponse({"visualizations": visualizations})
-#
 
 def visualize_data(request, dataset_id):
     try:

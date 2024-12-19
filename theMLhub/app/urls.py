@@ -18,7 +18,7 @@ urlpatterns = [
     path('regression', views.regression, name='regression'),
     path('clustering', views.clustering, name='clustering'),
     path('Start_training', views.train_model_view, name='start_traning'),
-    path('train_model/<path:model_name>/<str:processed_file_id>/', views.train_model_view, name='train_model_view'),
+    path('train_model/<path:model_name>/<str:processed_file_id>/<str:supervised>/', views.train_model_view, name='train_model_view'),
 
     path('chart-flot', views.chart_flot, name='chart-flot'),
     path('chart-morris', views.chart_morris, name='chart-morris'),

@@ -197,7 +197,7 @@ function startTraining() {
         modelName = "Regression LightGBM"
     }
     // Construct the URL for the GET request
-    const url = `/train_model/${modelName}/${processedFileId}/`;
+    const url = `/train_model/${modelName}/${processedFileId}/supervised`;
 
     // Redirect the browser to the constructed URL
     window.location.href = url;

@@ -184,18 +184,19 @@ function closeModal() {
 }
 
 function startTraining() {
-    const fileInput = document.getElementById('trainingFile');
-    if (fileInput.files.length === 0) {
-        alert('Please select a file to train.');
-        return;
-    }
-    const modelName = document.getElementById('modelName').value;
-    const file = fileInput.files[0];
+    // Get the selected dataset ID and model name from the DOM
+    const processedFileId = document.getElementById('ChosentrainingFile').value;
+    let modelName = document.getElementById('modelName').value;
 
-    alert(`Training ${modelName} with file: ${file.name}`);
+    // Construct the URL for the GET request
+    const url = `/train_model/${modelName}/${processedFileId}/unsupervised`;
+
+    // Redirect the browser to the constructed URL
+    window.location.href = url;
+
+    // Close the modal
     closeModal();
 }
-
 
 
     </script>
