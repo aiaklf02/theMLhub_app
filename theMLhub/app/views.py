@@ -312,12 +312,18 @@ def visualize_data(request, dataset_id):
     try:
         # Get the RawDataset object based on the provided dataset_id
         dataset = RawDataset.objects.get(id=dataset_id)
-
-        # Generate visualizations for the dataset
-        dataset.generate_visualizations()
-
-        # Retrieve the visualizations related to this dataset
+        # Check if the dataset already has visualizations
         data_visualizations = DataVisualization.objects.filter(dataset=dataset)
+
+        if data_visualizations.exists():
+            # If visualizations exist, no need to generate them again
+            pass
+        else:
+            # If no visualizations exist, generate them
+            dataset.generate_visualizations()
+
+            # After generating visualizations, retrieve them
+            data_visualizations = DataVisualization.objects.filter(dataset=dataset)
 
         # Pass the visualizations to the template
         return render(request, 'visualisation_data.html', {
