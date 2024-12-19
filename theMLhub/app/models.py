@@ -12,8 +12,9 @@ from django.core.files.storage import default_storage
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-from theMLhub import settings
+# from theMLhub import settings
 
+from django.conf import settings
 
 class Utilisateur(AbstractUser):
     profile_picture_path = models.FileField(upload_to='Profile_pictures/', null=True, blank=True)
@@ -47,7 +48,7 @@ class RawDataset(models.Model):
     import os
 
     def generate_visualizations(self):
-        # Load the dataset
+
         raw_file_path = self.file_raw_dataset.path
         if raw_file_path.endswith('.csv'):
             df = pd.read_csv(raw_file_path)
@@ -84,9 +85,11 @@ class RawDataset(models.Model):
                 dataset=self,
                 visualization_name=visualization_name,
                 graph_type=visualization_name,
-                graph_file=relative_path  # Store relative path in the database
+                graph_file=relative_path ,
             )
+            print(relative_path)
 
+    
 
 
 from django.http import JsonResponse
@@ -221,7 +224,7 @@ class DataVisualization(models.Model):
     dataset = models.ForeignKey(RawDataset, on_delete=models.CASCADE)  
     dataset_processed = models.ForeignKey(PreprocessedDataset, on_delete=models.CASCADE, null=True, blank=True)
     visualization_name = models.CharField(max_length=100, default='Visualization')
-    graph_type = models.CharField(max_length=50)  # e.g., "correlation", "distribution"
+    graph_type = models.CharField(max_length=50)  
     graph_file = models.FileField(upload_to='data_visualizations/', null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
