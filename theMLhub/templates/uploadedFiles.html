@@ -49,7 +49,7 @@
                                     </span>
                                     <h4 class="mt-1">{{ file.raw_dataset.datasetCostumName }}</h4>
                                     <p>Processed: {{file.processed_at}}</p>
-                                    <a href="#" data-value="{{file.id}}" class="btn gradient-8 btn-md border-0 btn-rounded px-5">Use For Training</a>
+                                    <a href="javascript:void(0);" data-value="{{file.id}}" class="btn gradient-8 btn-md border-0 btn-rounded px-5" onclick="visualizeData({{file.id}});">Visualise</a>
                                 </div>
                             </div>
                         </div>
@@ -71,7 +71,7 @@
                                     </span>
                                     <h4 class="mt-1">{{ file.datasetCostumName }}</h4>
                                     <p>Uploaded: {{file.uploaded_at}}</p>
-                                    <a href="#" class="btn gradient-1 btn-md border-0 btn-rounded px-5">Delete</a>
+                                    <a href="javascript:void(0);" data-value="{{file.id}}" class="btn gradient-8 btn-md border-0 btn-rounded px-5" onclick="visualizeData({{file.id}})">Visualise</a>
                                 </div>
                             </div>
                         </div>
@@ -119,6 +119,10 @@ function setupToggle(sectionClass, buttonId) {
 
 setupToggle("processed-datasets", "processed-toggle");
 setupToggle("raw-datasets", "raw-toggle");
+function visualizeData(fileId) {
+    window.location.href = `/visualise-data/${fileId}/`;
+}
+
 </script>
 </body>
 

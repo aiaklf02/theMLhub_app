@@ -202,7 +202,7 @@ class PreprocessedDataset(models.Model):
         return df
 
 class DataVisualization(models.Model):
-    dataset = models.ForeignKey(RawDataset, on_delete=models.CASCADE)  # Link to the dataset
+    dataset = models.ForeignKey(RawDataset, on_delete=models.CASCADE)  
     dataset_processed = models.ForeignKey(PreprocessedDataset, on_delete=models.CASCADE, null=True, blank=True)
     visualization_name = models.CharField(max_length=100, default='Visualization')
     graph_type = models.CharField(max_length=50)  # e.g., "correlation", "distribution"

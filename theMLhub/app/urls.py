@@ -27,5 +27,7 @@ urlpatterns = [
     path('chart-chartist', views.chart_chartist, name='chart-chartist'),
     path('chart-sparkline', views.chart_sparkline, name='chart-sparkline'),
     path('chart-peity', views.chart_peity, name='chart-peity'),
+    path('visualise-data/<int:dataset_id>/', views.visualize_data, name='visualize_data'),
+
     
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

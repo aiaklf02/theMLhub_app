@@ -14,7 +14,7 @@ from django.core.files.base import File
 from joblib import dump
 from sklearn.metrics import accuracy_score, f1_score, mean_squared_error, mean_absolute_error
 
-from .models import RawDataset, PreprocessedDataset
+from .models import RawDataset, PreprocessedDataset, DataVisualization
 
 
 def login_required_custom(view_func):
@@ -306,3 +306,8 @@ def visualize_data_view(request):
         return JsonResponse({"error": visualizations["error"]}, status=400)
 
     return JsonResponse({"visualizations": visualizations})
+
+
+def visualize_data(request, dataset_id):
+    data_visualizations = DataVisualization.objects.filter(dataset_id=dataset_id)
+    return render(request, 'visualisation_data.html', {'data_visualizations': data_visualizations})
