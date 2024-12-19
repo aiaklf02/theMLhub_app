@@ -18,9 +18,7 @@
 
 <body>
 
-    <!--*******************
-        Preloader start
-    ********************-->
+    <!-- Preloader start -->
     <div id="preloader">
         <div class="loader">
             <svg class="circular" viewBox="25 25 50 50">
@@ -28,65 +26,49 @@
             </svg>
         </div>
     </div>
-    <!--*******************
-        Preloader end
-    ********************-->
+    <!-- Preloader end -->
 
-    
-    <!--**********************************
-        Main wrapper start
-    ***********************************-->
-    <div id="main-wrapper"  style="min-height: 130vh !important;">
+    <div id="main-wrapper" style="min-height: 130vh !important;">
 
-{% include "navbar.html" %}
+        {% include "navbar.html" %}
+        {% include "sideBar.html" %}
 
-{% include "sideBar.html" %}
-
-
-        <!--**********************************
-            Content body start
-        ***********************************-->
         <div class="content-body">
-
-
             <div class="container-fluid">
 
-
-
-                 <h3  style="padding: 10px" >My Pre-Proccessed DataSets</h3>
-                <div class="row">
-<!-- loop over uploaded files by that user -->
+                <!-- Processed Datasets Section -->
+                <h3 style="padding: 10px">My Pre-Processed DataSets</h3>
+                <div class="row processed-datasets">
                    {% for file in processeddatasets %}
-                 <div class="col-3">
+                   <div class="col-3 dataset-item">
                         <div class="card">
                             <div class="card-body">
                                 <div class="text-center">
                                     <span class="display-5">
                                         <i class="fas fa-file-alt" data-fa-transform="shrink-2 up-4"></i>
-                                        </span>
+                                    </span>
                                     <h4 class="mt-1">{{ file.raw_dataset.datasetCostumName }}</h4>
-                                    <p>Proccessed: {{file.processed_at}}</p><a href="#" data-value="{{file.id}}" class="btn gradient-8 btn-md border-0 btn-rounded px-5">Use For Training</a>
+                                    <p>Processed: {{file.processed_at}}</p>
+                                    <a href="#" data-value="{{file.id}}" class="btn gradient-8 btn-md border-0 btn-rounded px-5">Use For Training</a>
                                 </div>
                             </div>
                         </div>
                     </div>
-
                     {% endfor %}
                 </div>
+                <button id="processed-toggle" class="btn btn-primary">View More</button>
 
-
-
+                <!-- Raw Datasets Section -->
                 <h3 style="padding: 10px">My Raw DataSets</h3>
-                <div class="row">
-<!-- loop over uploaded files by that user -->
+                <div class="row raw-datasets">
                    {% for file in uploadedfiles %}
-                 <div class="col-3">
+                   <div class="col-3 dataset-item">
                         <div class="card">
                             <div class="card-body">
                                 <div class="text-center">
                                     <span class="display-5">
                                         <i class="fas fa-file-alt" data-fa-transform="shrink-2 up-4"></i>
-                                        </span>
+                                    </span>
                                     <h4 class="mt-1">{{ file.datasetCostumName }}</h4>
                                     <p>Uploaded: {{file.uploaded_at}}</p>
                                     <a href="#" class="btn gradient-1 btn-md border-0 btn-rounded px-5">Delete</a>
@@ -94,37 +76,51 @@
                             </div>
                         </div>
                     </div>
-
                     {% endfor %}
                 </div>
-
-
+                <button id="raw-toggle" class="btn btn-primary">View More</button>
 
             </div>
-            <!-- #/ container -->
         </div>
-        <!--**********************************
-            Content body end
-        ***********************************-->
-        
-        
-{% include "footer.html" %}
 
-
+        {% include "footer.html" %}
     </div>
-    <!--**********************************
-        Main wrapper end
-    ***********************************-->
 
-    <!--**********************************
-        Scripts
-    ***********************************-->
+    <!-- Scripts -->
     <script src="{% static 'plugins/common/common.min.js' %}"></script>
     <script src="{% static 'js/custom.min.js' %}"></script>
     <script src="{% static 'js/settings.js' %}"></script>
     <script src="{% static 'js/gleek.js' %}"></script>
     <script src="{% static 'js/styleSwitcher.js' %}"></script>
 
+    <script>
+    // Toggle visibility for datasets
+function setupToggle(sectionClass, buttonId) {
+    const items = document.querySelectorAll(`.${sectionClass} .dataset-item`);
+    const button = document.getElementById(buttonId);
+    const limit = 4;
+
+    let expanded = false;
+
+    function updateVisibility() {
+        items.forEach((item, index) => {
+            item.style.display = expanded || index < limit ? "block" : "none";
+        });
+        button.textContent = expanded ? "View Less" : "View More";
+    }
+
+    button.addEventListener("click", () => {
+        expanded = !expanded;
+        updateVisibility();
+    });
+
+    // Initial setup to show only the first `limit` items
+    updateVisibility();
+}
+
+setupToggle("processed-datasets", "processed-toggle");
+setupToggle("raw-datasets", "raw-toggle");
+</script>
 </body>
 
 </html>
