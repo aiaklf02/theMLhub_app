@@ -252,12 +252,21 @@ class AiModel(models.Model):
 
 class Result(models.Model):
     ai_model = models.ForeignKey(AiModel, on_delete=models.CASCADE)  # Many-to-one with AiModel
-    preprocessed_dataset = models.ForeignKey(PreprocessedDataset,
-                                             on_delete=models.CASCADE)  # Many-to-one with PreprocessedDataset
+    preprocessed_dataset = models.ForeignKey(PreprocessedDataset, on_delete=models.CASCADE)  # Many-to-one with PreprocessedDataset
+    trained_model_file = models.FileField(upload_to='trained_models/', null=True, blank=True)
+
+    training_time = models.FloatField(null=True, blank=True)
+    testing_time = models.FloatField(null=True, blank=True)
+
+    r2_score = models.FloatField(null=True, blank=True)
     accuracy = models.FloatField(null=True, blank=True)
     f1_score = models.FloatField(null=True, blank=True)
+    precision = models.FloatField(null=True, blank=True)
+    recall = models.FloatField(null=True, blank=True)
+
     mse = models.FloatField(null=True, blank=True)
     mae = models.FloatField(null=True, blank=True)
+    MCC = models.FloatField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)  # Track when the result was created
 
 
