@@ -286,7 +286,7 @@ def train_model_view(request):
             return JsonResponse({"error": f"Error during training: {str(e)}"}, status=500)
     else:
         return JsonResponse({"error": "Invalid request method"}, status=400)
-
+from django.http import HttpResponse
 
 @login_required_custom
 def visualize_data_view(request):
@@ -309,5 +309,21 @@ def visualize_data_view(request):
 
 
 def visualize_data(request, dataset_id):
-    data_visualizations = DataVisualization.objects.filter(dataset_id=dataset_id)
-    return render(request, 'visualisation_data.html', {'data_visualizations': data_visualizations})
+    try:
+        # Get the RawDataset object based on the provided dataset_id
+        dataset = RawDataset.objects.get(id=dataset_id)
+
+        # Generate visualizations for the dataset
+        dataset.generate_visualizations()
+
+        # Retrieve the visualizations related to this dataset
+        data_visualizations = DataVisualization.objects.filter(dataset=dataset)
+
+        # Pass the visualizations to the template
+        return render(request, 'visualisation_data.html', {
+            'data_visualizations': data_visualizations,
+            'dataset': dataset
+        })
+
+    except RawDataset.DoesNotExist:
+        return HttpResponse("Dataset not found.", status=404)

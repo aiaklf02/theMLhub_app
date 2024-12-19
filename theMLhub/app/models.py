@@ -45,7 +45,7 @@ class RawDataset(models.Model):
             raise ValueError(f"Unsupported file type: {raw_file_path}")
 
         # Directory to save visualizations
-        visualizations_dir = os.path.join('media', 'data_visualizations', self.datasetCostumName)
+        visualizations_dir = os.path.join('media','data_visualizations', self.datasetCostumName)
         os.makedirs(visualizations_dir, exist_ok=True)
 
         # Generate and save graphs
@@ -213,8 +213,14 @@ class DataVisualization(models.Model):
         return f"{self.visualization_name} ({self.graph_type})"
     @staticmethod
     def generate_correlation_heatmap(df, output_path):
+        # Ensure only numeric columns are used for correlation heatmap
+        numeric_df = df.select_dtypes(include=['float64', 'int64'])
+
+        if numeric_df.empty:
+            raise ValueError("No numeric columns found for correlation heatmap.")
+
         plt.figure(figsize=(10, 8))
-        sns.heatmap(df.corr(), annot=True, cmap='coolwarm', fmt='.2f')
+        sns.heatmap(numeric_df.corr(), annot=True, cmap='coolwarm', fmt='.2f')
         plt.title('Correlation Heatmap')
         plt.savefig(output_path)
         plt.close()
@@ -224,26 +230,29 @@ class DataVisualization(models.Model):
         if column not in df.columns:
             raise ValueError(f"Column '{column}' not found in the dataset.")
         
-        plt.figure(figsize=(8, 6))
-        sns.countplot(x=df[column])
-        plt.title('Class Distribution')
-        plt.xlabel('Classes')
-        plt.ylabel('Frequency')
-        plt.savefig(output_path)
-        plt.close()
+        # Handle non-numeric columns
+        if df[column].dtype == 'object':
+            plt.figure(figsize=(8, 6))
+            sns.countplot(x=df[column])
+            plt.title(f'Class Distribution of {column}')
+            plt.xlabel('Classes')
+            plt.ylabel('Frequency')
+            plt.savefig(output_path)
+            plt.close()
+        else:
+            raise ValueError(f"Column '{column}' is not categorical.")
 
     @staticmethod
     def generate_histograms(df, output_path):
+        # Only select numeric columns for histograms
         numeric_cols = df.select_dtypes(include=['float64', 'int64']).columns
+        if numeric_cols.empty:
+            raise ValueError("No numeric columns found for histograms.")
+        
         df[numeric_cols].hist(figsize=(12, 10), bins=20)
         plt.tight_layout()
         plt.savefig(output_path)
         plt.close()
-
-
-
-
-
 
 class AiModel(models.Model):
     name = models.CharField(max_length=100)
