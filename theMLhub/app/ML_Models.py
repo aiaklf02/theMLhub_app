@@ -13,8 +13,8 @@ import numpy as np
 import os
 from io import BytesIO
 import base64
-from theMLhub.app.models import Result
-from theMLhub.app.visualisation_plots import generate_visualizations, generate_classification_report_plot, \
+from .models import Result
+from .visualisation_plots import generate_visualizations, generate_classification_report_plot, \
     generate_confusion_matrix_plot
 
 
