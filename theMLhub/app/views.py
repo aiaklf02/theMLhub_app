@@ -1,3 +1,4 @@
+from django.http import HttpResponse
 from django.contrib.auth import authenticate, login
 from django.contrib.auth import get_user_model
 from django.shortcuts import render, redirect
@@ -160,7 +161,9 @@ def uploadDataFile(request):
             # For supervised learning, validate target column
             if target_column:
                 if target_column not in df.columns:
-                    return JsonResponse({'error': f'Target column "{target_column}" not found in the uploaded file.'}, status=400)
+                    target_column = target_column.replace('"','')
+                    if target_column not in df.columns:
+                        return JsonResponse({'error': f'Target column "{target_column}" not found in the uploaded file.'}, status=400)
 
             # Save the file and dataset details using the RawDataset model
             raw_dataset = RawDataset.objects.create(
@@ -239,74 +242,85 @@ def clustering(request):
 
 
 
-from .ML_Models import train_linear_regression, generate_visualizations, train_logistic_regression
+from .ML_Models import *
 
 # A dictionary mapping model names to their corresponding functions
 MODEL_FUNCTIONS = {
     "Linear Regression": train_linear_regression,
     "Logistic Regression": train_logistic_regression,
+    "Regression LightGBM": train_regression_LightGBM,
+    "Classification LightGBM": train_classification_LightGBM,
     # Add more models here as needed
 }
 
 @login_required_custom
-def train_model_view(request):
-    if request.method == "POST":
+def train_model_view(request, model_name, processed_file_id):
+    # Fetch the PreprocessedDataset object
+    preprocessed_dataset = PreprocessedDataset.objects.get(id=processed_file_id)
 
-        selected_model = request.POST.get('SelectedModel')
-        selected_dataset_id = request.POST.get('selectedDataset')
+    # Fetch the target column from the associated RawDataset
+    target_column = preprocessed_dataset.raw_dataset.TargetColumn
 
-        # Ensure both model and dataset are provided
-        if not selected_model or not selected_dataset_id:
-            return JsonResponse({"error": "Model and dataset must be selected"}, status=400)
-
-        # Fetch the PreprocessedDataset object
-        preprocessed_dataset = PreprocessedDataset.objects.get(id=selected_dataset_id)
-
-        # Fetch the target column from the associated RawDataset
-        target_column = preprocessed_dataset.raw_dataset.TargetColumn
-
-        if target_column:
-            processedData = preprocessed_dataset.process_data(target_column)
-        else:
-            target_column = None
-            processedData = preprocessed_dataset.process_data_unsupervised()
-
-        # Check if the selected model exists in the mapping
-        model_function = MODEL_FUNCTIONS.get(selected_model)
-
-        try:
-            # Execute the associated function, passing the file path and target column
-            result = model_function(processedData, target_column)
-
-            return JsonResponse({
-                "message": f"Model '{selected_model}' trained successfully",
-                "result": result,  # Include function output
-            })
-        except Exception as e:
-            return JsonResponse({"error": f"Error during training: {str(e)}"}, status=500)
+    if target_column:
+        processedData = preprocessed_dataset.process_data(target_column)
     else:
-        return JsonResponse({"error": "Invalid request method"}, status=400)
-from django.http import HttpResponse
+        target_column = None
+        processedData = preprocessed_dataset.process_data_unsupervised()
 
-@login_required_custom
-def visualize_data_view(request):
-    selected_dataset_id = request.POST.get('selectedDataset')
-    target_column = request.POST.get('TargetColumn')
+    # Check if the selected model exists in the mapping
+    model_function = MODEL_FUNCTIONS.get(model_name)
 
-    # Fetch the dataset
+    context = {
+        "message": "Couldnt Start traning , Invalid model or dataset !",
+        "result": 'no result to show',
+        "status": 'failed',
+        "modelName": model_name,
+        "dataCostumName": preprocessed_dataset.raw_dataset.datasetCostumName
+    }
+
     try:
-        preprocessed_data = PreprocessedDataset.objects.get(id=selected_dataset_id)
-        file_path = preprocessed_data.file_preprocessed_data.path
-    except PreprocessedDataset.DoesNotExist:
-        return JsonResponse({"error": f"Dataset with ID {selected_dataset_id} does not exist"}, status=404)
+        # Execute the associated function, passing the file path and target column
+        result = model_function(processedData,params=None, target_column=target_column)
 
-    # Generate visualizations
-    visualizations = generate_visualizations(file_path, target_column)
-    if "error" in visualizations:
-        return JsonResponse({"error": visualizations["error"]}, status=400)
+        context = {
+            "message": f"Model trained successfully",
+            "result": result,
+            "status": 'success',
+            "modelName": model_name,
+            "dataCostumName": preprocessed_dataset.raw_dataset.datasetCostumName
+        }
 
-    return JsonResponse({"visualizations": visualizations})
+    except Exception as e:
+        context = {
+            "message": f"Error during training",
+            "result": f'{str(e)}',
+            "status":'failed',
+            "modelName": model_name,
+            "dataCostumName": preprocessed_dataset.raw_dataset.datasetCostumName
+        }
 
+    return render(request, 'train_result.html', context)
+
+
+# @login_required_custom
+# def visualize_data_view(request):
+#     selected_dataset_id = request.POST.get('selectedDataset')
+#     target_column = request.POST.get('TargetColumn')
+#
+#     # Fetch the dataset
+#     try:
+#         preprocessed_data = PreprocessedDataset.objects.get(id=selected_dataset_id)
+#         file_path = preprocessed_data.file_preprocessed_data.path
+#     except PreprocessedDataset.DoesNotExist:
+#         return JsonResponse({"error": f"Dataset with ID {selected_dataset_id} does not exist"}, status=404)
+#
+#     # Generate visualizations
+#     visualizations = generate_visualizations(file_path, target_column)
+#     if "error" in visualizations:
+#         return JsonResponse({"error": visualizations["error"]}, status=400)
+#
+#     return JsonResponse({"visualizations": visualizations})
+#
 
 def visualize_data(request, dataset_id):
     try:
@@ -326,7 +340,7 @@ def visualize_data(request, dataset_id):
             data_visualizations = DataVisualization.objects.filter(dataset=dataset)
         
         # Pass the visualizations to the template
-        return render(request, 'visualisation_data.html', {
+        return render(request, 'visualisationData.html', {
             'data_visualizations': data_visualizations,
             'dataset': dataset
         })

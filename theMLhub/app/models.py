@@ -12,6 +12,8 @@ from django.core.files.storage import default_storage
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+from theMLhub import settings
+
 
 class Utilisateur(AbstractUser):
     profile_picture_path = models.FileField(upload_to='Profile_pictures/', null=True, blank=True)
@@ -34,55 +36,56 @@ class RawDataset(models.Model):
     def __str__(self):
         return self.datasetCostumName
     #load the data from the file
+
     import os
-from django.conf import settings
-import pandas as pd
-from django.conf import settings
-import os
+    from django.conf import settings
+    import pandas as pd
+    from django.conf import settings
+    import os
 
-from django.conf import settings
-import os
+    from django.conf import settings
+    import os
 
-def generate_visualizations(self):
-    # Load the dataset
-    raw_file_path = self.file_raw_dataset.path
-    if raw_file_path.endswith('.csv'):
-        df = pd.read_csv(raw_file_path)
-    elif raw_file_path.endswith('.xls') or raw_file_path.endswith('.xlsx'):
-        df = pd.read_excel(raw_file_path, engine='openpyxl' if raw_file_path.endswith('.xlsx') else 'xlrd')
-    else:
-        raise ValueError(f"Unsupported file type: {raw_file_path}")
+    def generate_visualizations(self):
+        # Load the dataset
+        raw_file_path = self.file_raw_dataset.path
+        if raw_file_path.endswith('.csv'):
+            df = pd.read_csv(raw_file_path)
+        elif raw_file_path.endswith('.xls') or raw_file_path.endswith('.xlsx'):
+            df = pd.read_excel(raw_file_path, engine='openpyxl' if raw_file_path.endswith('.xlsx') else 'xlrd')
+        else:
+            raise ValueError(f"Unsupported file type: {raw_file_path}")
 
-    # Directory to save visualizations (relative to MEDIA_ROOT)
-    visualizations_dir = os.path.join(settings.MEDIA_ROOT, 'data_visualizations', self.datasetCostumName)
-    os.makedirs(visualizations_dir, exist_ok=True)
+        # Directory to save visualizations (relative to MEDIA_ROOT)
+        visualizations_dir = os.path.join(settings.MEDIA_ROOT, 'data_visualizations', self.datasetCostumName)
+        os.makedirs(visualizations_dir, exist_ok=True)
 
-    # Generate and save graphs
-    output_paths = []
-    correlation_path = os.path.join(visualizations_dir, 'correlation_heatmap.png')
-    DataVisualization.generate_correlation_heatmap(df, correlation_path)
-    output_paths.append(correlation_path)
+        # Generate and save graphs
+        output_paths = []
+        correlation_path = os.path.join(visualizations_dir, 'correlation_heatmap.png')
+        DataVisualization.generate_correlation_heatmap(df, correlation_path)
+        output_paths.append(correlation_path)
 
-    class_distribution_path = os.path.join(visualizations_dir, 'class_distribution.png')
-    if 'target' in df.columns:
-        DataVisualization.generate_class_distribution(df, 'target', class_distribution_path)
-        output_paths.append(class_distribution_path)
+        class_distribution_path = os.path.join(visualizations_dir, 'class_distribution.png')
+        if 'target' in df.columns:
+            DataVisualization.generate_class_distribution(df, 'target', class_distribution_path)
+            output_paths.append(class_distribution_path)
 
-    histogram_path = os.path.join(visualizations_dir, 'histograms.png')
-    DataVisualization.generate_histograms(df, histogram_path)
-    output_paths.append(histogram_path)
+        histogram_path = os.path.join(visualizations_dir, 'histograms.png')
+        DataVisualization.generate_histograms(df, histogram_path)
+        output_paths.append(histogram_path)
 
-    # Save the visualizations to the database with relative file paths
-    for path in output_paths:
-        visualization_name = os.path.basename(path).replace('.png', '').replace('_', ' ').title()
-        # Save the file path relative to MEDIA_URL
-        relative_path = os.path.relpath(path, settings.MEDIA_ROOT)
-        DataVisualization.objects.create(
-            dataset=self,
-            visualization_name=visualization_name,
-            graph_type=visualization_name,
-            graph_file=relative_path  # Store relative path in the database
-        )
+        # Save the visualizations to the database with relative file paths
+        for path in output_paths:
+            visualization_name = os.path.basename(path).replace('.png', '').replace('_', ' ').title()
+            # Save the file path relative to MEDIA_URL
+            relative_path = os.path.relpath(path, settings.MEDIA_ROOT)
+            DataVisualization.objects.create(
+                dataset=self,
+                visualization_name=visualization_name,
+                graph_type=visualization_name,
+                graph_file=relative_path  # Store relative path in the database
+            )
 
 
 
@@ -93,6 +96,7 @@ class PreprocessedDataset(models.Model):
     file_preprocessed_data = models.FileField(upload_to='processed_datasets/')
     processed_at = models.DateTimeField(auto_now_add=True)
     preprocessedCostumName = models.CharField(max_length=100, default='PreprocessedDataSetFile', null=True, blank=True)
+
 
     def process_data(self, target_column):
         # Charger le dataset brut

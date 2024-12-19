@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+{% load static %}
+
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Training Result</title>
+    <!-- Favicon icon -->
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'images/favicon.png' %}">
+    <!-- Custom Stylesheet -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.10/css/all.css">
+    <link href="{% static 'css/style.css' %}" rel="stylesheet">
+
+</head>
+
+<body>
+
+<style>
+    /* Metric cards */
+.metrics-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-bottom: 40px;
+    margin-top: 30px;
+}
+
+.metric-card {
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    width: 30%;
+    text-align: center;
+}
+
+.metric-card h3 {
+    margin-bottom: 10px;
+    font-size: 1.2em;
+    color: #333;
+}
+
+.metric-card p {
+    font-size: 1.4em;
+    color: #333;
+}
+
+/* Plot container */
+.plots-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.plot-card {
+    width: 47%;
+    margin: 10px 0;
+}
+
+.plot-card img {
+    width: 100%;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+</style>
+    <!-- Preloader start -->
+    <div id="preloader">
+        <div class="loader">
+            <svg class="circular" viewBox="25 25 50 50">
+                <circle class="path" cx="50" cy="50" r="20" fill="none" stroke-width="3" stroke-miterlimit="10" />
+            </svg>
+        </div>
+    </div>
+    <!-- Preloader end -->
+
+    <div id="main-wrapper" style="min-height: 130vh !important;">
+
+        {% include "navbar.html" %}
+        {% include "sideBar.html" %}
+
+        <div class="content-body">
+            <div class="container-fluid">
+
+              {% if status == 'failed' %}
+                <div class="result-message failure">
+                    <h2>Training {{modelName}} using {{dataCostumName}} Failed</h2>
+                    <p>{{ result }}</p>
+                </div>
+            {% endif %}
+
+            {% if status == 'success' %}
+                <div class="result-message success">
+                    <h2>{{modelName}} Trained using {{dataCostumName}} Successfully</h2>
+                            <hr>
+                    <!-- Displaying dynamic metric results -->
+                    <div class="metrics-container" >
+                        <div style="width: 100%">
+                            <h2>Metrics</h2>
+                        </div>
+                        {% for metric_key, metric_value in result.metric_results.items %}
+                            <div class="metric-card">
+                                <h3>{{ metric_key }}</h3>
+                                <p>{{ metric_value }}</p>
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                            <hr>
+
+                    <!-- Displaying dynamic plots -->
+                    <div class="plots-container">
+                        <div style="width: 100%">
+                            <h2>Plots</h2>
+                        </div>
+                        {% for plot_key, plot_value in result.plots.items %}
+                            <div class="plot-card">
+                                <h3>{{ plot_key }}</h3>
+                                <img src="data:image/png;base64,{{ plot_value }}" alt="Model Plot" class="plot-image">
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+
+
+            </div>
+        </div>
+
+        {% include "footer.html" %}
+    </div>
+
+    <!-- Scripts -->
+    <script src="{% static 'plugins/common/common.min.js' %}"></script>
+    <script src="{% static 'js/custom.min.js' %}"></script>
+    <script src="{% static 'js/settings.js' %}"></script>
+    <script src="{% static 'js/gleek.js' %}"></script>
+    <script src="{% static 'js/styleSwitcher.js' %}"></script>
+
+    <script>
+    // Toggle visibility for datasets
+function setupToggle(sectionClass, buttonId) {
+    const items = document.querySelectorAll(`.${sectionClass} .dataset-item`);
+    const button = document.getElementById(buttonId);
+    const limit = 4;
+
+    let expanded = false;
+
+    function updateVisibility() {
+        items.forEach((item, index) => {
+            item.style.display = expanded || index < limit ? "block" : "none";
+        });
+        button.textContent = expanded ? "View Less" : "View More";
+    }
+
+    button.addEventListener("click", () => {
+        expanded = !expanded;
+        updateVisibility();
+    });
+
+    updateVisibility();
+}
+
+setupToggle("processed-datasets", "processed-toggle");
+setupToggle("raw-datasets", "raw-toggle");
+function visualizeData(fileId) {
+    window.location.href = `/visualise-data/${fileId}/`;
+}
+
+</script>
+</body>
+
+</html>

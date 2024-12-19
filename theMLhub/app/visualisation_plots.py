@@ -26,11 +26,11 @@ def generate_visualizations(X_train, X_test, y_train, y_test, model, fpr=None, t
 
     # Generate and store the ROC curve plot if fpr and tpr are provided
     if fpr is not None and tpr is not None:
-        plots['roc_curve'] = generate_roc_curve_plot(fpr, tpr)
+        plots['roc curve'] = generate_roc_curve_plot(fpr, tpr)
 
     # Generate and store the classification report plot if provided
     if classification_rep is not None:
-        plots['classification_report'] = generate_classification_report_plot2(classification_rep)
+        plots['classification report'] = generate_classification_report_plot2(classification_rep)
 
     # Make predictions
     predictions = model.predict(X_test)
@@ -39,16 +39,16 @@ def generate_visualizations(X_train, X_test, y_train, y_test, model, fpr=None, t
     residuals = y_test - predictions
 
     # Generate and store the residual plot
-    plots['residual_plot'] = generate_residual_plot(predictions, residuals)
+    plots['residual plot'] = generate_residual_plot(predictions, residuals)
 
     # Generate and store the prediction vs actual plot
-    plots['prediction_vs_actual'] = generate_prediction_vs_actual_plot(y_test, predictions)
+    plots['prediction vs actual'] = generate_prediction_vs_actual_plot(y_test, predictions)
 
     # Generate and store the histogram of residuals plot
-    plots['residual_histogram'] = generate_histogram_of_residuals(residuals)
+    plots['residual histogram'] = generate_histogram_of_residuals(residuals)
 
     # Generate and store the coefficients plot
-    plots['feature_coefficients'] = generate_coefficients_plot(X_train, model)
+    plots['feature coefficients'] = generate_coefficients_plot(X_train, model)
 
     return plots
 
@@ -159,19 +159,22 @@ def generate_histogram_of_residuals(residuals):
 
 
 def generate_coefficients_plot(X_train, model):
-    """Generate and return the feature coefficients plot.
-
-        Arguments:
-        - X_train: Training data features (DataFrame)
-        - model: Trained model (object)
-        """
-    plt.figure(figsize=(10, 6))
-    plt.bar(X_train.columns, model.coef_, alpha=0.7)
-    plt.title("Feature Coefficients")
-    plt.xlabel("Features")
-    plt.ylabel("Coefficient Value")
-    plt.xticks(rotation=45, ha="right")
-    return save_plot_to_base64()
+    try:
+        """Generate and return the feature coefficients plot.
+    
+            Arguments:
+            - X_train: Training data features (DataFrame)
+            - model: Trained model (object)
+            """
+        plt.figure(figsize=(10, 6))
+        plt.bar(X_train.columns, model.coef_, alpha=0.7)
+        plt.title("Feature Coefficients")
+        plt.xlabel("Features")
+        plt.ylabel("Coefficient Value")
+        plt.xticks(rotation=45, ha="right")
+        return save_plot_to_base64()
+    except:
+        pass
 
 def generate_target_distribution_plot(data, target_column):
     """Generate and return the target distribution plot.

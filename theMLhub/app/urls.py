@@ -13,13 +13,12 @@ urlpatterns = [
     path('tableData', views.tableData, name='tableData'),
     path('app-profile', views.app_profile, name='app_profile'),
     path('uploadDataFile', views.uploadDataFile, name='uploadDataFile'),
-
     path('uploadedFiles', views.uploadedFiles, name='uploadedFiles'),
     path('classification', views.classification, name='classification'),
     path('regression', views.regression, name='regression'),
     path('clustering', views.clustering, name='clustering'),
-
     path('Start_training', views.train_model_view, name='start_traning'),
+    path('train_model/<path:model_name>/<str:processed_file_id>/', views.train_model_view, name='train_model_view'),
 
     path('chart-flot', views.chart_flot, name='chart-flot'),
     path('chart-morris', views.chart_morris, name='chart-morris'),
@@ -30,4 +29,7 @@ urlpatterns = [
     path('visualise-data/<int:dataset_id>/', views.visualize_data, name='visualize_data'),
 
     
-]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

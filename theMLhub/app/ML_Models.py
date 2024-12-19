@@ -1,10 +1,9 @@
 import io
 import time
-from sklearn.linear_model import LogisticRegression
+from sklearn.linear_model import LogisticRegression, LinearRegression
 from sklearn.metrics import accuracy_score, f1_score, mean_absolute_error, r2_score, classification_report, \
     roc_auc_score, roc_curve, matthews_corrcoef, confusion_matrix, recall_score, precision_score
 from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error
 import pandas as pd
 import seaborn as sns
@@ -17,15 +16,65 @@ from .models import Result
 from .visualisation_plots import generate_visualizations, generate_classification_report_plot, \
     generate_confusion_matrix_plot
 
+import lightgbm as lgb
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, roc_auc_score,mean_squared_error, mean_absolute_error, r2_score
+import time
 
-def train_linear_regression(preprocesseddata, target_column=None):
+# remove none values from dict
+def remove_none_values(d):
+    return {k: v for k, v in d.items() if v is not None}
+
+def encode_categorical_data(data, supervised=None):
+    """
+    Encodes categorical data based on whether it's supervised or unsupervised.
+
+    Args:
+    - data (tuple or pd.DataFrame): If supervised, should be a tuple (X_train, X_test, y_train, y_test).
+                                      If unsupervised, should be a DataFrame (df).
+    - supervised (bool or None): If True, process data for supervised learning.
+                                 If False, process for unsupervised learning.
+                                 If None, do nothing.
+
+    Returns:
+    - Processed data (X_train, X_test, y_train, y_test or df).
+    """
+    if supervised is True:
+        # Handle supervised case: (X_train, X_test, y_train, y_test)
+        X_train, X_test, y_train, y_test = data
+
+        # Encode categorical features in X_train and X_test
+        for col in X_train.select_dtypes(include=['object']).columns:
+            X_train[col] = X_train[col].astype('category').cat.codes
+            X_test[col] = X_test[col].astype('category').cat.codes
+
+        return X_train, X_test, y_train, y_test
+
+    elif supervised is False:
+        # Handle unsupervised case: DataFrame (df)
+        df = data
+
+        # Encode categorical features in the entire dataframe
+        for col in df.select_dtypes(include=['object']).columns:
+            df[col] = df[col].astype('category').cat.codes
+
+        return df
+
+    elif supervised is None:
+        # Do nothing if supervised is None
+        return data
+    else:
+        raise ValueError("Invalid value for 'supervised'. It must be True, False, or None.")
+
+
+def train_linear_regression(preprocesseddata, params, target_column=None):
 
     if target_column:
-        X_train, X_test, y_train, y_test = preprocesseddata
+        X_train, X_test, y_train, y_test = encode_categorical_data(preprocesseddata, supervised=True)
 
         # Track training time
         start_train_time = time.time()
         #
+        print('training started')
         model = LinearRegression()
         model.fit(X_train, y_train)
         #
@@ -47,14 +96,14 @@ def train_linear_regression(preprocesseddata, target_column=None):
             "mse": mean_squared_error(y_test, predictions),
             "mae": mean_absolute_error(y_test, predictions),
             "r2": r2_score(y_test, predictions),
-            "training_time": training_time,
-            "testing_time": testing_time,
+            "training time": training_time,
+            "testing time": testing_time,
         }
 
 
         obj = {
-            "metric_results": metric_results,
-            "plots": plots,
+            "metric_results": remove_none_values(metric_results),
+            "plots": remove_none_values(plots),
             "model": model,  # Include the trained model
         }
 
@@ -63,16 +112,17 @@ def train_linear_regression(preprocesseddata, target_column=None):
     else:
         raise Exception('linear regression require target Column !')
 
-def train_logistic_regression(preprocesseddata, target_column=None):
+def train_logistic_regression(preprocesseddata, params, target_column=None):
 
     if target_column:
-        X_train, X_test, y_train, y_test = preprocesseddata
+        X_train, X_test, y_train, y_test = encode_categorical_data(preprocesseddata, supervised=True)
 
         # Track training time
         start_train_time = time.time()
+        print('training started')
         #
         # Train model
-        model = LogisticRegression()
+        model = LogisticRegression(max_iter=2000)
         model.fit(X_train, y_train)
         #
         end_train_time = time.time()
@@ -102,7 +152,6 @@ def train_logistic_regression(preprocesseddata, target_column=None):
         # Generate plots
         plots = generate_visualizations(X_train, X_test, y_train, y_test, model)
 
-        plots['classification_report'] = generate_classification_report_plot(y_test, predictions)
         plots['confusion_matrix'] = generate_confusion_matrix_plot(y_test, predictions, model)
 
         metric_results = {
@@ -111,13 +160,13 @@ def train_logistic_regression(preprocesseddata, target_column=None):
             "recall": recall,
             "f1_score": f1,
             "auc": auc,
-            "training_time": training_time,
-            "testing_time": testing_time,
+            "training time": training_time,
+            "testing time": testing_time,
         }
 
         obj = {
-            "metric_results": metric_results,
-            "plots": plots,
+            "metric_results": remove_none_values(metric_results),
+            "plots": remove_none_values(plots),
             "model": model,  # Include the trained model
 
         }
@@ -127,40 +176,154 @@ def train_logistic_regression(preprocesseddata, target_column=None):
         raise Exception('Target column is required for Logistic Regression.')
 
 
+# lightgbm regression
+def train_regression_LightGBM(preprocesseddata, params, target_column=None):
+    if target_column:
+        X_train, X_test, y_train, y_test = encode_categorical_data(preprocesseddata, supervised=True)
 
-# draft
+        # Track training time
+        start_train_time = time.time()
+        print('training started')
 
-# # Evaluate the model
-# metric_results = {
-#     "mse": mean_squared_error(y_test, predictions),
-#     "mae": mean_absolute_error(y_test, predictions),
-#     "r2": r2_score(y_test, predictions),
-#     "auc": auc_score,
-#     "mcc": mcc,
-#     "accuracy": classification_rep['accuracy'],
-#     "f1_score": classification_rep['weighted avg']['f1-score'],
-#     "precision": classification_rep['weighted avg']['precision'],
-#     "recall": classification_rep['weighted avg']['recall'],
-#     "training_time": training_time,
-#     "testing_time": testing_time,
-# }
+        # Create the LightGBM dataset
+        train_data = lgb.Dataset(X_train, label=y_train)
+        test_data = lgb.Dataset(X_test, label=y_test, reference=train_data)
 
-# Save the trained model file
-# model_file_path = f"trained_models/{selected_model_name}_{preprocessed_data.id}.joblib"
-# dump(model, model_file_path)
+        # Specify the parameters for regression
+        params = {
+            'objective': 'regression',  # For regression tasks
+            'metric': 'l2',  # Mean squared error
+            'boosting_type': 'gbdt',
+            'num_leaves': 31,
+            'learning_rate': 0.01,
+            'feature_fraction': 0.9,
+        }
 
-# ai_model =
-# Save results to the database
-# with open(model_file_path, 'rb') as model_file:
-#     result = Result(
-#         ai_model=ai_model,
-#         preprocessed_dataset=preprocessed_data,
-#         accuracy=accuracy,
-#         f1_score=f1,
-#         mse=mse,
-#         mae=mae
-#     )
-#     result.trained_model_file.save(f"{selected_model_name}_{preprocessed_data.id}.joblib", File(model_file))
-#     result.save()
+        # Train the model
+        model = lgb.train(params, train_data, valid_sets=[test_data], num_boost_round=100)
 
-#  end draft
+        end_train_time = time.time()
+        training_time = end_train_time - start_train_time
+
+        # Track testing (prediction) time
+        start_test_time = time.time()
+
+        # Predict on the test set
+        predictions = model.predict(X_test, num_iteration=model.best_iteration)
+
+        end_test_time = time.time()
+        testing_time = end_test_time - start_test_time
+
+        # Generate plots (optional)
+        plots = generate_visualizations(X_train, X_test, y_train, y_test, model)
+
+        # Calculate regression metrics
+        metric_results = {
+            "mse": mean_squared_error(y_test, predictions),
+            "mae": mean_absolute_error(y_test, predictions),
+            "r2": r2_score(y_test, predictions),
+            "training time": training_time,
+            "testing time": testing_time,
+        }
+
+        obj = {
+            "metric_results": remove_none_values(metric_results),
+            "plots": remove_none_values(plots),
+            "model": model,  # Include the trained model
+        }
+
+        return obj
+    else:
+        raise Exception('Target column is required for LightGBM Regression.')
+
+
+# lightgbm classification
+def train_classification_LightGBM(preprocesseddata, params,target_column=None):
+    objective = params['objective']
+    # objective : multiclass or binary
+
+    if target_column:
+        X_train, X_test, y_train, y_test = preprocesseddata
+
+        # Track training time
+        start_train_time = time.time()
+        print('training started')
+
+        # Create the LightGBM dataset
+        train_data = lgb.Dataset(X_train, label=y_train)
+        test_data = lgb.Dataset(X_test, label=y_test, reference=train_data)
+
+        if objective == 'binary':
+            # For binary classification
+            params = {
+                'objective': 'binary',
+                'metric': 'binary_error',  # Binary classification
+                'boosting_type': 'gbdt',
+                'num_leaves': 31,
+                'learning_rate': 0.05,
+                'feature_fraction': 0.9,
+            }
+        else:
+            # For multi-class classification
+            params = {
+                'objective': 'multiclass',
+                'metric': 'multi_logloss',  # Multi-class classification
+                'boosting_type': 'gbdt',
+                'num_leaves': 31,
+                'learning_rate': 0.05,
+                'feature_fraction': 0.9,
+                'num_class': 3,  # Specify the number of classes for multi-class classification
+            }
+
+
+        # Train the model
+        model = lgb.train(params, train_data, valid_sets=[test_data], num_boost_round=100, early_stopping_rounds=10)
+
+        end_train_time = time.time()
+        training_time = end_train_time - start_train_time
+
+        # Track testing (prediction) time
+        start_test_time = time.time()
+
+        # Predict on the test set
+        predictions = model.predict(X_test, num_iteration=model.best_iteration)
+
+        # Convert probabilities to binary labels for classification
+        predictions_binary = (predictions >= 0.5).astype(int)
+
+        end_test_time = time.time()
+        testing_time = end_test_time - start_test_time
+
+        # Generate plots (optional)
+        plots = generate_visualizations(X_train, X_test, y_train, y_test, model)
+
+        # Calculate classification metrics
+        accuracy = accuracy_score(y_test, predictions_binary)
+        precision = precision_score(y_test, predictions_binary)
+        recall = recall_score(y_test, predictions_binary)
+        f1 = f1_score(y_test, predictions_binary)
+
+        try:
+            auc = roc_auc_score(y_test, predictions)  # Only for binary classification
+        except ValueError:
+            auc = None
+
+        metric_results = {
+            "accuracy": accuracy,
+            "precision": precision,
+            "recall": recall,
+            "f1 score": f1,
+            "auc": auc,
+            "training time": training_time,
+            "testing time": testing_time,
+        }
+
+        obj = {
+            "metric_results": remove_none_values(metric_results),
+            "plots": remove_none_values(plots),
+            "model": model,  # Include the trained model
+        }
+
+        return obj
+    else:
+        raise Exception('Target column is required for LightGBM Classification.')
