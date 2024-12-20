@@ -18,48 +18,66 @@
 
 <body>
 
-    <!--*******************
-        Preloader start
-    ********************-->
-    <div id="preloader">
-        <div class="loader">
-            <svg class="circular" viewBox="25 25 50 50">
-                <circle class="path" cx="50" cy="50" r="20" fill="none" stroke-width="3" stroke-miterlimit="10" />
-            </svg>
-        </div>
-    </div>
-    <!--*******************
-        Preloader end
-    ********************-->
+    <style>
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none; /* Hidden by default */
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
 
-    
-    <!--**********************************
-        Main wrapper start
-    ***********************************-->
-    <div id="main-wrapper"  style="min-height: 130vh !important;">
+        .modal-dialog {
+            background: transparent;
+            border-radius: 5px;
+            width: 100%;
+            max-width: 500px;
+            padding: 20px;
+        }
 
-{% include "navbar.html" %}
+        .modal-content {
+            position: relative;
+            background: white;
+            border-radius: 10px;
+        }
 
-{% include "sideBar.html" %}
+        .modal-header,
+        .modal-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
 
+        .btn-close {
+            background: transparent;
+            border: none;
+            font-size: 1.5rem;
+            line-height: 1;
+            cursor: pointer;
+        }
+    </style>
 
-        <!--**********************************
-            Content body start
-        ***********************************-->
+    <!-- Main content -->
+    <div id="main-wrapper" style="min-height: 130vh !important;">
+        {% include "navbar.html" %}
+        {% include "sideBar.html" %}
+
         <div class="content-body">
-
-
             <div class="container-fluid">
                 <h3 style="padding: 10px">Choose a Machine Learning Model To Train</h3>
                 <div class="row">
-<!-- loop over uploaded files by that user -->
-                 <div class="col-3 ">
+                    <div class="col-3">
                         <div class="card">
                             <div class="card-body">
                                 <div class="text-center">
                                     <span class="display-5">
                                         <i class="fas fa-file-alt" data-fa-transform="shrink-2 up-4"></i>
-                                        </span>
+                                    </span>
                                     <h2 class="mt-3">K-Means</h2>
                                     <p>Clustering</p>
                                     <button class="btn gradient-8 btn-md border-0 btn-rounded px-5"
@@ -70,217 +88,126 @@
                             </div>
                         </div>
                     </div>
-
                 </div>
-
-
-
             </div>
-            <!-- #/ container -->
         </div>
-        <!--**********************************
-            Content body end
-        ***********************************-->
-        
-        
-{% include "footer.html" %}
 
-
+        {% include "footer.html" %}
     </div>
-    <!--**********************************
-        Main wrapper end
-    ***********************************-->
 
-        <!-- Modal -->
-<div class="modal" id="trainModal" style="display: none;">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="trainModalLabel">Train Model</h5>
-                <button type="button" class="btn-close" onclick="closeModal()">×</button>
-            </div>
-            <div class="modal-body">
-                <form id="trainForm">
+    <!-- Modal -->
+    <div class="modal" id="trainModal" style="display: none;">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="trainModalLabel">Train Model</h5>
+                    <button type="button" class="btn-close" onclick="closeModal()">×</button>
+                </div>
+                <div class="modal-body">
+                    <form id="trainForm">
                         {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="modelName" class="form-label">Model</label>
+                            <input type="text" class="form-control" id="modelName" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label for="ChosentrainingFile" class="form-label">Select Training Dataset</label>
+                            <select style="width: 100% ; padding: 6px" name="ChosentrainingFile" id="ChosentrainingFile">
+                                {% for file in processeddatasets %}
+                                    {% if not file.raw_dataset.TargetColumn %}
+                                        <option value="{{file.id}}">{{file.raw_dataset.datasetCostumName}}</option>
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                        </div>
 
-                    <div class="mb-3">
-                        <label for="modelName" class="form-label">Model</label>
-                        <input type="text" class="form-control" id="modelName" readonly>
-                    </div>
-                    <div class="mb-3">
-                        <label for="ChosentrainingFile" class="form-label">Select Training Dataset</label>
-<!--                        <input type="file" class="form-control" id="trainingFile" required>-->
-                        <select style="width: 100% ; padding: 6px" name="ChosentrainingFile" id="ChosentrainingFile">
-                        {% for file in processeddatasets %}
-                            {% if not file.raw_dataset.TargetColumn %}
-                          <option value="{{file.id}}">{{file.raw_dataset.datasetCostumName}}</option>
-                            {% endif %}
-                        {% endfor %}
-                        </select>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" onclick="closeModal()">Close</button>
-                <button type="button" class="btn btn-primary" onclick="startTraining()">Start Training</button>
+                        <!-- Hyperparameter inputs for K-Means -->
+                        <div class="mb-3">
+                            <label for="nClusters" class="form-label">Number of Clusters</label>
+                            <input type="number" class="form-control" id="nClusters" value="5" min="2" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="maxIterations" class="form-label">Max Iterations</label>
+                            <input type="number" class="form-control" id="maxIterations" value="300" min="1" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Close</button>
+                    <button type="button" class="btn btn-primary" onclick="startTraining()">Start Training</button>
+                </div>
             </div>
         </div>
     </div>
-</div>
-
-    <style>
-        .modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    display: none; /* Hidden by default */
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-}
-
-.modal-dialog {
-    background: transparent;
-    border-radius: 5px;
-    width: 100%;
-    max-width: 500px;
-    padding: 20px;
-}
-
-.modal-content {
-    position: relative;
-    background: white;
-    border-radius: 10px;
-}
-
-.modal-header,
-.modal-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.btn-close {
-    background: transparent;
-    border: none;
-    font-size: 1.5rem;
-    line-height: 1;
-    cursor: pointer;
-}
-
-    </style>
-
 
     <script>
-      function openModal(clickedmodel) {
-    modelNameElement = clickedmodel.parentNode.querySelector('h2');
-    document.getElementById('modelName').value = modelNameElement.innerText;
-    const modal = document.getElementById('trainModal');
-    modal.style.display = 'flex'; // Show modal
-}
+        function openModal(clickedmodel) {
+            modelNameElement = clickedmodel.parentNode.querySelector('h2');
+            document.getElementById('modelName').value = modelNameElement.innerText;
+            const modal = document.getElementById('trainModal');
+            modal.style.display = 'flex'; // Show modal
+        }
 
-function closeModal() {
-    const modal = document.getElementById('trainModal');
-    modal.style.display = 'none'; // Hide modal
-}
+        function closeModal() {
+            const modal = document.getElementById('trainModal');
+            modal.style.display = 'none'; // Hide modal
+        }
 
+        function startTraining() {
+            // Get the selected dataset ID and model name from the DOM
+            const processedFileId = document.getElementById('ChosentrainingFile').value;
+            let modelName = document.getElementById('modelName').value;
+            let nClusters = document.getElementById('nClusters').value; // Get the number of clusters
+            let maxIterations = document.getElementById('maxIterations').value; // Get max iterations
 
-function startTraining() {
-    // Get the selected dataset ID and model name from the DOM
-    const processedFileId = document.getElementById('ChosentrainingFile').value;
-    let modelName = document.getElementById('modelName').value;
+            // Create a form dynamically and submit it
+            const form = document.createElement("form");
 
-    // Create a form dynamically and submit it
-    const form = document.createElement("form");
+            // Add a hidden input for the CSRF token
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+            const csrfInput = document.createElement("input");
+            csrfInput.type = "hidden";
+            csrfInput.name = "csrfmiddlewaretoken";
+            csrfInput.value = csrfToken;
+            form.appendChild(csrfInput);
 
-    // Add a hidden input for the CSRF token
-    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-    const csrfInput = document.createElement("input");
-    csrfInput.type = "hidden";
-    csrfInput.name = "csrfmiddlewaretoken";
-    csrfInput.value = csrfToken;
-    form.appendChild(csrfInput);
+            // Add a hidden input for the hyperparameters (e.g., 'n_clusters' and 'max_iterations')
+            const paramsInput = document.createElement("input");
+            paramsInput.type = "hidden";
+            paramsInput.name = "params";
 
-    // Add a hidden input for any POST body data (e.g., 'params')
-    const paramsInput = document.createElement("input");
-    paramsInput.type = "hidden";
-    paramsInput.name = "params";
+            paramsInput.value = JSON.stringify({
+                'n_clusters': Number(nClusters),
+                'max_iter': Number(maxIterations),
+            });
 
-    paramsInput.value = JSON.stringify({
-              'n_clusters':5,
-        });
+            form.appendChild(paramsInput);
 
-form.appendChild(paramsInput);
+            // Append the form to the document
+            document.body.appendChild(form);
 
-    // if (modelName === "LightGBM") {
-    //     modelName = "Regression LightGBM";
-    //     paramsInput.value = JSON.stringify({
-    //         'objective': 'regression',
-    //         'metric': 'l2',
-    //         'boosting_type': 'gbdt',
-    //         'num_leaves': 31,
-    //         'learning_rate': 0.01,
-    //         'feature_fraction': 0.9,
-    //     });
-    //     form.appendChild(paramsInput);
-    // }else if (modelName === "Linear Regression"){
-    //     paramsInput.value = JSON.stringify({
-    //           'key':'val',
-    //
-    //     });
-    //     form.appendChild(paramsInput);
-    //
-    // }else if (modelName === "Logistic Regression"){
-    //       paramsInput.value = JSON.stringify({
-    //           'key':'val',
-    //             });
-    //       form.appendChild(paramsInput);
-    //
-    // }
+            // Set the URL and submit the form
+            const url = `/train_model/${modelName}/${processedFileId}/unsupervised/`;
+            form.method = "POST";
+            form.action = url;
+            form.submit();
 
-    // Append the form to the document
-    document.body.appendChild(form);
+            // Close the modal (optional)
+            closeModal();
 
-    // Set the URL and submit the form
-    const url = `/train_model/${modelName}/${processedFileId}/unsupervised/`;
-    form.method = "POST";
-    form.action = url;
-    form.submit();
+            // Start the preloader animation
+            const preloader = document.getElementById("preloader");
+            preloader.style.display = "flex"; // Show preloader
+        }
 
-    // Close the modal (optional)
-    closeModal();
-
-    // Start the preloader animation
-    const preloader = document.getElementById("preloader");
-    preloader.style.display = "block";
-}
-
-// function startTraining() {
-//     // Get the selected dataset ID and model name from the DOM
-//     const processedFileId = document.getElementById('ChosentrainingFile').value;
-//     let modelName = document.getElementById('modelName').value;
-//
-//     // Construct the URL for the GET request
-//     const url = `/train_model/${modelName}/${processedFileId}/unsupervised`;
-//
-//     // Redirect the browser to the constructed URL
-//     window.location.href = url;
-//
-//     // Close the modal
-//     closeModal();
-// }
-
-
+        // Hide preloader after the page loads
+        window.onload = function() {
+            const preloader = document.getElementById("preloader");
+            preloader.style.display = "none"; // Hide preloader after the page loads
+        };
     </script>
 
-
-
-    <!--**********************************
-        Scripts
-    ***********************************-->
+    <!-- Scripts -->
     <script src="{% static 'plugins/common/common.min.js' %}"></script>
     <script src="{% static 'js/custom.min.js' %}"></script>
     <script src="{% static 'js/settings.js' %}"></script>
