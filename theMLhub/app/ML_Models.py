@@ -183,6 +183,8 @@ def train_logistic_regression(preprocesseddata, params, target_column=None):
 
 # lightgbm regression
 def train_regression_LightGBM(preprocesseddata, params, target_column=None):
+    print(f" i got these params from front end : {params}.\n")
+
     if target_column:
         X_train, X_test, y_train, y_test = encode_categorical_data(preprocesseddata, supervised=True)
 
@@ -195,14 +197,14 @@ def train_regression_LightGBM(preprocesseddata, params, target_column=None):
         test_data = lgb.Dataset(X_test, label=y_test, reference=train_data)
 
         # Specify the parameters for regression
-        params = {
-            'objective': 'regression',  # For regression tasks
-            'metric': 'l2',  # Mean squared error
-            'boosting_type': 'gbdt',
-            'num_leaves': 31,
-            'learning_rate': 0.01,
-            'feature_fraction': 0.9,
-        }
+        # params = {
+        #     'objective': 'regression',  # For regression tasks
+        #     'metric': 'l2',  # Mean squared error
+        #     'boosting_type': 'gbdt',
+        #     'num_leaves': 31,
+        #     'learning_rate': 0.01,
+        #     'feature_fraction': 0.9,
+        # }
 
         # Train the model
         model = lgb.train(params, train_data, valid_sets=[test_data], num_boost_round=100)

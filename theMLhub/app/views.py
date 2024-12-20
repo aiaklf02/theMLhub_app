@@ -258,55 +258,62 @@ MODEL_FUNCTIONS = {
     # Add more models here as needed
 }
 
+import json
+
 @login_required_custom
-def train_model_view(request, model_name, processed_file_id,supervised):
-    # Fetch the PreprocessedDataset object
-    preprocessed_dataset = PreprocessedDataset.objects.get(id=processed_file_id)
+@csrf_exempt
+def train_model_view(request, model_name, processed_file_id, supervised):
+    if request.method == "POST":
+        # Extract 'params' from the POST body
+        params = request.POST.get("params")  # Use this if the data is form-encoded
+        params_dict = json.loads(params)
 
-    # Fetch the target column from the associated RawDataset
-    target_column = preprocessed_dataset.raw_dataset.TargetColumn
+        # Fetch the PreprocessedDataset object
+        preprocessed_dataset = PreprocessedDataset.objects.get(id=processed_file_id)
 
-    if supervised == "supervised":
-        processedData = preprocessed_dataset.process_data(target_column)
-    else:
-        target_column = None
-        processedData = preprocessed_dataset.process_data_unsupervised()
+        # Fetch the target column from the associated RawDataset
+        target_column = preprocessed_dataset.raw_dataset.TargetColumn
 
-    # Check if the selected model exists in the mapping
-    model_function = MODEL_FUNCTIONS.get(model_name)
+        if supervised == "supervised":
+            processedData = preprocessed_dataset.process_data(target_column)
+        else:
+            target_column = None
+            processedData = preprocessed_dataset.process_data_unsupervised()
 
-    context = {
-        "message": "Couldnt Start traning , Invalid model or dataset !",
-        "result": 'no result to show',
-        "status": 'failed',
-        "modelName": model_name,
-        "dataCostumName": preprocessed_dataset.raw_dataset.datasetCostumName
-    }
-
-    try:
-        # Execute the associated function, passing the file path and target column
-        result = model_function(processedData,params=None, target_column=target_column)
+        # Check if the selected model exists in the mapping
+        model_function = MODEL_FUNCTIONS.get(model_name)
 
         context = {
-            "message": f"Model trained successfully",
-            "result": result,
-            "status": 'success',
+            "message": "Couldnt Start traning , Invalid model or dataset !",
+            "result": 'no result to show',
+            "status": 'failed',
             "modelName": model_name,
             "dataCostumName": preprocessed_dataset.raw_dataset.datasetCostumName
         }
 
-    except Exception as e:
-        raise e
+        try:
+            # Execute the associated function, passing the file path and target column
+            result = model_function(processedData,params=params_dict, target_column=target_column)
 
-        context = {
-            "message": f"Error during training",
-            "result": f'{str(e)}',
-            "status":'failed',
-            "modelName": model_name,
-            "dataCostumName": preprocessed_dataset.raw_dataset.datasetCostumName
-        }
+            context = {
+                "message": f"Model trained successfully",
+                "result": result,
+                "status": 'success',
+                "modelName": model_name,
+                "dataCostumName": preprocessed_dataset.raw_dataset.datasetCostumName
+            }
 
-    return render(request, 'train_result.html', context)
+        except Exception as e:
+            context = {
+                "message": f"Error during training",
+                "result": f'{str(e)}',
+                "status":'failed',
+                "modelName": model_name,
+                "dataCostumName": preprocessed_dataset.raw_dataset.datasetCostumName
+            }
+            raise e
+
+        return render(request, 'train_result.html', context)
 
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse
