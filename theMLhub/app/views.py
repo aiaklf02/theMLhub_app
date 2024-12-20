@@ -319,18 +319,18 @@ def visualize_data(request, datatype,dataset_id):
     if datatype == 'raw':
         # Recherche dans RawDataset
         dataset = RawDataset.objects.filter(id=dataset_id).first()
-        data_visualizations = DataVisualization.objects.filter(dataset=dataset)
+        data_visualizations = DataVisualization.objects.filter(dataset=dataset, dataset_processed__isnull=True)
 
         if not data_visualizations.exists():
             dataset.generate_visualizations()
-            data_visualizations = DataVisualization.objects.filter(dataset=dataset)
+            data_visualizations = DataVisualization.objects.filter(dataset=dataset, dataset_processed__isnull=True)
 
         return render(request, 'visualisationData.html', {
             'data_visualizations': data_visualizations,
             'dataset': dataset,
         })
 
-    elif datatype == 'preproccessed':
+    else:
         dataset = PreprocessedDataset.objects.filter(id=dataset_id).first()
         data_visualizations = DataVisualization.objects.filter(dataset_processed=dataset)
 
@@ -343,5 +343,5 @@ def visualize_data(request, datatype,dataset_id):
             'dataset': dataset,
         })
 
-    else:
-        return HttpResponse("Dataset not found.", status=404)
+    # else:
+    #     return HttpResponse("Dataset not found.", status=404)

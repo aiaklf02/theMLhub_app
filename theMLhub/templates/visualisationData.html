@@ -39,15 +39,15 @@
                 <h1>Visualizations for Dataset: {{ dataset.datasetCostumName }}{{ dataset.preprocessedCostumName }}</h1>
 
                     {% if data_visualizations %}
-                        <ul>
+                        <div class="row">
                             {% for visualization in data_visualizations %}
-                                <li>
+                                <div class="col-6" style="padding: 20px">
                                     <h3>{{ visualization.visualization_name }}</h3>
                                     <p>Graph Type: {{ visualization.graph_type }}</p>
-                                    <img src="{{ visualization.graph_file.url }}" alt="{{ visualization.visualization_name }}">
-                                </li>
+                                    <img style="max-height: 60vh" src="{{ visualization.graph_file.url }}" alt="{{ visualization.visualization_name }}">
+                                </div>
                             {% endfor %}
-                        </ul>
+                        </div>
                     {% else %}
                         <p>No visualizations found for this dataset.</p>
                     {% endif %}
