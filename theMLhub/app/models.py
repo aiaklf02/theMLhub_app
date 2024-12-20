@@ -68,10 +68,18 @@ class RawDataset(models.Model):
         DataVisualization.generate_correlation_heatmap(df, correlation_path)
         output_paths.append(correlation_path)
 
-        class_distribution_path = os.path.join(visualizations_dir, 'class_distribution.png')
-        if 'target' in df.columns:
-            DataVisualization.generate_class_distribution(df, 'target', class_distribution_path)
-            output_paths.append(class_distribution_path)
+        if self.TargetColumn in df.columns:
+            class_distribution_path = os.path.join(visualizations_dir, 'class_distribution.png')
+            # DataVisualization.generate_class_distribution(df, self.TargetColumn, class_distribution_path)
+            # output_paths.append(class_distribution_path)
+            try:
+                DataVisualization.generate_class_distribution(df, self.TargetColumn, class_distribution_path)
+                success = True
+            except Exception as e:
+                success = False
+                print(f'exception class distribution visual : {e}')
+            if success:
+                output_paths.append(class_distribution_path)
 
         histogram_path = os.path.join(visualizations_dir, 'histograms.png')
         DataVisualization.generate_histograms(df, histogram_path)
@@ -244,11 +252,16 @@ class PreprocessedDataset(models.Model):
         DataVisualization.generate_histograms(df, histogram_path)
         output_paths.append(histogram_path)
 
-        # Ajouter des visualisations supplémentaires si nécessaire
         if 'target' in df.columns:
             class_distribution_path = os.path.join(visualizations_dir, 'class_distribution.png')
-            DataVisualization.generate_class_distribution(df, 'target', class_distribution_path)
-            output_paths.append(class_distribution_path)
+            try:
+                DataVisualization.generate_class_distribution(df, 'target', class_distribution_path)
+                success = True
+            except Exception as e:
+                success = False
+                print(f'exception class distribution visual : {e}')
+            if success:
+                output_paths.append(class_distribution_path)
 
         # Enregistrer les visualisations dans la base de données
         for path in output_paths:
