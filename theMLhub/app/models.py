@@ -76,10 +76,9 @@ class RawDataset(models.Model):
         DataVisualization.generate_histograms(df, histogram_path)
         output_paths.append(histogram_path)
 
-        # Save the visualizations to the database with relative file paths
         for path in output_paths:
+            
             visualization_name = os.path.basename(path).replace('.png', '').replace('_', ' ').title()
-            # Save the file path relative to MEDIA_URL
             relative_path = os.path.relpath(path, settings.MEDIA_ROOT)
             DataVisualization.objects.create(
                 dataset=self,
@@ -87,9 +86,6 @@ class RawDataset(models.Model):
                 graph_type=visualization_name,
                 graph_file=relative_path ,
             )
-
-
-
 
 from django.http import JsonResponse
 
@@ -126,7 +122,6 @@ class PreprocessedDataset(models.Model):
             else:  
                 df[col] = df[col].fillna(df[col].median())  
 
-        # Séparer X et y
         X = df.drop(target_column, axis=1)
         y = df[target_column]
         if pd.api.types.is_numeric_dtype(y):
