@@ -118,7 +118,12 @@
 <!--                        <input type="file" class="form-control" id="trainingFile" required>-->
                         <select style="width: 100% ; padding: 6px" name="ChosentrainingFile" id="ChosentrainingFile">
                         {% for file in processeddatasets %}
-                          <option value="{{file.id}}">{{file.raw_dataset.datasetCostumName}}</option>
+                            {% if file.raw_dataset.TargetColumn %}
+
+                            <option value="{{file.id}}">{{file.raw_dataset.datasetCostumName}}</option>
+
+                            {% endif %}
+
                         {% endfor %}
                         </select>
                     </div>
@@ -222,6 +227,7 @@ function startTraining() {
             'feature_fraction': 0.9,
         }
     * */
+
     if (modelName === "LightGBM") {
         modelName = "Regression LightGBM";
         paramsInput.value = JSON.stringify({
@@ -233,6 +239,19 @@ function startTraining() {
             'feature_fraction': 0.9,
         });
         form.appendChild(paramsInput);
+    }else if (modelName === "Linear Regression"){
+        paramsInput.value = JSON.stringify({
+              'key':'val',
+
+        });
+        form.appendChild(paramsInput);
+
+    }else if (modelName === "Logistic Regression"){
+          paramsInput.value = JSON.stringify({
+              'key':'val',
+                });
+          form.appendChild(paramsInput);
+
     }
 
     // Append the form to the document

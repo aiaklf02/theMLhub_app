@@ -101,6 +101,8 @@
             </div>
             <div class="modal-body">
                 <form id="trainForm">
+                        {% csrf_token %}
+
                     <div class="mb-3">
                         <label for="modelName" class="form-label">Model</label>
                         <input type="text" class="form-control" id="modelName" readonly>
@@ -110,7 +112,9 @@
 <!--                        <input type="file" class="form-control" id="trainingFile" required>-->
                         <select style="width: 100% ; padding: 6px" name="ChosentrainingFile" id="ChosentrainingFile">
                         {% for file in processeddatasets %}
+                            {% if not file.raw_dataset.TargetColumn %}
                           <option value="{{file.id}}">{{file.raw_dataset.datasetCostumName}}</option>
+                            {% endif %}
                         {% endfor %}
                         </select>
                     </div>
@@ -183,20 +187,91 @@ function closeModal() {
     modal.style.display = 'none'; // Hide modal
 }
 
+
 function startTraining() {
     // Get the selected dataset ID and model name from the DOM
     const processedFileId = document.getElementById('ChosentrainingFile').value;
     let modelName = document.getElementById('modelName').value;
 
-    // Construct the URL for the GET request
-    const url = `/train_model/${modelName}/${processedFileId}/unsupervised`;
+    // Create a form dynamically and submit it
+    const form = document.createElement("form");
 
-    // Redirect the browser to the constructed URL
-    window.location.href = url;
+    // Add a hidden input for the CSRF token
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    const csrfInput = document.createElement("input");
+    csrfInput.type = "hidden";
+    csrfInput.name = "csrfmiddlewaretoken";
+    csrfInput.value = csrfToken;
+    form.appendChild(csrfInput);
 
-    // Close the modal
+    // Add a hidden input for any POST body data (e.g., 'params')
+    const paramsInput = document.createElement("input");
+    paramsInput.type = "hidden";
+    paramsInput.name = "params";
+
+    paramsInput.value = JSON.stringify({
+              'n_clusters':5,
+        });
+
+form.appendChild(paramsInput);
+
+    // if (modelName === "LightGBM") {
+    //     modelName = "Regression LightGBM";
+    //     paramsInput.value = JSON.stringify({
+    //         'objective': 'regression',
+    //         'metric': 'l2',
+    //         'boosting_type': 'gbdt',
+    //         'num_leaves': 31,
+    //         'learning_rate': 0.01,
+    //         'feature_fraction': 0.9,
+    //     });
+    //     form.appendChild(paramsInput);
+    // }else if (modelName === "Linear Regression"){
+    //     paramsInput.value = JSON.stringify({
+    //           'key':'val',
+    //
+    //     });
+    //     form.appendChild(paramsInput);
+    //
+    // }else if (modelName === "Logistic Regression"){
+    //       paramsInput.value = JSON.stringify({
+    //           'key':'val',
+    //             });
+    //       form.appendChild(paramsInput);
+    //
+    // }
+
+    // Append the form to the document
+    document.body.appendChild(form);
+
+    // Set the URL and submit the form
+    const url = `/train_model/${modelName}/${processedFileId}/unsupervised/`;
+    form.method = "POST";
+    form.action = url;
+    form.submit();
+
+    // Close the modal (optional)
     closeModal();
+
+    // Start the preloader animation
+    const preloader = document.getElementById("preloader");
+    preloader.style.display = "block";
 }
+
+// function startTraining() {
+//     // Get the selected dataset ID and model name from the DOM
+//     const processedFileId = document.getElementById('ChosentrainingFile').value;
+//     let modelName = document.getElementById('modelName').value;
+//
+//     // Construct the URL for the GET request
+//     const url = `/train_model/${modelName}/${processedFileId}/unsupervised`;
+//
+//     // Redirect the browser to the constructed URL
+//     window.location.href = url;
+//
+//     // Close the modal
+//     closeModal();
+// }
 
 
     </script>

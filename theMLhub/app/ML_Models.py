@@ -247,6 +247,8 @@ from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_score
 
 def KMeansClustering(preprocesseddata, params, target_column=None):
+    print(f" i got these params from front end : {params}.\n")
+
     try:
         # Encode the categorical data (if needed) for unsupervised learning
         df = encode_categorical_data(preprocesseddata, supervised=False)
@@ -259,6 +261,8 @@ def KMeansClustering(preprocesseddata, params, target_column=None):
             n_clusters = params.get('n_clusters', 3)
         else:
             n_clusters = 3
+
+        print(f'running kmeans with nclusters = {n_clusters}')
         # Train the KMeans model
         model = KMeans(n_clusters=n_clusters, random_state=42)
         model.fit(df)
