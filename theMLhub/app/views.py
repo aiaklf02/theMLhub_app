@@ -312,36 +312,36 @@ from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse
 from .models import RawDataset, PreprocessedDataset, DataVisualization
 
-def visualize_data(request, dataset_id):
+def visualize_data(request, datatype,dataset_id):
     """
     Vue pour afficher les visualisations associées à un jeu de données brut ou prétraité.
     """
-    try:
+    if datatype == 'raw':
         # Recherche dans RawDataset
-        raw_dataset = RawDataset.objects.filter(id=dataset_id).first()
-        processed_dataset = PreprocessedDataset.objects.filter(id=dataset_id).first()
-        
-        if raw_dataset:
-            dataset = raw_dataset
-            data_visualizations = DataVisualization.objects.filter(dataset=raw_dataset)
-        elif processed_dataset:
-            dataset = processed_dataset
-            data_visualizations = DataVisualization.objects.filter(dataset_processed=processed_dataset)
-        else:
-            return HttpResponse("Dataset not found.", status=404)
+        dataset = RawDataset.objects.filter(id=dataset_id).first()
+        data_visualizations = DataVisualization.objects.filter(dataset=dataset)
 
         if not data_visualizations.exists():
-            # Générer les visualisations si elles n'existent pas
             dataset.generate_visualizations()
-            if raw_dataset:
-                data_visualizations = DataVisualization.objects.filter(dataset=raw_dataset)
-            else:
-                data_visualizations = DataVisualization.objects.filter(dataset_processed=processed_dataset)
+            data_visualizations = DataVisualization.objects.filter(dataset=dataset)
 
         return render(request, 'visualisationData.html', {
             'data_visualizations': data_visualizations,
             'dataset': dataset,
         })
 
-    except Exception as e:
-        return HttpResponse(f"An error occurred: {str(e)}", status=500)
+    elif datatype == 'preproccessed':
+        dataset = PreprocessedDataset.objects.filter(id=dataset_id).first()
+        data_visualizations = DataVisualization.objects.filter(dataset_processed=dataset)
+
+        if not data_visualizations.exists():
+            dataset.generate_visualizations()
+            data_visualizations = DataVisualization.objects.filter(dataset_processed=dataset)
+
+        return render(request, 'visualisationData.html', {
+            'data_visualizations': data_visualizations,
+            'dataset': dataset,
+        })
+
+    else:
+        return HttpResponse("Dataset not found.", status=404)

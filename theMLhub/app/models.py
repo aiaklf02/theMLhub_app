@@ -1,6 +1,7 @@
 import os
 
 from django.contrib.auth.models import AbstractUser
+from django.core.files import File
 from django.db import models
 import pandas as pd
 import numpy as np
@@ -159,7 +160,12 @@ class PreprocessedDataset(models.Model):
 
         processed_data.to_csv(processed_file_path, index=False)
 
-  
+        # Associate the processed file with the file_preprocessed_data field
+        with open(processed_file_path, 'rb') as f:
+            self.file_preprocessed_data.save(f'{self.preprocessedCostumName}.csv', File(f))
+
+        # Save the model instance
+        self.save()
      
         return X_train, X_test, y_train, y_test
 
@@ -202,6 +208,12 @@ class PreprocessedDataset(models.Model):
 
         df.to_csv(processed_file_path, index=False)
 
+        # Associate the processed file with the file_preprocessed_data field
+        with open(processed_file_path, 'rb') as f:
+            self.file_preprocessed_data.save(f'{self.preprocessedCostumName}_processed.csv', File(f))
+
+        # Save the model instance
+        self.save()
 
         return df
     def generate_visualizations(self):
@@ -243,6 +255,7 @@ class PreprocessedDataset(models.Model):
             visualization_name = os.path.basename(path).replace('.png', '').replace('_', ' ').title()
             relative_path = os.path.relpath(path, settings.MEDIA_ROOT)
             DataVisualization.objects.create(
+                dataset=self.raw_dataset,
                 dataset_processed=self,
                 visualization_name=visualization_name,
                 graph_type=visualization_name,

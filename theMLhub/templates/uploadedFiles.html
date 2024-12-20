@@ -46,7 +46,7 @@
                                     </span>
                                     <h4 class="mt-1" title="{{ file.preprocessedCostumName }}">{{ file.preprocessedCostumName }}</h4>
                                     <p>Processed: {{ file.processed_at }}</p>
-                                    <button class="btn gradient-8 btn-md border-0 btn-rounded px-5" onclick="visualizeData({{ file.id }})">
+                                    <button class="btn gradient-8 btn-md border-0 btn-rounded px-5" onclick="visualizeprepData({{ file.id }})">
                                         Visualise
                                     </button>
                                 </div>
@@ -70,7 +70,7 @@
                                     </span>
                                     <h4 class="mt-1" title="{{ file.datasetCostumName }}">{{ file.datasetCostumName }}</h4>
                                     <p>Uploaded: {{ file.uploaded_at }}</p>
-                                    <button class="btn gradient-8 btn-md border-0 btn-rounded px-5" onclick="visualizeData({{ file.id }})">
+                                    <button class="btn gradient-8 btn-md border-0 btn-rounded px-5" onclick="visualizerawData({{ file.id }})">
                                         Visualise
                                     </button>
                                 </div>
@@ -120,13 +120,22 @@
         setupToggle("processed-datasets", "processed-toggle");
         setupToggle("raw-datasets", "raw-toggle");
 
-        function visualizeData(fileId) {
+        function visualizeprepData(fileId) {
             const loading = document.createElement("div");
             loading.textContent = "Loading...";
             loading.style.textAlign = "center";
             document.body.appendChild(loading);
-            window.location.href = `/visualise-data/${fileId}/`;
+            window.location.href = `/visualise-data/preproccessed/${fileId}/`;
         }
+
+         function visualizerawData(fileId) {
+            const loading = document.createElement("div");
+            loading.textContent = "Loading...";
+            loading.style.textAlign = "center";
+            document.body.appendChild(loading);
+            window.location.href = `/visualise-data/raw/${fileId}/`;
+        }
+
     </script>
 </body>
 
