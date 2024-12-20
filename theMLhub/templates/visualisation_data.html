@@ -5,7 +5,7 @@
 </head>
 <body>
     <h1>Visualizations for Dataset: {{ dataset.datasetCostumName }}</h1>
-
+<div style="width: 100%;">
     {% if data_visualizations %}
         <ul>
             {% for visualization in data_visualizations %}
@@ -19,5 +19,6 @@
     {% else %}
         <p>No visualizations found for this dataset.</p>
     {% endif %}
+</div>
 </body>
 </html>
