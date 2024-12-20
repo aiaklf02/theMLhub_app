@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 {% load static %}
-
 <html lang="en">
 
 <head>
@@ -13,11 +12,9 @@
     <!-- Custom Stylesheet -->
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.10/css/all.css">
     <link href="{% static 'css/style.css' %}" rel="stylesheet">
-
 </head>
 
 <body>
-
     <!-- Preloader start -->
     <div id="preloader">
         <div class="loader">
@@ -40,16 +37,18 @@
                 <h3 style="padding: 10px">My Pre-Processed DataSets</h3>
                 <div class="row processed-datasets">
                    {% for file in processeddatasets %}
-                   <div class="col-3 dataset-item">
+                   <div class="col-md-3 col-sm-6 dataset-item">
                         <div class="card">
                             <div class="card-body">
                                 <div class="text-center">
                                     <span class="display-5">
-                                        <i class="fas fa-file-alt" data-fa-transform="shrink-2 up-4"></i>
+                                        <i class="fas fa-file-alt" aria-hidden="true"></i>
                                     </span>
-                                    <h4 class="mt-1">{{ file.raw_dataset.datasetCostumName }}</h4>
-                                    <p>Processed: {{file.processed_at}}</p>
-                                    <a href="javascript:void(0);" data-value="{{file.id}}" class="btn gradient-8 btn-md border-0 btn-rounded px-5" onclick="visualizeData({{file.id}});">Visualise</a>
+                                    <h4 class="mt-1" title="{{ file.preprocessedCostumName }}">{{ file.preprocessedCostumName }}</h4>
+                                    <p>Processed: {{ file.processed_at }}</p>
+                                    <button class="btn gradient-8 btn-md border-0 btn-rounded px-5" onclick="visualizeData({{ file.id }})">
+                                        Visualise
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -62,16 +61,18 @@
                 <h3 style="padding: 10px">My Raw DataSets</h3>
                 <div class="row raw-datasets">
                    {% for file in uploadedfiles %}
-                   <div class="col-3 dataset-item">
+                   <div class="col-md-3 col-sm-6 dataset-item">
                         <div class="card">
                             <div class="card-body">
                                 <div class="text-center">
                                     <span class="display-5">
-                                        <i class="fas fa-file-alt" data-fa-transform="shrink-2 up-4"></i>
+                                        <i class="fas fa-file-alt" aria-hidden="true"></i>
                                     </span>
-                                    <h4 class="mt-1">{{ file.datasetCostumName }}</h4>
-                                    <p>Uploaded: {{file.uploaded_at}}</p>
-                                    <a href="javascript:void(0);" data-value="{{file.id}}" class="btn gradient-8 btn-md border-0 btn-rounded px-5" onclick="visualizeData({{file.id}})">Visualise</a>
+                                    <h4 class="mt-1" title="{{ file.datasetCostumName }}">{{ file.datasetCostumName }}</h4>
+                                    <p>Uploaded: {{ file.uploaded_at }}</p>
+                                    <button class="btn gradient-8 btn-md border-0 btn-rounded px-5" onclick="visualizeData({{ file.id }})">
+                                        Visualise
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -94,36 +95,39 @@
     <script src="{% static 'js/styleSwitcher.js' %}"></script>
 
     <script>
-    // Toggle visibility for datasets
-function setupToggle(sectionClass, buttonId) {
-    const items = document.querySelectorAll(`.${sectionClass} .dataset-item`);
-    const button = document.getElementById(buttonId);
-    const limit = 4;
+        // Toggle visibility for datasets
+        function setupToggle(sectionClass, buttonId) {
+            const items = document.querySelectorAll(`.${sectionClass} .dataset-item`);
+            const button = document.getElementById(buttonId);
+            const limit = 4;
+            let expanded = false;
 
-    let expanded = false;
+            function updateVisibility() {
+                items.forEach((item, index) => {
+                    item.style.display = expanded || index < limit ? "block" : "none";
+                });
+                button.textContent = expanded ? "View Less" : "View More";
+            }
 
-    function updateVisibility() {
-        items.forEach((item, index) => {
-            item.style.display = expanded || index < limit ? "block" : "none";
-        });
-        button.textContent = expanded ? "View Less" : "View More";
-    }
+            button.addEventListener("click", () => {
+                expanded = !expanded;
+                updateVisibility();
+            });
 
-    button.addEventListener("click", () => {
-        expanded = !expanded;
-        updateVisibility();
-    });
+            updateVisibility();
+        }
 
-    updateVisibility();
-}
+        setupToggle("processed-datasets", "processed-toggle");
+        setupToggle("raw-datasets", "raw-toggle");
 
-setupToggle("processed-datasets", "processed-toggle");
-setupToggle("raw-datasets", "raw-toggle");
-function visualizeData(fileId) {
-    window.location.href = `/visualise-data/${fileId}/`;
-}
-
-</script>
+        function visualizeData(fileId) {
+            const loading = document.createElement("div");
+            loading.textContent = "Loading...";
+            loading.style.textAlign = "center";
+            document.body.appendChild(loading);
+            window.location.href = `/visualise-data/${fileId}/`;
+        }
+    </script>
 </body>
 
 </html>

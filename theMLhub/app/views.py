@@ -174,12 +174,16 @@ def uploadDataFile(request):
             )
 
             file_path = raw_dataset.file_raw_dataset.path
-            print(f"File path: {file_path}")
             if not os.path.exists(file_path):
                 return JsonResponse({'error': f'File path {file_path} does not exist.'}, status=500)
-
             # Process the data
-            preprocessed_dataset = PreprocessedDataset.objects.create(raw_dataset=raw_dataset)
+            #add file path to the preprocessed dataset
+            preprocessed_dataset = PreprocessedDataset.objects.create(
+                raw_dataset=raw_dataset,
+                preprocessedCostumName=custom_name+'_preprocessed',
+            )
+          
+
             if target_column:
                 # Supervised workflow
                 try:
@@ -304,29 +308,40 @@ def train_model_view(request, model_name, processed_file_id,supervised):
 
     return render(request, 'train_result.html', context)
 
+from django.shortcuts import render, get_object_or_404
+from django.http import HttpResponse
+from .models import RawDataset, PreprocessedDataset, DataVisualization
 
 def visualize_data(request, dataset_id):
+    """
+    Vue pour afficher les visualisations associées à un jeu de données brut ou prétraité.
+    """
     try:
-        # Get the RawDataset object based on the provided dataset_id
-        dataset = RawDataset.objects.get(id=dataset_id)
-        # Check if the dataset already has visualizations
-        data_visualizations = DataVisualization.objects.filter(dataset=dataset)
-
-        if data_visualizations.exists():
-            # If visualizations exist, no need to generate them again
-            pass
+        # Recherche dans RawDataset
+        raw_dataset = RawDataset.objects.filter(id=dataset_id).first()
+        processed_dataset = PreprocessedDataset.objects.filter(id=dataset_id).first()
+        
+        if raw_dataset:
+            dataset = raw_dataset
+            data_visualizations = DataVisualization.objects.filter(dataset=raw_dataset)
+        elif processed_dataset:
+            dataset = processed_dataset
+            data_visualizations = DataVisualization.objects.filter(dataset_processed=processed_dataset)
         else:
-            # If no visualizations exist, generate them
-            dataset.generate_visualizations()
+            return HttpResponse("Dataset not found.", status=404)
 
-            # After generating visualizations, retrieve them
-            data_visualizations = DataVisualization.objects.filter(dataset=dataset)
-        # Pass the visualizations to the template
+        if not data_visualizations.exists():
+            # Générer les visualisations si elles n'existent pas
+            dataset.generate_visualizations()
+            if raw_dataset:
+                data_visualizations = DataVisualization.objects.filter(dataset=raw_dataset)
+            else:
+                data_visualizations = DataVisualization.objects.filter(dataset_processed=processed_dataset)
+
         return render(request, 'visualisationData.html', {
             'data_visualizations': data_visualizations,
             'dataset': dataset,
-            
         })
 
-    except RawDataset.DoesNotExist:
-        return HttpResponse("Dataset not found.", status=404)
+    except Exception as e:
+        return HttpResponse(f"An error occurred: {str(e)}", status=500)

@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 # Register your models here.
-from .models import RawDataset, Utilisateur
+from .models import RawDataset, Utilisateur,PreprocessedDataset,DataVisualization
 class RawDatasetAdmin(admin.ModelAdmin):
     list_display = ('datasetCostumName', 'file_raw_dataset', 'TargetColumn')
     list_filter = ('datasetCostumName', 'file_raw_dataset', 'TargetColumn')
@@ -15,3 +15,5 @@ class UtilisateurAdmin(admin.ModelAdmin):
 
 admin.site.register(RawDataset, RawDatasetAdmin)
 admin.site.register(Utilisateur, UtilisateurAdmin)
+admin.site.register(PreprocessedDataset)
+admin.site.register(DataVisualization)

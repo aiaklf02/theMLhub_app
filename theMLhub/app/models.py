@@ -87,7 +87,6 @@ class RawDataset(models.Model):
                 graph_type=visualization_name,
                 graph_file=relative_path ,
             )
-            print(relative_path)
 
 
 
@@ -98,16 +97,14 @@ class PreprocessedDataset(models.Model):
     raw_dataset = models.ForeignKey(RawDataset, on_delete=models.CASCADE)
     file_preprocessed_data = models.FileField(upload_to='processed_datasets/')
     processed_at = models.DateTimeField(auto_now_add=True)
-    preprocessedCostumName = models.CharField(max_length=100, default='PreprocessedDataSetFile', null=True, blank=True)
+    preprocessedCostumName = models.CharField(max_length=100, null=True, blank=True)
 
 
     def process_data(self, target_column):
-        # Charger le dataset brut
         raw_file_path = self.raw_dataset.file_raw_dataset.path
         if not os.path.exists(raw_file_path):
             raise FileNotFoundError(f"The file {raw_file_path} does not exist.")
         
-        # Vérifier l'extension du fichier pour choisir la méthode de lecture appropriée
         if raw_file_path.endswith('.csv'):
             df = pd.read_csv(raw_file_path)
         elif raw_file_path.endswith('.xls') or raw_file_path.endswith('.xlsx'):
@@ -115,23 +112,19 @@ class PreprocessedDataset(models.Model):
         else:
             raise ValueError(f"Unsupported file type: {raw_file_path}")
 
-        # Vérifications initiales
         if target_column not in df.columns:
             raise ValueError(f"The target column '{target_column}' is not found in the dataset.")
         
-        # Convertir les colonnes cibles catégoriques
         if df[target_column].dtype == 'object':
             df[target_column] = df[target_column].astype('category').cat.codes
 
-        # Enlever les doublons
         df = df.drop_duplicates()
 
-        # Gérer les valeurs manquantes - Traitement séparé pour les colonnes numériques et catégoriques
         for col in df.columns:
-            if df[col].dtype == 'object':  # Si la colonne est catégorique
-                df[col] = df[col].fillna(df[col].mode()[0])  # Remplacer les NaN par la valeur la plus fréquente
-            else:  # Si la colonne est numérique
-                df[col] = df[col].fillna(df[col].median())  # Remplacer les NaN par la médiane
+            if df[col].dtype == 'object':  
+                df[col] = df[col].fillna(df[col].mode()[0])  
+            else:  
+                df[col] = df[col].fillna(df[col].median())  
 
         # Séparer X et y
         X = df.drop(target_column, axis=1)
@@ -139,21 +132,17 @@ class PreprocessedDataset(models.Model):
         if pd.api.types.is_numeric_dtype(y):
             pass
         else:
-              # Équilibrage des données avec SMOTE
             if y.value_counts().min() < 0.6 * y.value_counts().max():
                 smote = SMOTE()
                 X, y = smote.fit_resample(X, y)
             
-        # Séparer les ensembles de données
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-        # Normalisation (seulement pour les colonnes numériques)
-        numeric_cols = X.select_dtypes(include=['float64', 'int64']).columns  # Sélection des colonnes numériques
+        numeric_cols = X.select_dtypes(include=['float64', 'int64']).columns
         sc = StandardScaler()
         X_train[numeric_cols] = sc.fit_transform(X_train[numeric_cols])
         X_test[numeric_cols] = sc.transform(X_test[numeric_cols])
 
-        # Sauvegarde des ensembles dans un CSV
         train_data = pd.DataFrame(X_train, columns=X.columns)
         train_data['target'] = y_train
         train_data['set'] = 'train'
@@ -170,8 +159,7 @@ class PreprocessedDataset(models.Model):
 
         processed_data.to_csv(processed_file_path, index=False)
 
-        with open(processed_file_path, 'rb') as f:
-            self.file_preprocessed_data.save(f'{self.preprocessedCostumName}.csv', f)
+  
      
         return X_train, X_test, y_train, y_test
 
@@ -181,7 +169,6 @@ class PreprocessedDataset(models.Model):
         if not os.path.exists(raw_file_path):
             raise FileNotFoundError(f"The file {raw_file_path} does not exist.")
         
-        # Read the dataset based on file type++-
         if raw_file_path.endswith('.csv'):
             df = pd.read_csv(raw_file_path)
         elif raw_file_path.endswith('.xls') or raw_file_path.endswith('.xlsx'):
@@ -211,14 +198,56 @@ class PreprocessedDataset(models.Model):
         # Save the processed dataset
         processed_datasets_dir = os.path.join('media', 'processed_datasets')
         os.makedirs(processed_datasets_dir, exist_ok=True)
-        processed_file_path = os.path.join(processed_datasets_dir, f'{self.preprocessedCostumName}_unsupervised.csv')
+        processed_file_path = os.path.join(processed_datasets_dir, f'{self.preprocessedCostumName}+_processed.csv')
 
         df.to_csv(processed_file_path, index=False)
 
-        with open(processed_file_path, 'rb') as f:
-            self.file_preprocessed_data.save(f'{self.preprocessedCostumName}_unsupervised.csv', f)
 
         return df
+    def generate_visualizations(self):
+        # Vérifier si le fichier prétraité est associé à l'attribut
+        if not self.file_preprocessed_data:
+            raise ValueError("No file is associated with the 'file_preprocessed_data' attribute.")
+        
+        # Charger le fichier prétraité
+        preprocessed_file_path = self.file_preprocessed_data.path
+        if preprocessed_file_path.endswith('.csv'):
+            df = pd.read_csv(preprocessed_file_path)
+        elif preprocessed_file_path.endswith('.xls') or preprocessed_file_path.endswith('.xlsx'):
+            df = pd.read_excel(preprocessed_file_path, engine='openpyxl' if preprocessed_file_path.endswith('.xlsx') else 'xlrd')
+        else:
+            raise ValueError(f"Unsupported file type: {preprocessed_file_path}")
+
+        # Répertoire pour enregistrer les visualisations (relatif à MEDIA_ROOT)
+        visualizations_dir = os.path.join(settings.MEDIA_ROOT, 'data_visualizations', self.preprocessedCostumName)
+        os.makedirs(visualizations_dir, exist_ok=True)
+
+        # Générer et sauvegarder les graphiques
+        output_paths = []
+        correlation_path = os.path.join(visualizations_dir, 'correlation_heatmap.png')
+        DataVisualization.generate_correlation_heatmap(df, correlation_path)
+        output_paths.append(correlation_path)
+
+        histogram_path = os.path.join(visualizations_dir, 'histograms.png')
+        DataVisualization.generate_histograms(df, histogram_path)
+        output_paths.append(histogram_path)
+
+        # Ajouter des visualisations supplémentaires si nécessaire
+        if 'target' in df.columns:
+            class_distribution_path = os.path.join(visualizations_dir, 'class_distribution.png')
+            DataVisualization.generate_class_distribution(df, 'target', class_distribution_path)
+            output_paths.append(class_distribution_path)
+
+        # Enregistrer les visualisations dans la base de données
+        for path in output_paths:
+            visualization_name = os.path.basename(path).replace('.png', '').replace('_', ' ').title()
+            relative_path = os.path.relpath(path, settings.MEDIA_ROOT)
+            DataVisualization.objects.create(
+                dataset_processed=self,
+                visualization_name=visualization_name,
+                graph_type=visualization_name,
+                graph_file=relative_path,
+            )
 
 class DataVisualization(models.Model):
     dataset = models.ForeignKey(RawDataset, on_delete=models.CASCADE)  
