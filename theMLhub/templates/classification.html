@@ -18,9 +18,51 @@
 
 <body>
 
-    <!--*******************
-        Preloader start
-    ********************-->
+    <style>
+        .modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: none; /* Hidden by default */
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-dialog {
+    background: transparent;
+    border-radius: 5px;
+    width: 100%;
+    max-width: 500px;
+    padding: 20px;
+}
+
+.modal-content {
+    position: relative;
+    background: white;
+    border-radius: 10px;
+}
+
+.modal-header,
+.modal-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.btn-close {
+    background: transparent;
+    border: none;
+    font-size: 1.5rem;
+    line-height: 1;
+    cursor: pointer;
+}
+
+    </style>
+
     <div id="preloader">
         <div class="loader">
             <svg class="circular" viewBox="25 25 50 50">
@@ -28,31 +70,17 @@
             </svg>
         </div>
     </div>
-    <!--*******************
-        Preloader end
-    ********************-->
 
-    
-    <!--**********************************
-        Main wrapper start
-    ***********************************-->
     <div id="main-wrapper"  style="min-height: 130vh !important;">
 
-{% include "navbar.html" %}
+    {% include "navbar.html" %}
 
-{% include "sideBar.html" %}
-
-
-        <!--**********************************
-            Content body start
-        ***********************************-->
+    {% include "sideBar.html" %}
         <div class="content-body">
-
-
             <div class="container-fluid">
                 <h3 style="padding: 10px">Choose a Machine Learning Model To Train</h3>
                 <div class="row">
-<!-- loop over uploaded files by that user -->
+
                  <div class="col-3 ">
                         <div class="card">
                             <div class="card-body">
@@ -180,66 +208,17 @@
                         </div>
                     </div>
 
-<!--                    <div class="col-3 ">-->
-<!--                        <div class="card">-->
-<!--                            <div class="card-body">-->
-<!--                                <div class="text-center">-->
-<!--                                    <span class="display-5">-->
-<!--                                        <i class="fas fa-file-alt" data-fa-transform="shrink-2 up-4"></i>-->
-<!--                                        </span>-->
-<!--                                    <h2 class="mt-3">Linear Regression</h2>-->
-                                    <!--                                    <p>Regression</p>                                    <button class="btn gradient-8 btn-md border-0 btn-rounded px-5"
-                                    onclick="openModal(this)">
-                                    Train
-                                    </button>-->
-<!--                                </div>-->
-<!--                            </div>-->
-<!--                        </div>-->
-<!--                    </div>-->
-
                 </div>
-
-
-<!--                <h2  style="padding: 10px" >Deep learning Models</h2>-->
-<!--                <div class="row">-->
-<!--                &lt;!&ndash; loop over uploaded files by that user &ndash;&gt;-->
-<!--                   {% for file in processeddatasets %}-->
-<!--                 <div class="col-3">-->
-<!--                        <div class="card">-->
-<!--                            <div class="card-body">-->
-<!--                                <div class="text-center">-->
-<!--                                    <span class="display-5">-->
-<!--                                        <i class="fas fa-file-alt" data-fa-transform="shrink-2 up-4"></i>-->
-<!--                                        </span>-->
-<!--                                    <h2 class="mt-3">{{ file.raw_dataset.datasetCostumName }}</h2>-->
-<!--                                    <p>Proccessed: {{file.processed_at}}</p><a href="#" class="btn gradient-2 btn-lg border-0 btn-rounded px-5">Train a Model-->
-<!--                                        now</a>-->
-<!--                                </div>-->
-<!--                            </div>-->
-<!--                        </div>-->
-<!--                    </div>-->
-
-<!--                    {% endfor %}-->
-<!--                </div>-->
-
 
             </div>
             <!-- #/ container -->
         </div>
-        <!--**********************************
-            Content body end
-        ***********************************-->
-        
-        
+
 {% include "footer.html" %}
 
-
     </div>
-    <!--**********************************
-        Main wrapper end
-    ***********************************-->
 
-       <!-- Modal -->
+<!-- Modal -->
 <div class="modal" id="trainModal" style="display: none;">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -247,23 +226,59 @@
                 <h5 class="modal-title" id="trainModalLabel">Train Model</h5>
                 <button type="button" class="btn-close" onclick="closeModal()">×</button>
             </div>
+<!--            <div class="modal-body">-->
+<!--                <form id="trainForm">-->
+<!--                    <div class="mb-3">-->
+<!--                        <label for="modelName" class="form-label">Model</label>-->
+<!--                        <input type="text" class="form-control" id="modelName" readonly>-->
+<!--                    </div>-->
+<!--                    <div class="mb-3">-->
+<!--                        <label for="ChosentrainingFile" class="form-label">Select Training Dataset</label>-->
+<!--&lt;!&ndash;                        <input type="file" class="form-control" id="trainingFile" required>&ndash;&gt;-->
+<!--                        <select style="width: 100% ; padding: 6px" name="ChosentrainingFile" id="ChosentrainingFile">-->
+<!--                        {% for file in processeddatasets %}-->
+<!--                                {% if file.raw_dataset.TargetColumn %}-->
+<!--                                        <option value="{{file.id}}">{{file.raw_dataset.datasetCostumName}}</option>-->
+<!--                                {% endif %}-->
+<!--                        {% endfor %}-->
+<!--                        </select>-->
+<!--                    </div>-->
+<!--                </form>-->
+<!--            </div>-->
             <div class="modal-body">
-                <form id="trainForm">
-                    <div class="mb-3">
-                        <label for="modelName" class="form-label">Model</label>
-                        <input type="text" class="form-control" id="modelName" readonly>
-                    </div>
-                    <div class="mb-3">
-                        <label for="ChosentrainingFile" class="form-label">Select Training Dataset</label>
-<!--                        <input type="file" class="form-control" id="trainingFile" required>-->
-                        <select style="width: 100% ; padding: 6px" name="ChosentrainingFile" id="ChosentrainingFile">
-                        {% for file in processeddatasets %}
-                          <option value="{{file.id}}">{{file.raw_dataset.datasetCostumName}}</option>
-                        {% endfor %}
-                        </select>
-                    </div>
-                </form>
-            </div>
+    <form id="trainForm">
+        {% csrf_token %}
+
+        <div class="mb-3">
+            <label for="modelName" class="form-label">Model</label>
+            <input type="text" class="form-control" id="modelName" readonly>
+        </div>
+        <div class="mb-3">
+            <label for="ChosentrainingFile" class="form-label">Select Training Dataset</label>
+            <select style="width: 100%; padding: 6px" name="ChosentrainingFile" id="ChosentrainingFile">
+                {% for file in processeddatasets %}
+                    {% if file.raw_dataset.TargetColumn %}
+                        <option value="{{file.id}}">{{file.raw_dataset.datasetCostumName}}</option>
+                    {% endif %}
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label for="autoMode" class="form-label">Hyperparameter Tuning</label>
+            <select class="form-control" id="autoMode" onchange="toggleHyperparameters()">
+                <option value="true">Automatic</option>
+                <option value="false">Manual</option>
+            </select>
+        </div>
+
+        <div class="mb-3" id="hyperparameters">
+            <!-- Hyperparameters will be dynamically loaded here -->
+        </div>
+    </form>
+</div>
+
+<!--            -->
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" onclick="closeModal()">Close</button>
                 <button type="button" class="btn btn-primary" onclick="startTraining()">Start Training</button>
@@ -272,84 +287,163 @@
     </div>
 </div>
 
-    <style>
-        .modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    display: none; /* Hidden by default */
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-}
-
-.modal-dialog {
-    background: transparent;
-    border-radius: 5px;
-    width: 100%;
-    max-width: 500px;
-    padding: 20px;
-}
-
-.modal-content {
-    position: relative;
-    background: white;
-    border-radius: 10px;
-}
-
-.modal-header,
-.modal-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.btn-close {
-    background: transparent;
-    border: none;
-    font-size: 1.5rem;
-    line-height: 1;
-    cursor: pointer;
-}
-
-    </style>
-
-
     <script>
-      function openModal(clickedmodel) {
-    modelNameElement = clickedmodel.parentNode.querySelector('h2');
-    document.getElementById('modelName').value = modelNameElement.innerText;
-    const modal = document.getElementById('trainModal');
-    modal.style.display = 'flex'; // Show modal
-}
+
+const hyperparameterOptions = {
+    "Naive bayes": [
+        { name: "Smoothing", type: "number", id: "smoothing", default: 1.0 }
+    ],
+    "Decision Trees": [
+        { name: "Max Depth", type: "number", id: "maxDepth", default: 5 },
+        { name: "Min Samples Split", type: "number", id: "minSamplesSplit", default: 2 }
+    ],
+    "Random Forest": [
+        { name: "Number of Estimators", type: "number", id: "nEstimators", default: 100 },
+        { name: "Max Depth", type: "number", id: "maxDepth", default: 5 }
+    ],
+    "LightGBM": [
+        { name: "Learning Rate", type: "number", id: "learningRate", default: 0.1 },
+        { name: "Number of Leaves", type: "number", id: "nLeaves", default: 31 },
+        // { name: "objective (binary or multiclass)", type: "text", id: "objective", default: "binary" },
+        { name: "number of class", type: "number", id: "num_class", default: "2" },
+
+
+    ],
+    "XGBoost": [
+        { name: "Learning Rate", type: "number", id: "learningRate", default: 0.3 },
+        { name: "Max Depth", type: "number", id: "maxDepth", default: 6 }
+    ],
+    "Support Vector Machines": [
+        { name: "Kernel", type: "text", id: "kernel", default: "rbf" },
+        { name: "C", type: "number", id: "C", default: 1.0 }
+    ],
+    "K-Nearest Neighbors": [
+        { name: "Number of Neighbors", type: "number", id: "nNeighbors", default: 5 },
+        { name: "Weights", type: "text", id: "weights", default: "uniform" }
+    ]
+};
 
 function closeModal() {
     const modal = document.getElementById('trainModal');
     modal.style.display = 'none'; // Hide modal
 }
 
+function toggleHyperparameters() {
+    const mode = document.getElementById('autoMode').value;
+    const hyperparamsContainer = document.getElementById('hyperparameters');
+
+    if (mode === "true") {
+        // Hide hyperparameters for Auto mode
+        hyperparamsContainer.style.display = "none";
+    } else {
+        // Show hyperparameters for Manual mode
+        hyperparamsContainer.style.display = "block";
+    }
+}
+
 function startTraining() {
-    const fileInput = document.getElementById('trainingFile');
-    if (fileInput.files.length === 0) {
+    modelName = document.getElementById('modelName').value;
+
+    if (modelName === 'LightGBM'){
+        modelName = "Classification LightGBM"
+    }
+
+
+    const fileInput = document.getElementById('ChosentrainingFile');
+
+    const autoMode = document.getElementById('autoMode').value === "true";
+
+    if (!fileInput.value) {
         alert('Please select a file to train.');
         return;
     }
-    const modelName = document.getElementById('modelName').value;
-    const file = fileInput.files[0];
 
-    alert(`Training ${modelName} with file: ${file.name}`);
+    const postBody = { auto: autoMode };
+
+    if (!autoMode) {
+        const hyperparameters = {};
+        document
+            .getElementById('hyperparameters')
+            .querySelectorAll('input')
+            .forEach(input => {
+                 hyperparameters[input.name] = input.value;
+            });
+        postBody.hyperparameters = hyperparameters;
+    }
+
+    // Creating the form dynamically and submitting it
+            const form = document.createElement("form");
+            const csrfInput = document.createElement("input");
+            csrfInput.type = "hidden";
+            csrfInput.name = "csrfmiddlewaretoken";
+            csrfInput.value = "{{ csrf_token }}";
+            form.appendChild(csrfInput);
+
+            // Add the hidden input for the params
+            const paramsInput = document.createElement("input");
+            paramsInput.type = "hidden";
+            paramsInput.name = "params";
+            paramsInput.value = JSON.stringify(postBody);
+            form.appendChild(paramsInput);
+
+            // Append the form to the document
+            document.body.appendChild(form);
+
+            // Set the URL and submit the form
+            const url = `/train_model/${modelName}/${fileInput.value}/supervised/`;
+            form.method = "POST";
+            form.action = url;
+            form.submit();
+
+
     closeModal();
+
+    // Start the preloader animation
+            const preloader = document.getElementById("preloader");
+            preloader.style.display = "block";
 }
 
+function openModal(clickedmodel) {
+    const modelNameElement = clickedmodel.parentNode.querySelector('h2');
+    const modelName = modelNameElement.innerText;
+    document.getElementById('modelName').value = modelName;
 
+    // Populate hyperparameters
+    const hyperparamsContainer = document.getElementById('hyperparameters');
+    hyperparamsContainer.innerHTML = ""; // Clear existing inputs
+    const params = hyperparameterOptions[modelName];
+    if (params) {
+        params.forEach(param => {
+            const label = document.createElement('label');
+            label.textContent = param.name;
+            label.setAttribute('for', param.id);
+            label.classList.add('form-label');
+
+            const input = document.createElement('input');
+            input.type = param.type;
+            input.id = param.id;
+            input.name = param.id;
+            input.value = param.default;
+            input.classList.add('form-control');
+
+            const div = document.createElement('div');
+            div.classList.add('mb-3');
+            div.appendChild(label);
+            div.appendChild(input);
+
+            hyperparamsContainer.appendChild(div);
+        });
+    }
+
+    // Reset mode to Auto
+    document.getElementById('autoMode').value = "true";
+    toggleHyperparameters();
+
+    const modal = document.getElementById('trainModal');
+    modal.style.display = 'flex'; // Show modal
+}
 
     </script>
-
-
-
 
     <!--**********************************
         Scripts

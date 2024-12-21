@@ -122,7 +122,7 @@
                         <div class="mb-3">
                             <label for="tuningType" class="form-label">Hyperparameter Tuning</label>
                             <select id="tuningType" class="form-control" onchange="toggleHyperparameters()">
-                                <option value="auto">Automatic (Grid Search)</option>
+                                <option value="auto">Automatic</option>
                                 <option value="manual">Manual</option>
                             </select>
                         </div>
@@ -251,10 +251,19 @@
 
         function startTraining() {
             modelName = document.getElementById("modelName").value;
-            if (modelName == 'LightGBM'){
+            if (modelName === 'LightGBM'){
                 modelName = "Regression LightGBM"
             }
-            const fileId = document.getElementById("ChosentrainingFile").value;
+
+
+            // Get the selected dataset ID and model name from the DOM
+            const fileId = document.getElementById('ChosentrainingFile').value;
+
+            if (! fileId ){
+               alert('Please select a file to train.');
+                return;
+            }
+
             const params = {
                 auto: document.getElementById("tuningType").value === "manual" ? 'false' : 'true' ,
                 n_jobs: document.getElementById("n_jobs") ? document.getElementById("n_jobs").value : undefined,

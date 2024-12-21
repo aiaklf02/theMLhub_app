@@ -75,17 +75,20 @@ def generate_visualizations(X_train, X_test, y_train, y_test, model, fpr=None, t
         # Make predictions
         predictions = model.predict(X_test)
 
-        # Calculate residuals
-        residuals = y_test - predictions
+        # Convert probabilities to class labels if predictions are 2D
+        if predictions.ndim == 2:
+            predicted_classes = predictions.argmax(axis=1)
+        else:
+            predicted_classes = predictions
 
-        # Generate and store the residual plot
-        plots['residual plot'] = generate_residual_plot(predictions, residuals)
+        # Calculate residuals for regression models
+        if y_test.ndim == 1 and predictions.ndim == 1:  # Residuals only for regression
+            residuals = y_test - predictions
+            plots['residual plot'] = generate_residual_plot(predictions, residuals)
+            plots['residual histogram'] = generate_histogram_of_residuals(residuals)
 
         # Generate and store the prediction vs actual plot
-        plots['prediction vs actual'] = generate_prediction_vs_actual_plot(y_test, predictions)
-
-        # Generate and store the histogram of residuals plot
-        plots['residual histogram'] = generate_histogram_of_residuals(residuals)
+        plots['prediction vs actual'] = generate_prediction_vs_actual_plot(y_test, predicted_classes)
 
         # Generate and store the coefficients plot
         plots['feature coefficients'] = generate_coefficients_plot(X_train, model)
@@ -108,51 +111,57 @@ def generate_visualizations(X_train, X_test, y_train, y_test, model, fpr=None, t
 
     return plots
 
-
 # def generate_visualizations(X_train, X_test, y_train, y_test, model, fpr=None, tpr=None, classification_rep=None):
-#     """Generate various visualizations based on the model's predictions and dataset.
-# 
-#         Arguments:
-#         - X_train: Training features (DataFrame)
-#         - X_test: Testing features (DataFrame)
-#         - y_train: Actual target values for training (array or list)
-#         - y_test: Actual target values for testing (array or list)
-#         - model: Trained model (object)
-#         - fpr: False positive rate for ROC curve (array or list, optional)
-#         - tpr: True positive rate for ROC curve (array or list, optional)
-#         - classification_rep: Classification report (string, optional)
-#         """
+#     """Generate various visualizations based on the model's predictions and dataset."""
 #     plots = {}
-# 
-#     # Generate and store the ROC curve plot if fpr and tpr are provided
-#     if fpr is not None and tpr is not None:
-#         plots['roc curve'] = generate_roc_curve_plot(fpr, tpr)
-# 
-#     # Generate and store the classification report plot if provided
-#     if classification_rep is not None:
-#         plots['classification report'] = generate_classification_report_plot2(classification_rep)
-# 
-#     # Make predictions
-#     predictions = model.predict(X_test)
-# 
-#     # Calculate residuals
-#     residuals = y_test - predictions
-# 
-#     # Generate and store the residual plot
-#     plots['residual plot'] = generate_residual_plot(predictions, residuals)
-# 
-#     # Generate and store the prediction vs actual plot
-#     plots['prediction vs actual'] = generate_prediction_vs_actual_plot(y_test, predictions)
-# 
-#     # Generate and store the histogram of residuals plot
-#     plots['residual histogram'] = generate_histogram_of_residuals(residuals)
-# 
-#     # Generate and store the coefficients plot
-#     plots['feature coefficients'] = generate_coefficients_plot(X_train, model)
-# 
+#
+#     if y_test is not None:
+#         # Supervised model: Generate metrics and visualizations for predictions
+#
+#         # Generate and store the ROC curve plot if fpr and tpr are provided
+#         if fpr is not None and tpr is not None:
+#             plots['roc curve'] = generate_roc_curve_plot(fpr, tpr)
+#
+#         # Generate and store the classification report plot if provided
+#         if classification_rep is not None:
+#             plots['classification report'] = generate_classification_report_plot2(classification_rep)
+#
+#         # Make predictions
+#         predictions = model.predict(X_test)
+#
+#         # Calculate residuals
+#         residuals = y_test - predictions
+#
+#         # Generate and store the residual plot
+#         plots['residual plot'] = generate_residual_plot(predictions, residuals)
+#
+#         # Generate and store the prediction vs actual plot
+#         plots['prediction vs actual'] = generate_prediction_vs_actual_plot(y_test, predictions)
+#
+#         # Generate and store the histogram of residuals plot
+#         plots['residual histogram'] = generate_histogram_of_residuals(residuals)
+#
+#         # Generate and store the coefficients plot
+#         plots['feature coefficients'] = generate_coefficients_plot(X_train, model)
+#
+#     else:
+#         # Unsupervised model: Generate visualizations relevant to clustering
+#
+#         # Cluster plot (e.g., KMeans)
+#         plots['cluster plot'] = generate_cluster_plot(X_test, model)
+#
+#         # Generate and store a silhouette score plot for clustering models
+#         if hasattr(model, 'predict') and hasattr(model, 'n_clusters_'):
+#             cluster_labels = model.predict(X_test)
+#             silhouette = silhouette_score(X_test, cluster_labels)
+#             plots['silhouette score'] = generate_silhouette_plot(silhouette)
+#
+#         # Optional: If you want a feature importances plot for unsupervised models like RandomForest
+#         if hasattr(model, 'feature_importances_'):
+#             plots['feature importance'] = generate_feature_importance_plot(model)
+#
 #     return plots
-# 
-
+#
 
 def save_plot_to_base64():
     """Save the current matplotlib plot to a base64-encoded string."""

@@ -66,6 +66,13 @@
         }
     </style>
 
+     <div id="preloader">
+        <div class="loader">
+            <svg class="circular" viewBox="25 25 50 50">
+                <circle class="path" cx="50" cy="50" r="20" fill="none" stroke-width="3" stroke-miterlimit="10" />
+            </svg>
+        </div>
+    </div>
     <!-- Main content -->
     <div id="main-wrapper" style="min-height: 130vh !important;">
         {% include "navbar.html" %}
@@ -116,7 +123,7 @@
                         </div>
                         <div class="mb-3">
                             <label for="ChosentrainingFile" class="form-label">Select Training Dataset</label>
-                            <select style="width: 100% ; padding: 6px" name="ChosentrainingFile" id="ChosentrainingFile">
+                            <select style="width: 100% ; padding: 6px" name="ChosentrainingFile" id="ChosentrainingFile" required>
                                 {% for file in processeddatasets %}
                                     {% if not file.raw_dataset.TargetColumn %}
                                         <option value="{{file.id}}">{{file.raw_dataset.datasetCostumName}}</option>
@@ -182,8 +189,18 @@
         }
 
         function startTraining() {
+            pdatarequiredp = document.getElementById('datarequiredp')
+            if(pdatarequiredp){
+                datarequiredp.style.display = 'none';
+            }
             // Get the selected dataset ID and model name from the DOM
             const processedFileId = document.getElementById('ChosentrainingFile').value;
+
+            if (! processedFileId ){
+               alert('Please select a file to train.');
+               return;
+            }
+
             let modelName = document.getElementById('modelName').value;
             const autoTune = document.querySelector('input[name="hyperparam"]:checked').value === "auto"; // Check if Auto or Manual
             let nClusters, maxIterations;
@@ -247,14 +264,9 @@
 
             // Start the preloader animation
             const preloader = document.getElementById("preloader");
-            preloader.style.display = "flex"; // Show preloader
+            preloader.style.display = "block";
         }
 
-        // Hide preloader after the page loads
-        window.onload = function() {
-            const preloader = document.getElementById("preloader");
-            preloader.style.display = "none"; // Hide preloader after the page loads
-        };
     </script>
 
     <!-- Scripts -->
