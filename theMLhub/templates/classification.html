@@ -16,6 +16,7 @@
 
 </head>
 
+
 <body>
 
     <style>
@@ -80,6 +81,24 @@
             <div class="container-fluid">
                 <h3 style="padding: 10px">Choose a Machine Learning Model To Train</h3>
                 <div class="row">
+
+                    <div class="col-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="text-center">
+                                    <span class="display-5">
+                                        <i class="fas fa-file-alt" data-fa-transform="shrink-2 up-4"></i>
+                                    </span>
+                                    <h2 class="mt-1">Logistic Regression</h2>
+                                    <p>Binary Classification</p>
+                                    <button class="btn gradient-8 btn-md border-0 btn-rounded px-5"
+                                            onclick="openModal(this)">
+                                        Train
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
                  <div class="col-3 ">
                         <div class="card">
@@ -226,25 +245,7 @@
                 <h5 class="modal-title" id="trainModalLabel">Train Model</h5>
                 <button type="button" class="btn-close" onclick="closeModal()">×</button>
             </div>
-<!--            <div class="modal-body">-->
-<!--                <form id="trainForm">-->
-<!--                    <div class="mb-3">-->
-<!--                        <label for="modelName" class="form-label">Model</label>-->
-<!--                        <input type="text" class="form-control" id="modelName" readonly>-->
-<!--                    </div>-->
-<!--                    <div class="mb-3">-->
-<!--                        <label for="ChosentrainingFile" class="form-label">Select Training Dataset</label>-->
-<!--&lt;!&ndash;                        <input type="file" class="form-control" id="trainingFile" required>&ndash;&gt;-->
-<!--                        <select style="width: 100% ; padding: 6px" name="ChosentrainingFile" id="ChosentrainingFile">-->
-<!--                        {% for file in processeddatasets %}-->
-<!--                                {% if file.raw_dataset.TargetColumn %}-->
-<!--                                        <option value="{{file.id}}">{{file.raw_dataset.datasetCostumName}}</option>-->
-<!--                                {% endif %}-->
-<!--                        {% endfor %}-->
-<!--                        </select>-->
-<!--                    </div>-->
-<!--                </form>-->
-<!--            </div>-->
+
             <div class="modal-body">
     <form id="trainForm">
         {% csrf_token %}
@@ -290,6 +291,10 @@
     <script>
 
 const hyperparameterOptions = {
+     "Logistic Regression": [
+        { name: "max_iter", type: "number", id: "max_iter", default: 100 }
+    ],
+
     "Naive bayes": [
         { name: "Smoothing", type: "number", id: "smoothing", default: 1.0 }
     ],
@@ -304,7 +309,6 @@ const hyperparameterOptions = {
     "LightGBM": [
         { name: "Learning Rate", type: "number", id: "learningRate", default: 0.1 },
         { name: "Number of Leaves", type: "number", id: "nLeaves", default: 31 },
-        // { name: "objective (binary or multiclass)", type: "text", id: "objective", default: "binary" },
         { name: "number of class", type: "number", id: "num_class", default: "2" },
 
 
@@ -455,5 +459,6 @@ function openModal(clickedmodel) {
     <script src="{% static 'js/styleSwitcher.js' %}"></script>
 
 </body>
+
 
 </html>

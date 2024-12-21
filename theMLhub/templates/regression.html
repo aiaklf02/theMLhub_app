@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.10/css/all.css">
     <link href="{% static 'css/style.css' %}" rel="stylesheet">
 </head>
+
 <body>
 
     <div id="preloader">
@@ -49,18 +50,109 @@
                         </div>
                     </div>
 
-                    <div class="col-3">
+                    <div class="col-3 ">
                         <div class="card">
                             <div class="card-body">
                                 <div class="text-center">
                                     <span class="display-5">
                                         <i class="fas fa-file-alt" data-fa-transform="shrink-2 up-4"></i>
-                                    </span>
-                                    <h2 class="mt-1">Logistic Regression</h2>
-                                    <p>Binary Classification</p>
+                                        </span>
+                                    <h2 class="mt-1">Decision Trees</h2>
+                                    <p>Regression</p>
                                     <button class="btn gradient-8 btn-md border-0 btn-rounded px-5"
-                                            onclick="openModal(this)">
-                                        Train
+                                    onclick="openModal(this)">
+                                    Train
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-3 ">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="text-center">
+                                    <span class="display-5">
+                                        <i class="fas fa-file-alt" data-fa-transform="shrink-2 up-4"></i>
+                                        </span>
+                                    <h2 class="mt-1">Random Forest</h2>
+                                    <p>Classification</p>
+                                    <button class="btn gradient-8 btn-md border-0 btn-rounded px-5"
+                                    onclick="openModal(this)">
+                                    Train
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-3 ">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="text-center">
+                                    <span class="display-5">
+                                        <i class="fas fa-file-alt" data-fa-transform="shrink-2 up-4"></i>
+                                        </span>
+                                    <h2 class="mt-1">XGBoost</h2>
+                                    <p>Regression</p>
+                                    <button class="btn gradient-8 btn-md border-0 btn-rounded px-5"
+                                    onclick="openModal(this)">
+                                    Train
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-3 ">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="text-center">
+                                    <span class="display-5">
+                                        <i class="fas fa-file-alt" data-fa-transform="shrink-2 up-4"></i>
+                                        </span>
+                                    <h2 class="mt-1">Support Vector Machines (SVR)</h2>
+                                    <p>Regression</p>
+                                    <button class="btn gradient-8 btn-md border-0 btn-rounded px-5"
+                                    onclick="openModal(this)">
+                                    Train
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="col-3 ">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="text-center">
+                                    <span class="display-5">
+                                        <i class="fas fa-file-alt" data-fa-transform="shrink-2 up-4"></i>
+                                        </span>
+                                    <h2 class="mt-1">K-Nearest Neighbors</h2>
+                                    <p>Regression</p>
+                                    <button class="btn gradient-8 btn-md border-0 btn-rounded px-5"
+                                    onclick="openModal(this)">
+                                    Train
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-3 ">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="text-center">
+                                    <span class="display-5">
+                                        <i class="fas fa-file-alt" data-fa-transform="shrink-2 up-4"></i>
+                                        </span>
+                                    <h2 class="mt-1">Reseau Neuron</h2>
+                                    <p>Regression</p>
+                                    <button class="btn gradient-8 btn-md border-0 btn-rounded px-5"
+                                    onclick="openModal(this)">
+                                    Train
                                     </button>
                                 </div>
                             </div>
@@ -129,37 +221,7 @@
 
                         <!-- Manual Hyperparameters Inputs (hidden by default) -->
                         <div id="manualParams" style="display: none;">
-                            <!-- Parameters for Linear Regression -->
-                            <div id="linearRegressionParams" style="display: none;">
-                                <div class="mb-3">
-                                    <label for="n_jobs" class="form-label">Number of Jobs</label>
-                                    <input type="number" class="form-control" id="n_jobs" name="n_jobs" value="3" step="3">
-                                </div>
-                            </div>
-
-                            <!-- Parameters for Logistic Regression -->
-                            <div id="logisticRegressionParams" style="display: none;">
-                                <div class="mb-3">
-                                    <label for="max_iter" class="form-label">Max Iteration</label>
-                                    <input type="number" class="form-control" id="max_iter" name="max_iter" value="2000" step="2000">
-                                </div>
-                            </div>
-
-                            <!-- Parameters for LightGBM -->
-                            <div id="lightGBMParams" style="display: none;">
-                                <div class="mb-3">
-                                    <label for="learningRate" class="form-label">Learning Rate</label>
-                                    <input type="number" class="form-control" id="learningRate" name="learningRate" step="0.01" value="0.01">
-                                </div>
-                                <div class="mb-3">
-                                    <label for="numLeaves" class="form-label">Number of Leaves</label>
-                                    <input type="number" class="form-control" id="numLeaves" name="numLeaves" value="31">
-                                </div>
-                                <div class="mb-3">
-                                    <label for="featureFraction" class="form-label">Feature Fraction</label>
-                                    <input type="number" class="form-control" id="featureFraction" name="featureFraction" step="0.01" value="0.9">
-                                </div>
-                            </div>
+                            <div id="modelParams"></div> <!-- Dynamic params will be injected here -->
                         </div>
                     </form>
                 </div>
@@ -211,6 +273,62 @@
     </style>
 
     <script>
+
+
+        const hyperparameterOptions = {
+    "Linear Regression": [
+        { name: "n_jobs", label: "Number of Jobs", type: "number", default: 5, step: 1 }
+    ],
+    "Decision Trees": [
+        { name: "max_depth", label: "Max Depth", type: "number", default: 5 },
+        { name: "min_samples_split", label: "Min Samples Split", type: "number", default: 2 },
+        { name: "min_samples_leaf", label: "Min Samples Leaf", type: "number", default: 1 }
+    ],
+    "Random Forest": [
+        { name: "n_estimators", label: "Number of Estimators", type: "number", default: 100 },
+        { name: "max_depth", label: "Max Depth", type: "number", default: 5 },
+        { name: "min_samples_split", label: "Min Samples Split", type: "number", default: 2 },
+        { name: "min_samples_leaf", label: "Min Samples Leaf", type: "number", default: 1 }
+    ],
+    "XGBoost": [
+        { name: "learning_rate", label: "Learning Rate", type: "number", default: 0.1, step: 0.01 },
+        { name: "max_depth", label: "Max Depth", type: "number", default: 6 },
+        { name: "n_estimators", label: "Number of Estimators", type: "number", default: 100 }
+    ],
+    "Support Vector Machines (SVR)": [
+        { name: "C", label: "Regularization Parameter (C)", type: "number", default: 1 },
+        { name: "epsilon", label: "Epsilon", type: "number", default: 0.1 },
+        { name: "kernel", label: "Kernel", type: "text", default: "rbf" }
+    ],
+    "K-Nearest Neighbors": [
+        { name: "n_neighbors", label: "Number of Neighbors", type: "number", default: 5 },
+        { name: "weights", label: "Weights", type: "text", default: "uniform" },
+        { name: "metric", label: "Distance Metric", type: "text", default: "minkowski" }
+    ],
+    "Reseau Neuron": [
+        { name: "hidden_layer_sizes", label: "Hidden Layer Sizes", type: "text", default: "100" },
+        { name: "activation", label: "Activation Function", type: "text", default: "relu" },
+        { name: "solver", label: "Solver", type: "text", default: "adam" }
+    ],
+    "LightGBM": [
+        { name: "learningRate", label: "Learning Rate", type: "number", default: 0.01, step: 0.01 },
+        { name: "numLeaves", label: "Number of Leaves", type: "number", default: 31 },
+        { name: "featureFraction", label: "Feature Fraction", type: "number", default: 0.9, step: 0.01 }
+    ]
+};
+
+
+        // const hyperparameterOptions = {
+        //     "Linear Regression": [
+        //         { name: "n_jobs", label: "Number of Jobs", type: "number", default: 5, step: 1 }
+        //     ],
+        //     "LightGBM": [
+        //         { name: "learningRate", label: "Learning Rate", type: "number", default: 0.01, step: 0.01 },
+        //         { name: "numLeaves", label: "Number of Leaves", type: "number", default: 31 },
+        //         { name: "featureFraction", label: "Feature Fraction", type: "number", default: 0.9, step: 0.01 }
+        //     ]
+        // };
+
         function openModal(clickedmodel) {
             modelNameElement = clickedmodel.parentNode.querySelector('h2');
             document.getElementById('modelName').value = modelNameElement.innerText;
@@ -236,16 +354,31 @@
         }
 
         function showModelParams(modelName) {
-            document.getElementById('linearRegressionParams').style.display = 'none';
-            document.getElementById('logisticRegressionParams').style.display = 'none';
-            document.getElementById('lightGBMParams').style.display = 'none';
+            const modelParamsDiv = document.getElementById('modelParams');
+            modelParamsDiv.innerHTML = ''; // Clear existing inputs
 
-            if (modelName === "Linear Regression") {
-                document.getElementById('linearRegressionParams').style.display = 'block';
-            } else if (modelName === "Logistic Regression") {
-                document.getElementById('logisticRegressionParams').style.display = 'block';
-            } else if (modelName === "LightGBM") {
-                document.getElementById('lightGBMParams').style.display = 'block';
+            if (hyperparameterOptions[modelName]) {
+                hyperparameterOptions[modelName].forEach(param => {
+                    const paramDiv = document.createElement('div');
+                    paramDiv.classList.add('mb-3');
+
+                    const label = document.createElement('label');
+                    label.setAttribute('for', param.name);
+                    label.classList.add('form-label');
+                    label.innerText = param.label;
+
+                    const input = document.createElement('input');
+                    input.type = param.type;
+                    input.classList.add('form-control');
+                    input.id = param.name;
+                    input.name = param.name;
+                    input.value = param.default || '';
+                    if (param.step) input.step = param.step;
+
+                    paramDiv.appendChild(label);
+                    paramDiv.appendChild(input);
+                    modelParamsDiv.appendChild(paramDiv);
+                });
             }
         }
 
@@ -255,23 +388,27 @@
                 modelName = "Regression LightGBM"
             }
 
-
             // Get the selected dataset ID and model name from the DOM
             const fileId = document.getElementById('ChosentrainingFile').value;
 
-            if (! fileId ){
+            if (!fileId){
                alert('Please select a file to train.');
-                return;
+               return;
             }
 
             const params = {
-                auto: document.getElementById("tuningType").value === "manual" ? 'false' : 'true' ,
-                n_jobs: document.getElementById("n_jobs") ? document.getElementById("n_jobs").value : undefined,
-                max_iter: document.getElementById("max_iter") ? document.getElementById("max_iter").value : undefined,
-                learningRate: document.getElementById("learningRate") ? document.getElementById("learningRate").value : undefined,
-                numLeaves: document.getElementById("numLeaves") ? document.getElementById("numLeaves").value : undefined,
-                featureFraction: document.getElementById("featureFraction") ? document.getElementById("featureFraction").value : undefined
+                auto: document.getElementById("tuningType").value === "manual" ? 'false' : 'true',
             };
+
+            const selectedModelParams = hyperparameterOptions[document.getElementById("modelName").value];
+            if (selectedModelParams) {
+                selectedModelParams.forEach(param => {
+                    const input = document.getElementById(param.name);
+                    if (input) {
+                        params[param.name] = input.value;
+                    }
+                });
+            }
 
             // Creating the form dynamically and submitting it
             const form = document.createElement("form");
@@ -313,5 +450,6 @@
     <script src="{% static 'js/styleSwitcher.js' %}"></script>
 
 </body>
+
 
 </html>

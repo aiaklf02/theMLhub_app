@@ -131,7 +131,7 @@ def train_logistic_regression(preprocesseddata, params, target_column=None):
         start_train_time = time.time()
         print('training started')
         #
-        if 'C' in params.keys():
+        if 'max_iter' in params.keys():
             max_iter = int(params['max_iter'])
         else:
             max_iter = 1000
