@@ -18,6 +18,380 @@
 
 <body>
 
+
+    <script src="https://unpkg.com/@dotlottie/player-component@2.7.12/dist/dotlottie-player.mjs" type="module"></script>
+
+    <!-- Preloader -->
+    <div id="preloader">
+        <div class="loader" style="width: 500px; height: 500px">
+            <dotlottie-player src="https://lottie.host/341def04-ff40-4b3b-a5db-9d0365e72412/YyUc5oyPre.lottie" background="transparent" speed="1.5" style="width: 100%; height: 100%" loop autoplay></dotlottie-player>
+        </div>
+    </div>
+
+    <!-- Main content -->
+    <div id="main-wrapper">
+        {% include "navbar.html" %}
+        {% include "sideBar.html" %}
+
+        <div class="content-body">
+            <div class="container-fluid">
+                <h3 style="padding: 10px">Choose a Machine Learning Model To Train</h3>
+                <div class="row">
+                    <!-- Model Cards -->
+                    <div class="col-3">
+                        <div class="card bg-pink shadow-lg">
+                            <div class="card-body">
+                                <div class="text-center">
+                                    <span class="display-5"><i class="fas fa-file-alt" style="color: white"></i></span>
+                                    <h2 class="mt-1" style="color: white">AutoML</h2>
+                                    <p style="color: white">General Purpose</p>
+                                    <button class="btn gradient-10 btn-md border-0 btn-rounded px-5" onclick="openModal('AutoML')">Train</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="text-center">
+                                    <span class="display-5"><i class="fas fa-file-alt"></i></span>
+                                    <h2 class="mt-3">K-Means</h2>
+                                    <p>Clustering</p>
+                                    <button class="btn gradient-8 btn-md border-0 btn-rounded px-5" onclick="openModal('K-Means')">Train</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% include "footer.html" %}
+    </div>
+
+    <!-- Modal -->
+    <div class="modal" id="trainModal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="trainModalLabel">Train Model</h5>
+                    <button type="button" class="btn-close" onclick="closeModal()">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <form id="trainForm">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="modelName" class="form-label">Model</label>
+                            <input type="text" class="form-control" id="modelName" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label for="ChosentrainingFile" class="form-label">Select Training Dataset</label>
+                            <select name="ChosentrainingFile" id="ChosentrainingFile" class="form-control" required>
+                                {% for file in processeddatasets %}
+                                    {% if not file.raw_dataset.TargetColumn %}
+                                        <option value="{{ file.id }}">{{ file.raw_dataset.datasetCostumName }}</option>
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="trainingMode" class="form-label">Training Mode</label>
+                            <select name="trainingMode" id="trainingMode" class="form-control">
+                                <option value="true">Auto</option>
+                                <option value="false">Manual</option>
+                            </select>
+                        </div>
+
+                        <div id="dynamicParams"></div>
+
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Close</button>
+                    <button type="button" class="btn btn-primary" onclick="startTraining()">Start Training</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<!--    <script>-->
+<!--        // Model configurations-->
+<!--        const modelsConfig = {-->
+<!--            "AutoML": {-->
+<!--                hyperparameters: [-->
+<!--                    { name: "max_runtime_secs", label: "Max Trainig Time (sec)", type: "number", default: 30, step: 1 },-->
+<!--                    { name: "max_models", label: "Number of Models to train", type: "number", default: 3, step: 1 }-->
+<!--                ]-->
+<!--            },-->
+<!--            "K-Means": {-->
+<!--                hyperparameters: [-->
+<!--                    { id: "nClusters", label: "Number of Clusters", type: "number", default: 5, min: 2 },-->
+<!--                    { id: "maxIterations", label: "Max Iterations", type: "number", default: 300, min: 1 }-->
+<!--                ]-->
+<!--            }-->
+<!--        };-->
+
+<!--        // Monitor training mode selection-->
+<!--    document.getElementById("trainingMode").addEventListener("change", function () {-->
+<!--        const trainingMode = this.value; // Get the selected value-->
+<!--        const paramsContainer = document.getElementById("dynamicParams");-->
+<!--        if (trainingMode === "true") {-->
+<!--            // Hide hyperparameter inputs for "Auto" mode-->
+<!--            paramsContainer.style.display = "none";-->
+<!--        } else {-->
+<!--            // Show hyperparameter inputs for "Manual" mode-->
+<!--            paramsContainer.style.display = "block";-->
+<!--        }-->
+<!--    });-->
+
+<!--    // Updated openModal function-->
+<!--    function openModal(modelName) {-->
+<!--        document.getElementById("modelName").value = modelName;-->
+<!--        const paramsContainer = document.getElementById("dynamicParams");-->
+<!--        paramsContainer.innerHTML = ""; // Clear previous inputs-->
+
+<!--        const modelConfig = modelsConfig[modelName];-->
+<!--        if (modelConfig && modelConfig.hyperparameters.length > 0) {-->
+<!--            modelConfig.hyperparameters.forEach(param => {-->
+<!--                const inputGroup = document.createElement("div");-->
+<!--                inputGroup.className = "mb-3";-->
+
+<!--                const label = document.createElement("label");-->
+<!--                label.setAttribute("for", param.id);-->
+<!--                label.className = "form-label";-->
+<!--                label.textContent = param.label;-->
+
+<!--                const input = document.createElement("input");-->
+<!--                input.type = param.type;-->
+<!--                input.className = "form-control";-->
+<!--                input.id = param.id;-->
+<!--                input.value = param.default;-->
+<!--                if (param.min !== undefined) input.min = param.min;-->
+
+<!--                inputGroup.appendChild(label);-->
+<!--                inputGroup.appendChild(input);-->
+<!--                paramsContainer.appendChild(inputGroup);-->
+<!--            });-->
+<!--        }-->
+
+<!--        // Default to showing hyperparameters for "Manual" mode-->
+<!--        const trainingMode = document.getElementById("trainingMode").value;-->
+<!--        paramsContainer.style.display = trainingMode === "true" ? "none" : "block";-->
+
+<!--        document.getElementById("trainModal").style.display = "flex";-->
+<!--    }-->
+
+
+<!--        function closeModal() {-->
+<!--            document.getElementById("trainModal").style.display = "none";-->
+<!--        }-->
+
+<!--        function startTraining() {-->
+<!--            const modelName = document.getElementById("modelName").value;-->
+<!--            const datasetId = document.getElementById("ChosentrainingFile").value;-->
+<!--            const trainingMode = document.getElementById("trainingMode").value;-->
+<!--            const params = {};-->
+<!--            const inputs = document.querySelectorAll("#dynamicParams input");-->
+
+<!--            inputs.forEach(input => {-->
+<!--                params[input.id] = input.value;-->
+<!--            });-->
+
+<!--            // Create form dynamically-->
+<!--            const form = document.createElement("form");-->
+<!--            form.method = "POST";-->
+<!--            form.action = `/train_model/${modelName}/${datasetId}/unsupervised/`;-->
+
+<!--            // Add CSRF token-->
+<!--            const csrfToken = document.querySelector("input[name='csrfmiddlewaretoken']").value;-->
+<!--            const csrfInput = document.createElement("input");-->
+<!--            csrfInput.type = "hidden";-->
+<!--            csrfInput.name = "csrfmiddlewaretoken";-->
+<!--            csrfInput.value = csrfToken;-->
+<!--            form.appendChild(csrfInput);-->
+
+<!--            // Add auto/manual setting-->
+<!--            const modeInput = document.createElement("input");-->
+<!--            modeInput.type = "hidden";-->
+<!--            modeInput.name = "auto";-->
+<!--            modeInput.value = trainingMode;-->
+<!--            form.appendChild(modeInput);-->
+
+<!--            // Add hyperparameters-->
+<!--            for (const [key, value] of Object.entries(params)) {-->
+<!--                const paramInput = document.createElement("input");-->
+<!--                paramInput.type = "hidden";-->
+<!--                paramInput.name = key;-->
+<!--                paramInput.value = value;-->
+<!--                form.appendChild(paramInput);-->
+<!--            }-->
+
+<!--            // Append the form to the body-->
+<!--            document.body.appendChild(form);-->
+
+<!--            // Submit the form-->
+<!--            form.submit();-->
+
+<!--            // Close the modal-->
+<!--            closeModal();-->
+
+<!--            // Start preloader-->
+<!--            const preloader = document.getElementById("preloader");-->
+<!--            preloader.style.display = "block";-->
+<!--        }-->
+
+
+<!--    </script>-->
+
+
+    <script>
+    // Model configurations
+    const modelsConfig = {
+        "AutoML": {
+            hyperparameters: [
+                { name: "max_runtime_secs", label: "Max Trainig Time (sec)", type: "number", default: 30, step: 1 },
+                { name: "maxIterations", label: "Max Iterations", type: "number", default: 100, step: 1 },
+                { id: "nClusters", label: "Number of Clusters k", type: "number", default: 5, min: 2 },
+
+            ]
+        },
+        "K-Means": {
+            hyperparameters: [
+                { id: "nClusters", label: "Number of Clusters", type: "number", default: 5, min: 2 },
+                { id: "maxIterations", label: "Max Iterations", type: "number", default: 300, min: 1 }
+            ]
+        }
+    };
+
+    // Monitor training mode selection
+    document.getElementById("trainingMode").addEventListener("change", function () {
+        const trainingMode = this.value; // Get the selected value
+        const paramsContainer = document.getElementById("dynamicParams");
+        if (trainingMode === "true") {
+            // Hide hyperparameter inputs for "Auto" mode
+            paramsContainer.style.display = "none";
+        } else {
+            // Show hyperparameter inputs for "Manual" mode
+            paramsContainer.style.display = "block";
+        }
+    });
+
+    // Open modal and populate based on model
+function openModal(modelName) {
+    document.getElementById("modelName").value = modelName;
+    const paramsContainer = document.getElementById("dynamicParams");
+    paramsContainer.innerHTML = ""; // Clear previous inputs
+
+    const modelConfig = modelsConfig[modelName];
+    if (modelConfig && modelConfig.hyperparameters.length > 0) {
+        modelConfig.hyperparameters.forEach(param => {
+            const inputGroup = document.createElement("div");
+            inputGroup.className = "mb-3";
+
+            const label = document.createElement("label");
+            label.setAttribute("for", param.id);
+            label.className = "form-label";
+            label.textContent = param.label;
+
+            const input = document.createElement("input");
+            input.type = param.type;
+            input.className = "form-control";
+            input.id = param.id;
+            input.value = param.default;
+            if (param.min !== undefined) input.min = param.min;
+
+            inputGroup.appendChild(label);
+            inputGroup.appendChild(input);
+            paramsContainer.appendChild(inputGroup);
+        });
+    }
+
+    // Toggle visibility of hyperparameters based on mode
+    const trainingModeSelect = document.getElementById("trainingMode");
+    trainingModeSelect.addEventListener("change", () => {
+        if (trainingModeSelect.value === "true") { // Auto mode
+            paramsContainer.style.display = "none";
+        } else { // Manual mode
+            paramsContainer.style.display = "block";
+        }
+    });
+
+    // Set initial visibility
+    if (trainingModeSelect.value === "true") {
+        paramsContainer.style.display = "none";
+    } else {
+        paramsContainer.style.display = "block";
+    }
+
+    document.getElementById("trainModal").style.display = "flex";
+}
+
+    // Close modal
+    function closeModal() {
+        document.getElementById("trainModal").style.display = "none";
+    }
+
+    // Start training
+function startTraining() {
+    const modelName = document.getElementById("modelName").value;
+    const datasetId = document.getElementById("ChosentrainingFile").value;
+    const trainingMode = document.getElementById("trainingMode").value; // "true" (Auto) or "false" (Manual)
+    const params = {};
+    params['auto'] = trainingMode
+
+    // Collect hyperparameters only if Manual mode is selected
+    if (trainingMode === "false") {
+        const inputs = document.querySelectorAll("#dynamicParams input");
+        inputs.forEach(input => {
+            params[input.id || input.name] = Number(input.value);
+        });
+    }
+
+    // Create form dynamically
+    const form = document.createElement("form");
+    form.method = "POST";
+    form.action = `/train_model/${modelName}/${datasetId}/unsupervised/`;
+
+    // Add CSRF token
+    const csrfToken = document.querySelector("input[name='csrfmiddlewaretoken']").value;
+    const csrfInput = document.createElement("input");
+    csrfInput.type = "hidden";
+    csrfInput.name = "csrfmiddlewaretoken";
+    csrfInput.value = csrfToken;
+    form.appendChild(csrfInput);
+
+    // Add auto/manual mode setting
+    // const modeInput = document.createElement("input");
+    // modeInput.type = "hidden";
+    // modeInput.name = "auto";
+    // modeInput.value = trainingMode;
+    // form.appendChild(modeInput);
+
+    const paramsInput = document.createElement("input");
+    paramsInput.type = "hidden";
+    paramsInput.name = "params";
+    paramsInput.value = JSON.stringify(params); // Convert object to JSON string
+    form.appendChild(paramsInput);
+
+    // Append the form to the body
+    document.body.appendChild(form);
+
+    // Submit the form
+    form.submit();
+
+    // Close the modal
+    closeModal();
+
+    // Start preloader
+    const preloader = document.getElementById("preloader");
+    preloader.style.display = "block";
+}
+
+
+    </script>
+
+
+
     <style>
         .modal {
             position: fixed;
@@ -65,209 +439,6 @@
             display: none; /* Hide by default */
         }
     </style>
-
-     <div id="preloader">
-        <div class="loader">
-            <svg class="circular" viewBox="25 25 50 50">
-                <circle class="path" cx="50" cy="50" r="20" fill="none" stroke-width="3" stroke-miterlimit="10" />
-            </svg>
-        </div>
-    </div>
-    <!-- Main content -->
-    <div id="main-wrapper" style="min-height: 130vh !important;">
-        {% include "navbar.html" %}
-        {% include "sideBar.html" %}
-
-        <div class="content-body">
-            <div class="container-fluid">
-                <h3 style="padding: 10px">Choose a Machine Learning Model To Train</h3>
-                <div class="row">
-                    <div class="col-3">
-                        <div class="card">
-                            <div class="card-body">
-                                <div class="text-center">
-                                    <span class="display-5">
-                                        <i class="fas fa-file-alt" data-fa-transform="shrink-2 up-4"></i>
-                                    </span>
-                                    <h2 class="mt-3">K-Means</h2>
-                                    <p>Clustering</p>
-                                    <button class="btn gradient-8 btn-md border-0 btn-rounded px-5"
-                                            onclick="openModal(this)">
-                                        Train
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        {% include "footer.html" %}
-    </div>
-
-    <!-- Modal -->
-    <div class="modal" id="trainModal" style="display: none;">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="trainModalLabel">Train Model</h5>
-                    <button type="button" class="btn-close" onclick="closeModal()">×</button>
-                </div>
-                <div class="modal-body">
-                    <form id="trainForm">
-                        {% csrf_token %}
-                        <div class="mb-3">
-                            <label for="modelName" class="form-label">Model</label>
-                            <input type="text" class="form-control" id="modelName" readonly>
-                        </div>
-                        <div class="mb-3">
-                            <label for="ChosentrainingFile" class="form-label">Select Training Dataset</label>
-                            <select style="width: 100% ; padding: 6px" name="ChosentrainingFile" id="ChosentrainingFile" required>
-                                {% for file in processeddatasets %}
-                                    {% if not file.raw_dataset.TargetColumn %}
-                                        <option value="{{file.id}}">{{file.raw_dataset.datasetCostumName}}</option>
-                                    {% endif %}
-                                {% endfor %}
-                            </select>
-                        </div>
-
-                        <!-- Hyperparameter selection: Auto or Manual -->
-                        <div class="mb-3">
-                            <label for="autoTune" class="form-label">Hyperparameter Tuning</label>
-                            <div>
-                                <input type="radio" id="autoTune" name="hyperparam" value="auto" checked onclick="toggleParamsInputs(false)">
-                                <label for="autoTune">Auto</label>
-                            </div>
-                            <div>
-                                <input type="radio" id="manualTune" name="hyperparam" value="manual" onclick="toggleParamsInputs(true)">
-                                <label for="manualTune">Manual</label>
-                            </div>
-                        </div>
-
-                        <!-- Manual hyperparameter inputs -->
-                        <div class="params-inputs">
-                            <div class="mb-3">
-                                <label for="nClusters" class="form-label">Number of Clusters</label>
-                                <input type="number" class="form-control" id="nClusters" value="5" min="2" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="maxIterations" class="form-label">Max Iterations</label>
-                                <input type="number" class="form-control" id="maxIterations" value="300" min="1" required>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Close</button>
-                    <button type="button" class="btn btn-primary" onclick="startTraining()">Start Training</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        function openModal(clickedmodel) {
-            modelNameElement = clickedmodel.parentNode.querySelector('h2');
-            document.getElementById('modelName').value = modelNameElement.innerText;
-            const modal = document.getElementById('trainModal');
-            modal.style.display = 'flex'; // Show modal
-        }
-
-        function closeModal() {
-            const modal = document.getElementById('trainModal');
-            modal.style.display = 'none'; // Hide modal
-        }
-
-        function toggleParamsInputs(show) {
-            const paramsInputs = document.querySelector('.params-inputs');
-            if (show) {
-                paramsInputs.style.display = 'block'; // Show manual hyperparameters
-            } else {
-                paramsInputs.style.display = 'none'; // Hide manual hyperparameters
-            }
-        }
-
-        function startTraining() {
-            pdatarequiredp = document.getElementById('datarequiredp')
-            if(pdatarequiredp){
-                datarequiredp.style.display = 'none';
-            }
-            // Get the selected dataset ID and model name from the DOM
-            const processedFileId = document.getElementById('ChosentrainingFile').value;
-
-            if (! processedFileId ){
-               alert('Please select a file to train.');
-               return;
-            }
-
-            let modelName = document.getElementById('modelName').value;
-            const autoTune = document.querySelector('input[name="hyperparam"]:checked').value === "auto"; // Check if Auto or Manual
-            let nClusters, maxIterations;
-
-            if (!autoTune) {
-                // Get the manual hyperparameters
-                nClusters = document.getElementById('nClusters').value;
-                maxIterations = document.getElementById('maxIterations').value;
-            }
-
-            // Create a form dynamically and submit it
-            const form = document.createElement("form");
-
-            // Add a hidden input for the CSRF token
-            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-            const csrfInput = document.createElement("input");
-            csrfInput.type = "hidden";
-            csrfInput.name = "csrfmiddlewaretoken";
-            csrfInput.value = csrfToken;
-            form.appendChild(csrfInput);
-
-            // Add a hidden input for the "auto" flag (boolean)
-            const autoInput = document.createElement("input");
-            autoInput.type = "hidden";
-            autoInput.name = "auto";
-            autoInput.value = autoTune ? "true" : "false";
-            form.appendChild(autoInput);
-
-            // Add a hidden input for the hyperparameters if auto is false
-            if (!autoTune) {
-                const paramsInput = document.createElement("input");
-                paramsInput.type = "hidden";
-                paramsInput.name = "params";
-                paramsInput.value = JSON.stringify({
-                    'auto': "true",
-                    'n_clusters': Number(nClusters),
-                    'max_iter': Number(maxIterations),
-                });
-                form.appendChild(paramsInput);
-            }else {
-                const paramsInput = document.createElement("input");
-                paramsInput.type = "hidden";
-                paramsInput.name = "params";
-                paramsInput.value = JSON.stringify({
-                    'auto': "false",
-                });
-                form.appendChild(paramsInput);
-            }
-
-            // Append the form to the document
-            document.body.appendChild(form);
-
-            // Set the URL and submit the form
-            const url = `/train_model/${modelName}/${processedFileId}/unsupervised/`;
-            form.method = "POST";
-            form.action = url;
-            form.submit();
-
-            // Close the modal (optional)
-            closeModal();
-
-            // Start the preloader animation
-            const preloader = document.getElementById("preloader");
-            preloader.style.display = "block";
-        }
-
-    </script>
 
     <!-- Scripts -->
     <script src="{% static 'plugins/common/common.min.js' %}"></script>

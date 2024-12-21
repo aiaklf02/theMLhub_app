@@ -274,6 +274,7 @@ MODEL_FUNCTIONS = {
     "Support Vector Machines (SVC)": train_classification_svc,
     "XG Boost": train_classification_xgboost,
     "Reseau Neurons": train_classification_reseau_neuron,
+    "AutoML": train_h2o_automl,
     # Add more models here as needed
 
 }
@@ -330,7 +331,7 @@ def train_model_view(request, model_name, processed_file_id, supervised):
                 "modelName": model_name,
                 "dataCostumName": preprocessed_dataset.raw_dataset.datasetCostumName
             }
-            # raise e
+            raise e
 
         return render(request, 'train_result.html', context)
 

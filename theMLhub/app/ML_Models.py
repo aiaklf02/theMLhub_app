@@ -1,3 +1,9 @@
+import h2o
+from h2o.estimators import H2OKMeansEstimator
+from h2o.automl import H2OAutoML
+import time
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
+
 import io
 import time
 from sklearn.linear_model import LogisticRegression, LinearRegression
@@ -1090,3 +1096,473 @@ def train_classification_reseau_neuron(preprocesseddata, params, target_column=N
     else:
         raise Exception('Target column is required for Neural Network Classification.')
 
+
+
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.metrics import confusion_matrix
+from sklearn.decomposition import PCA
+import pandas as pd
+
+import io
+import base64
+import time
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.decomposition import PCA
+import h2o
+from h2o.estimators import H2OKMeansEstimator
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix
+
+import io
+import base64
+import time
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.decomposition import PCA
+import h2o
+from h2o.estimators import H2OKMeansEstimator
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix
+
+import io
+import base64
+import time
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.decomposition import PCA
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix
+import h2o
+from h2o.estimators import H2OKMeansEstimator
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.metrics import roc_curve, auc, mean_squared_error, r2_score
+from sklearn.metrics import precision_recall_curve
+
+
+def save_plot_to_base64():
+    """Save the current matplotlib plot to a base64-encoded string."""
+    buffer = io.BytesIO()
+    plt.savefig(buffer, format='png', bbox_inches='tight')
+    buffer.seek(0)
+    image_base64 = base64.b64encode(buffer.read()).decode('utf-8')
+    buffer.close()
+    plt.close()
+    return image_base64
+
+import pandas as pd
+
+def check_task_type(data, target_column):
+    """
+    Determines if the task is classification or regression based on the target column.
+
+    Args:
+    - data (pd.DataFrame or other): The input data containing the features and target column.
+    - target_column (str): The name of the target column.
+
+    Returns:
+    - str: 'classification' or 'regression' based on the target column type.
+    """
+    # Attempt to convert the input data to a DataFrame if it's not already
+    if not isinstance(data, pd.DataFrame):
+        try:
+            data = pd.DataFrame(data)
+        except Exception as e:
+            return {'error': 'Input data could not be converted to a pandas DataFrame.', 'details': str(e)}
+
+    # Now that data is guaranteed to be a DataFrame, proceed with the logic
+    try:
+        # Get the target column from the dataframe
+        target = data[target_column]
+
+        # Check if target column is numeric (for regression)
+        if pd.api.types.is_numeric_dtype(target):
+            # If numeric, check if it has enough unique values to consider regression
+            unique_values = target.nunique()
+
+            # If there are few unique values (like 2 or 3), it's likely classification (binary or multiclass)
+            if unique_values <= 10:  # This is an arbitrary threshold, you can adjust it
+                return 'classification'
+            else:
+                return 'regression'
+        else:
+            return 'classification'
+    except KeyError:
+        return {'error': f"Target column '{target_column}' not found in the data."}
+
+
+def clean_leaderboard(leaderboard):
+    cleaned_leaderboard = []
+    for entry in leaderboard:
+        cleaned_entry = {}
+        for key, value in entry.items():
+            # Remove underscores from the key
+            cleaned_key = key.replace('_', ' ')
+            # Remove underscores from the value if it's a string
+            if isinstance(value, str):
+                cleaned_value = value.replace('_', ' ')
+            else:
+                cleaned_value = value
+            cleaned_entry[cleaned_key] = cleaned_value
+        cleaned_leaderboard.append(cleaned_entry)
+    return cleaned_leaderboard
+
+def train_h2o_supervised(preprocesseddata, params, target_column):
+    # Preprocess the data
+    X_train, X_test, y_train, y_test = encode_categorical_data(preprocesseddata, supervised=True)
+
+    # Determine task type (classification or regression)
+    task_type = check_task_type(preprocesseddata, target_column)
+
+    # Convert to H2O frame
+    train_data = h2o.H2OFrame(X_train)
+    train_data[target_column] = h2o.H2OFrame(pd.DataFrame(y_train))  # Convert y_train to DataFrame first
+    test_data = h2o.H2OFrame(X_test)
+    test_data[target_column] = h2o.H2OFrame(pd.DataFrame(y_test))  # Convert y_test to DataFrame first
+
+    X = [col for col in X_train.columns if col != target_column]
+    y = target_column
+
+    # Set AutoML hyperparameters (using values from params if available)
+    max_runtime_secs = int(params.get('max_runtime_secs', 60))  # Max time in seconds for training
+    max_models = int(params.get('max_models', 3))  # Max models to train
+    
+    print(f'using *params* max_runtime_secs {max_runtime_secs}\n max_models {max_models}')
+    print(f'{params}')
+    # Track training time
+    start_train_time = time.time()
+    print('Training started using H2O AutoML for supervised task')
+
+    # Initialize and train AutoML model
+    aml = H2OAutoML(
+        max_models=max_models,
+        max_runtime_secs=max_runtime_secs,
+        seed=42
+    )
+    aml.train(x=X, y=y, training_frame=train_data)
+
+    # Get leaderboard and best model
+    leaderboard = aml.leaderboard
+    print("Leaderboard:\n", leaderboard)
+    model = aml.leader
+
+    # Evaluate model performance
+    start_test_time = time.time()
+    predictions = model.predict(test_data)
+    y_pred = predictions.as_data_frame().values.flatten()
+    end_test_time = time.time()
+
+    # Handle classification metrics and plots if task is classification
+    plots = {}
+    if task_type == 'classification':
+        accuracy = accuracy_score(y_test, y_pred)
+        precision = precision_score(y_test, y_pred, average='weighted', zero_division=1)
+        recall = recall_score(y_test, y_pred, average='weighted', zero_division=1)
+        f1 = f1_score(y_test, y_pred, average='weighted')
+
+        # Confusion Matrix plot
+        cm = confusion_matrix(y_test, y_pred)
+        plt.figure(figsize=(8, 6))
+        sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', xticklabels=model.levels[1], yticklabels=model.levels[1])
+        plt.title('Confusion Matrix')
+        plt.xlabel('Predicted')
+        plt.ylabel('Actual')
+        confusion_matrix_plot_base64 = save_plot_to_base64()
+        plots["confusion matrix plot"] = confusion_matrix_plot_base64
+
+        # ROC curve plot for binary classification
+        if len(set(y_test)) == 2:  # Only for binary classification
+            fpr, tpr, _ = roc_curve(y_test, y_pred)
+            roc_auc = auc(fpr, tpr)
+            plt.figure(figsize=(8, 6))
+            plt.plot(fpr, tpr, color='darkorange', lw=2, label='ROC curve (area = %0.2f)' % roc_auc)
+            plt.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--')
+            plt.xlim([0.0, 1.0])
+            plt.ylim([0.0, 1.05])
+            plt.xlabel('False Positive Rate')
+            plt.ylabel('True Positive Rate')
+            plt.title('Receiver Operating Characteristic (ROC) Curve')
+            roc_curve_plot_base64 = save_plot_to_base64()
+            plots["roc curve plot"] = roc_curve_plot_base64
+
+        # Precision-Recall curve for imbalanced datasets
+        precision_vals, recall_vals, _ = precision_recall_curve(y_test, y_pred)
+        plt.figure(figsize=(8, 6))
+        plt.plot(recall_vals, precision_vals, color='b')
+        plt.xlabel('Recall')
+        plt.ylabel('Precision')
+        plt.title('Precision-Recall Curve')
+        pr_curve_plot_base64 = save_plot_to_base64()
+        plots["precision recall curve plot"] = pr_curve_plot_base64
+
+        mdl = model.model_id.replace('_', ' ')
+        metric_results = {
+            "accuracy": accuracy,
+            "precision": precision,
+            "recall": recall,
+            "f1 score": f1,
+            "training time": end_test_time - start_train_time,
+            "testing time": end_test_time - start_test_time,
+            "model id": mdl,
+        }
+
+        leaderboard = leaderboard.as_data_frame().to_dict('records')
+
+        # Handle regression metrics and plots if task is regression
+    else:
+        mse = mean_squared_error(y_test, y_pred)
+        r2 = r2_score(y_test, y_pred)
+
+        # Residual plot
+        residuals = y_test - y_pred
+        plt.figure(figsize=(8, 6))
+        sns.scatterplot(x=y_pred, y=residuals)
+        plt.axhline(0, color='red', linestyle='--')
+        plt.title('Residual Plot')
+        plt.xlabel('Predicted Values')
+        plt.ylabel('Residuals')
+        residual_plot_base64 = save_plot_to_base64()
+        plots["residual plot"] = residual_plot_base64
+
+        # Prediction vs Actual plot
+        plt.figure(figsize=(8, 6))
+        sns.scatterplot(x=y_test, y=y_pred)
+        plt.axhline(0, color='red', linestyle='--')
+        plt.title('Prediction vs Actual')
+        plt.xlabel('Actual Values')
+        plt.ylabel('Predicted Values')
+        prediction_vs_actual_plot_base64 = save_plot_to_base64()
+        plots["prediction vs actual plot"] = prediction_vs_actual_plot_base64
+
+        mdl = model.model_id.replace('_', ' ')
+
+        print(f'plots {plots}')
+        metric_results = {
+            "mean squared error": mse,
+            "r2 score": r2,
+            "training time": end_test_time - start_train_time,
+            "testing time": end_test_time - start_test_time,
+            "model id": mdl,
+        }
+        leaderboard = leaderboard.as_data_frame().to_dict('records')
+
+    # Replace underscores with spaces in the keys
+    metric_results = {k.replace('_', ' '): v for k, v in metric_results.items()}
+
+    # Shut down the H2O cluster
+    h2o.shutdown()
+
+    cldrbrd = clean_leaderboard(leaderboard)
+
+    return {
+        "metric_results": remove_none_values(metric_results),
+        "plots": plots,
+        "leaderboard": cldrbrd
+    }
+
+
+
+
+def train_h2o_unsupervised(preprocesseddata, params):
+    # Preprocess the data (no target column for unsupervised)
+    df = encode_categorical_data(preprocesseddata, supervised=False)
+
+    # Convert to H2O frame
+    train_data = h2o.H2OFrame(df)
+
+    # Set AutoML hyperparameters (using values from params if available)
+    max_runtime_secs = int(params.get('max_runtime_secs', 3600))  # Max time in seconds for training
+    n_clusters = int(params.get('nClusters', 3))  # Number of clusters (for KMeans)
+    max_iterations = int(params.get('maxIterations', 300))  # Max iterations for KMeans
+
+    # Initialize and train KMeans model for unsupervised learning
+    start_train_time = time.time()
+    kmeans_model = H2OKMeansEstimator(k=n_clusters, max_iterations=max_iterations, max_runtime_secs=max_runtime_secs)
+    kmeans_model.train(training_frame=train_data)
+
+    # Get model details
+    model_summary = kmeans_model.summary()
+
+    # Extract relevant metrics from the model and flatten them
+    metric_results = {
+        "number_of_rows": model_summary['number_of_rows'],
+        "number_of_clusters": model_summary['number_of_clusters'],
+        "within_cluster_sum_of_squares": model_summary['within_cluster_sum_of_squares'],
+        "total_sum_of_squares": model_summary['total_sum_of_squares'],
+        "between_cluster_sum_of_squares": model_summary['between_cluster_sum_of_squares'],
+    }
+
+    # Extract centroid information and handle both cases
+    centroids = kmeans_model.centers()
+
+    # Ensure centroids is a list of H2OFrames or a single H2OFrame
+    if isinstance(centroids, list):
+        # If centroids is a list, process each centroid as a data frame
+        centroids_info = []
+        for centroid in centroids:
+            if isinstance(centroid, h2o.H2OFrame):
+                centroid_info = centroid.as_data_frame().to_dict('records')[0]
+                centroids_info.append(centroid_info)
+    elif isinstance(centroids, h2o.H2OFrame):
+        # If centroids is a single H2OFrame, process it directly
+        centroids_info = centroids.as_data_frame().to_dict('records')
+    else:
+        centroids_info = []
+
+    # Extract scoring history (handle as Pandas DataFrame directly)
+    scoring_history = kmeans_model.scoring_history()
+
+    # Convert the Pandas DataFrame to a dictionary for further use
+    scoring_history_info = scoring_history.to_dict('records')
+
+    # Flatten the scoring history
+    for idx, record in enumerate(scoring_history_info):
+        for key, value in record.items():
+            metric_results[f"scoring_history_{idx}_{key}"] = value
+
+    # Generate cluster visualization plot
+    plt.figure(figsize=(8, 6))
+    pca = PCA(n_components=2)
+    reduced_data = pca.fit_transform(df)
+    for i in range(n_clusters):
+        cluster_points = reduced_data[kmeans_model.predict(h2o.H2OFrame(df)).as_data_frame().values.flatten() == i]
+        plt.scatter(cluster_points[:, 0], cluster_points[:, 1], label=f"Cluster {i}")
+    plt.scatter([centroid['x'] for centroid in centroids_info],
+                [centroid['y'] for centroid in centroids_info],
+                c='red', marker='x', s=100, label='Centroids')
+    plt.title('Cluster Visualization (PCA)')
+    plt.legend()
+    cluster_visualization_plot_base64 = save_plot_to_base64()
+
+    # Track training time
+    end_train_time = time.time()
+    metric_results["training time"] = end_train_time - start_train_time
+
+    # Replace underscores with spaces in the keys
+    metric_results = {k.replace('_', ' '): v for k, v in metric_results.items()}
+
+    # Shut down the H2O cluster
+    h2o.shutdown()
+
+    return {
+        "metric_results": remove_none_values(metric_results),
+        "plots": {
+            "cluster_plot": cluster_visualization_plot_base64,
+            # Add other plots here as necessary
+        }
+    }
+
+
+def train_h2o_automl(preprocesseddata, params, target_column=None):
+    paramss = params['hyperparameters']
+    h2o.init()
+
+    if target_column:
+        # Supervised task (classification or regression)
+        result = train_h2o_supervised(preprocesseddata, paramss, target_column)
+    else:
+        # Unsupervised task (e.g., clustering)
+        result = train_h2o_unsupervised(preprocesseddata, paramss)
+
+    return result
+
+# Function to plot the clusters and centroids
+def plot_clusters_with_centroids(df, centroids_info, n_clusters, kmeans_model):
+    pca = PCA(n_components=2)
+    reduced_data = pca.fit_transform(df)
+    for i in range(n_clusters):
+        cluster_points = reduced_data[kmeans_model.predict(h2o.H2OFrame(df)).as_data_frame().values.flatten() == i]
+        plt.scatter(cluster_points[:, 0], cluster_points[:, 1], label=f"Cluster {i}")
+    plt.scatter([centroid['x'] for centroid in centroids_info],
+                [centroid['y'] for centroid in centroids_info],
+                c='red', marker='x', s=100, label='Centroids')
+    plt.title('Cluster Visualization (PCA)')
+    plt.legend()
+
+# def train_h2o_automl(preprocesseddata, params, target_column=None):
+#     if target_column:
+#         # Preprocess the data (ensure correct format for H2O)
+#         X_train, X_test, y_train, y_test = encode_categorical_data(preprocesseddata, supervised=True)
+#
+#         # Start the H2O cluster (only needs to be done once in the program)
+#         h2o.init()
+#
+#         # Convert the Pandas DataFrame to H2O Frame
+#         train_data = h2o.H2OFrame(X_train)
+#         train_data[target_column] = h2o.H2OFrame(y_train)  # Add target column to the training frame
+#         test_data = h2o.H2OFrame(X_test)
+#         test_data[target_column] = h2o.H2OFrame(y_test)  # Add target column to the testing frame
+#
+#         # Define X (features) and y (target)
+#         X = [col for col in X_train.columns if col != target_column]
+#         y = target_column
+#
+#         # Track training time
+#         start_train_time = time.time()
+#         print('Training started using H2O AutoML')
+#
+#         # Set AutoML hyperparameters
+#         max_runtime_secs = int(params.get('max_runtime_secs', 3600))  # Max time in seconds for training
+#         max_models = int(params.get('max_models', 20))  # Max models to train
+#
+#         # Initialize and train AutoML model
+#         aml = H2OAutoML(
+#             max_models=max_models,
+#             max_runtime_secs=max_runtime_secs,
+#             seed=42
+#         )
+#         aml.train(x=X, y=y, training_frame=train_data)
+#
+#         # End the training time
+#         end_train_time = time.time()
+#         training_time = end_train_time - start_train_time
+#
+#         # Get the leaderboard (ranking of models)
+#         leaderboard = aml.leaderboard
+#         print("Leaderboard:\n", leaderboard)
+#
+#         # Get the best model (leader model)
+#         model = aml.leader
+#
+#         # Track testing (prediction) time
+#         start_test_time = time.time()
+#
+#         # Predict using the leader model
+#         predictions = model.predict(test_data)
+#
+#         # Convert predictions to a format suitable for sklearn metrics
+#         y_pred = predictions.as_data_frame().values.flatten()
+#
+#         end_test_time = time.time()
+#         testing_time = end_test_time - start_test_time
+#
+#         # Evaluate model performance
+#         accuracy = accuracy_score(y_test, y_pred)
+#         precision = precision_score(y_test, y_pred, average='weighted', zero_division=1)
+#         recall = recall_score(y_test, y_pred, average='weighted', zero_division=1)
+#         f1 = f1_score(y_test, y_pred, average='weighted')
+#
+#         # Generate plots (optional)
+#         plots = generate_visualizations(X_train, X_test, y_train, y_test, model)
+#
+#         # Prepare the metric results
+#         metric_results = {
+#             "accuracy": accuracy,
+#             "precision": precision,
+#             "recall": recall,
+#             "f1_score": f1,
+#             "training time": training_time,
+#             "testing time": testing_time,
+#         }
+#
+#         # Shut down the H2O cluster
+#         h2o.shutdown()
+#
+#         return {
+#             "metric_results": remove_none_values(metric_results),
+#             "plots": remove_none_values(plots),
+#             "model": model,  # Include the best trained model
+#             "leaderboard": leaderboard  # Include the leaderboard for all models
+#         }
+#     else:
+#         raise Exception('Target column is required for H2O AutoML classification.')

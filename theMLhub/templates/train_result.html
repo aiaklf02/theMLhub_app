@@ -96,7 +96,36 @@
             {% if status == 'success' %}
                 <div class="result-message success">
                     <h2>{{modelName}} Trained using {{dataCostumName}} Successfully</h2>
+
+
+
+                {% if result.leaderboard %}
+                    <hr>
+
+  {% for itm in result.leaderboard %}
+    {% if itm %}
+        <div class="metrics-container">
+
+        {% for metric_key, metric_value in itm.items %}
+
+            {% if metric_key == "model id" %}
+            <div style="width: 100%;padding:10px">
+                <h2>Model ID : {{metric_value}}</h2>
+            </div>
+            {% else %}
+                <div class="metric-card">
+                    <h3>{{ metric_key }}</h3>
+                    <p>{{ metric_value }}</p>
+                </div>
+            {% endif %}
+        {% endfor %}
+        </div>
+    {% endif %}
+{% endfor %}
+
+                {% endif %}
                             <hr>
+
                     <!-- Displaying dynamic metric results -->
                     <div class="metrics-container" >
                         <div style="width: 100%">
@@ -113,6 +142,7 @@
                             <hr>
 
                     <!-- Displaying dynamic plots -->
+                    {% if result.plots %}
                     <div class="plots-container">
                         <div style="width: 100%">
                             <h2>Plots</h2>
@@ -124,6 +154,10 @@
                             </div>
                         {% endfor %}
                     </div>
+                    {% endif %}
+
+
+
                 </div>
             {% endif %}
 
