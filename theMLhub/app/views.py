@@ -255,8 +255,22 @@ MODEL_FUNCTIONS = {
     "Regression LightGBM": train_regression_LightGBM,
     "Classification LightGBM": train_classification_LightGBM,
     "K-Means": KMeansClustering,
+    "Decision Trees": decisionTreeCart,
+    "Random Forest": train_random_forest,
+    "K-Nearest Neighbors": train_knn,
+    "Support Vector Machines (SVR)": train_svr,
+    "XGBoost": train_xgboost,
+    "Reseau Neuron": train_reseau_neuron,
     # Add more models here as needed
 }
+# MODEL_FUNCTIONS = {
+#     "Linear Regression": train_linear_regression,
+#     "Logistic Regression": train_logistic_regression,
+#     "Regression LightGBM": train_regression_LightGBM,
+#     "Classification LightGBM": train_classification_LightGBM,
+#     "K-Means": KMeansClustering,
+#     # Add more models here as needed
+# }
 
 import json
 
