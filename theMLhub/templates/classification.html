@@ -125,7 +125,7 @@
                                     <span class="display-5">
                                         <i class="fas fa-file-alt" data-fa-transform="shrink-2 up-4"></i>
                                         </span>
-                                    <h2 class="mt-1">Decision Trees</h2>
+                                    <h2 class="mt-1">Decision Tree</h2>
                                     <p>Classification</p>
                                     <button class="btn gradient-8 btn-md border-0 btn-rounded px-5"
                                     onclick="openModal(this)">
@@ -144,7 +144,7 @@
                                     <span class="display-5">
                                         <i class="fas fa-file-alt" data-fa-transform="shrink-2 up-4"></i>
                                         </span>
-                                    <h2 class="mt-1">Random Forest</h2>
+                                    <h2 class="mt-1">Random Forests</h2>
                                     <p>Classification</p>
                                     <button class="btn gradient-8 btn-md border-0 btn-rounded px-5"
                                     onclick="openModal(this)">
@@ -180,7 +180,7 @@
                                     <span class="display-5">
                                         <i class="fas fa-file-alt" data-fa-transform="shrink-2 up-4"></i>
                                         </span>
-                                    <h2 class="mt-1">XGBoost</h2>
+                                    <h2 class="mt-1">XG Boost</h2>
                                     <p>Classification</p>
                                     <button class="btn gradient-8 btn-md border-0 btn-rounded px-5"
                                     onclick="openModal(this)">
@@ -198,7 +198,7 @@
                                     <span class="display-5">
                                         <i class="fas fa-file-alt" data-fa-transform="shrink-2 up-4"></i>
                                         </span>
-                                    <h2 class="mt-1">Support Vector Machines</h2>
+                                    <h2 class="mt-1">Support Vector Machines (SVC)</h2>
                                     <p>Classification</p>
                                     <button class="btn gradient-8 btn-md border-0 btn-rounded px-5"
                                     onclick="openModal(this)">
@@ -216,7 +216,25 @@
                                     <span class="display-5">
                                         <i class="fas fa-file-alt" data-fa-transform="shrink-2 up-4"></i>
                                         </span>
-                                    <h2 class="mt-1">K-Nearest Neighbors</h2>
+                                    <h2 class="mt-1">K Nearest Neighbors</h2>
+                                    <p>Classification</p>
+                                    <button class="btn gradient-8 btn-md border-0 btn-rounded px-5"
+                                    onclick="openModal(this)">
+                                    Train
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                        <div class="col-3 ">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="text-center">
+                                    <span class="display-5">
+                                        <i class="fas fa-file-alt" data-fa-transform="shrink-2 up-4"></i>
+                                        </span>
+                                    <h2 class="mt-1">Reseau Neurons</h2>
                                     <p>Classification</p>
                                     <button class="btn gradient-8 btn-md border-0 btn-rounded px-5"
                                     onclick="openModal(this)">
@@ -298,11 +316,11 @@ const hyperparameterOptions = {
     "Naive bayes": [
         { name: "Smoothing", type: "number", id: "smoothing", default: 1.0 }
     ],
-    "Decision Trees": [
+    "Decision Tree": [
         { name: "Max Depth", type: "number", id: "maxDepth", default: 5 },
         { name: "Min Samples Split", type: "number", id: "minSamplesSplit", default: 2 }
     ],
-    "Random Forest": [
+    "Random Forests": [
         { name: "Number of Estimators", type: "number", id: "nEstimators", default: 100 },
         { name: "Max Depth", type: "number", id: "maxDepth", default: 5 }
     ],
@@ -310,21 +328,25 @@ const hyperparameterOptions = {
         { name: "Learning Rate", type: "number", id: "learningRate", default: 0.1 },
         { name: "Number of Leaves", type: "number", id: "nLeaves", default: 31 },
         { name: "number of class", type: "number", id: "num_class", default: "2" },
-
-
     ],
-    "XGBoost": [
+    "XG Boost": [
         { name: "Learning Rate", type: "number", id: "learningRate", default: 0.3 },
         { name: "Max Depth", type: "number", id: "maxDepth", default: 6 }
     ],
-    "Support Vector Machines": [
+    "Support Vector Machines (SVC)": [
         { name: "Kernel", type: "text", id: "kernel", default: "rbf" },
         { name: "C", type: "number", id: "C", default: 1.0 }
     ],
-    "K-Nearest Neighbors": [
+    "K Nearest Neighbors": [
         { name: "Number of Neighbors", type: "number", id: "nNeighbors", default: 5 },
         { name: "Weights", type: "text", id: "weights", default: "uniform" }
+    ],
+       "Reseau Neurons": [
+        { name: "hidden_layer_sizes", label: "Hidden Layer Sizes", type: "text", default: "10" },
+        { name: "activation", label: "Activation Function", type: "text", default: "relu" },
+        { name: "solver", label: "Solver", type: "text", default: "adam" }
     ]
+
 };
 
 function closeModal() {

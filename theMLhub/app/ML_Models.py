@@ -10,6 +10,11 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import numpy as np
 import os
+from sklearn.neural_network import MLPClassifier
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix
+import time
+import matplotlib.pyplot as plt
+import seaborn as sns
 from io import BytesIO
 import base64
 from sklearn.tree import DecisionTreeRegressor
@@ -19,20 +24,18 @@ from sklearn.svm import SVR
 import xgboost as xgb
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 import time
-
 from sklearn.neural_network import MLPRegressor
-
 from .models import Result
 from .visualisation_plots import generate_visualizations, generate_classification_report_plot, \
     generate_confusion_matrix_plot
-
-
 from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_score
-
 import lightgbm as lgb
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, roc_auc_score,mean_squared_error, mean_absolute_error, r2_score
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, roc_auc_score,mean_squared_error, \
+    mean_absolute_error, r2_score
 import time
+
+
 
 # remove none values from dict
 def remove_none_values(d):
@@ -419,7 +422,6 @@ def train_xgboost(preprocesseddata, params, target_column=None):
 
 
 # Neural Network (MLP)
-
 def train_reseau_neuron(preprocesseddata, params, target_column=None):
     print(f" i got these params from front end : {params}.\n")
 
@@ -525,6 +527,7 @@ def KMeansClustering(preprocesseddata, params, target_column=None):
         return obj
     except Exception as e:
         raise e
+
 
 
 def train_logistic_regression(preprocesseddata, params, target_column=None):
@@ -686,4 +689,404 @@ def train_classification_LightGBM(preprocesseddata, params, target_column=None):
             raise Exception(f'{e}')
     else:
         raise Exception('Target column is required for LightGBM Classification.')
+
+
+from sklearn.naive_bayes import GaussianNB
+
+def train_classification_naiveBayes(preprocesseddata, params, target_column=None):
+    if target_column:
+        X_train, X_test, y_train, y_test = encode_categorical_data(preprocesseddata, supervised=True)
+
+        # Track training time
+        start_train_time = time.time()
+        print('training started Naive Bayes')
+
+        # Set smoothing parameter (default is 1.0)
+        smoothing = float(params.get('smoothing', 1.0))
+
+        # Train model
+        model = GaussianNB(var_smoothing=smoothing)
+        model.fit(X_train, y_train)
+
+        end_train_time = time.time()
+        training_time = end_train_time - start_train_time
+
+        # Track testing (prediction) time
+        start_test_time = time.time()
+
+        # Evaluate model
+        predictions = model.predict(X_test)
+
+        end_test_time = time.time()
+        testing_time = end_test_time - start_test_time
+
+        # Generate plots (optional)
+        plots = generate_visualizations(X_train, X_test, y_train, y_test, model)
+
+        # Calculate classification metrics
+        accuracy = accuracy_score(y_test, predictions)
+        precision = precision_score(y_test, predictions, average='weighted', zero_division=1)
+        recall = recall_score(y_test, predictions, average='weighted', zero_division=1)
+        f1 = f1_score(y_test, predictions, average='weighted')
+
+        metric_results = {
+            "accuracy": accuracy,
+            "precision": precision,
+            "recall": recall,
+            "f1_score": f1,
+            "training time": training_time,
+            "testing time": testing_time,
+        }
+
+        return {
+            "metric_results": remove_none_values(metric_results),
+            "plots": remove_none_values(plots),
+            "model": model,  # Include the trained model
+        }
+    else:
+        raise Exception('Target column is required for Naive Bayes classification.')
+
+from sklearn.tree import DecisionTreeClassifier
+
+def train_classification_cart_decision_tree(preprocesseddata, params, target_column=None):
+    if target_column:
+        X_train, X_test, y_train, y_test = encode_categorical_data(preprocesseddata, supervised=True)
+
+        # Track training time
+        start_train_time = time.time()
+        print('training started Decision Tree')
+
+        # Set hyperparameters
+        max_depth = int(params.get('maxDepth', 5))
+        min_samples_split = int(params.get('minSamplesSplit', 2))
+
+        # Train model
+        model = DecisionTreeClassifier(max_depth=max_depth, min_samples_split=min_samples_split)
+        model.fit(X_train, y_train)
+
+        end_train_time = time.time()
+        training_time = end_train_time - start_train_time
+
+        # Track testing (prediction) time
+        start_test_time = time.time()
+
+        # Evaluate model
+        predictions = model.predict(X_test)
+
+        end_test_time = time.time()
+        testing_time = end_test_time - start_test_time
+
+        # Generate plots (optional)
+        plots = generate_visualizations(X_train, X_test, y_train, y_test, model)
+
+        # Calculate classification metrics
+        accuracy = accuracy_score(y_test, predictions)
+        precision = precision_score(y_test, predictions, average='weighted', zero_division=1)
+        recall = recall_score(y_test, predictions, average='weighted', zero_division=1)
+        f1 = f1_score(y_test, predictions, average='weighted')
+
+        metric_results = {
+            "accuracy": accuracy,
+            "precision": precision,
+            "recall": recall,
+            "f1_score": f1,
+            "training time": training_time,
+            "testing time": testing_time,
+        }
+
+        return {
+            "metric_results": remove_none_values(metric_results),
+            "plots": remove_none_values(plots),
+            "model": model,  # Include the trained model
+        }
+    else:
+        raise Exception('Target column is required for Decision Tree classification.')
+
+
+from sklearn.ensemble import RandomForestClassifier
+
+def train_classification_random_forest(preprocesseddata, params, target_column=None):
+    if target_column:
+        X_train, X_test, y_train, y_test = encode_categorical_data(preprocesseddata, supervised=True)
+
+        # Track training time
+        start_train_time = time.time()
+        print('training started Random Forest')
+
+        # Set hyperparameters
+        n_estimators = int(params.get('nEstimators', 100))
+        max_depth = int(params.get('maxDepth', 5))
+
+        # Train model
+        model = RandomForestClassifier(n_estimators=n_estimators, max_depth=max_depth)
+        model.fit(X_train, y_train)
+
+        end_train_time = time.time()
+        training_time = end_train_time - start_train_time
+
+        # Track testing (prediction) time
+        start_test_time = time.time()
+
+        # Evaluate model
+        predictions = model.predict(X_test)
+
+        end_test_time = time.time()
+        testing_time = end_test_time - start_test_time
+
+        # Generate plots (optional)
+        plots = generate_visualizations(X_train, X_test, y_train, y_test, model)
+
+        # Calculate classification metrics
+        accuracy = accuracy_score(y_test, predictions)
+        precision = precision_score(y_test, predictions, average='weighted', zero_division=1)
+        recall = recall_score(y_test, predictions, average='weighted', zero_division=1)
+        f1 = f1_score(y_test, predictions, average='weighted')
+
+        metric_results = {
+            "accuracy": accuracy,
+            "precision": precision,
+            "recall": recall,
+            "f1_score": f1,
+            "training time": training_time,
+            "testing time": testing_time,
+        }
+
+        return {
+            "metric_results": remove_none_values(metric_results),
+            "plots": remove_none_values(plots),
+            "model": model,  # Include the trained model
+        }
+    else:
+        raise Exception('Target column is required for Random Forest classification.')
+
+
+from sklearn.neighbors import KNeighborsClassifier
+
+def train_classification_knn(preprocesseddata, params, target_column=None):
+    if target_column:
+        X_train, X_test, y_train, y_test = encode_categorical_data(preprocesseddata, supervised=True)
+
+        # Track training time
+        start_train_time = time.time()
+        print('training started KNN')
+
+        # Set hyperparameters
+        n_neighbors = int(params.get('nNeighbors', 5))
+        weights = params.get('weights', 'uniform')
+
+        # Train model
+        model = KNeighborsClassifier(n_neighbors=n_neighbors, weights=weights)
+        model.fit(X_train, y_train)
+
+        end_train_time = time.time()
+        training_time = end_train_time - start_train_time
+
+        # Track testing (prediction) time
+        start_test_time = time.time()
+
+        # Evaluate model
+        predictions = model.predict(X_test)
+
+        end_test_time = time.time()
+        testing_time = end_test_time - start_test_time
+
+        # Generate plots (optional)
+        plots = generate_visualizations(X_train, X_test, y_train, y_test, model)
+
+        # Calculate classification metrics
+        accuracy = accuracy_score(y_test, predictions)
+        precision = precision_score(y_test, predictions, average='weighted', zero_division=1)
+        recall = recall_score(y_test, predictions, average='weighted', zero_division=1)
+        f1 = f1_score(y_test, predictions, average='weighted')
+
+        metric_results = {
+            "accuracy": accuracy,
+            "precision": precision,
+            "recall": recall,
+            "f1_score": f1,
+            "training time": training_time,
+            "testing time": testing_time,
+        }
+
+        return {
+            "metric_results": remove_none_values(metric_results),
+            "plots": remove_none_values(plots),
+            "model": model,  # Include the trained model
+        }
+    else:
+        raise Exception('Target column is required for KNN classification.')
+
+
+from sklearn.svm import SVC
+
+def train_classification_svc(preprocesseddata, params, target_column=None):
+    if target_column:
+        X_train, X_test, y_train, y_test = encode_categorical_data(preprocesseddata, supervised=True)
+
+        # Track training time
+        start_train_time = time.time()
+        print('training started SVM')
+
+        # Set hyperparameters
+        kernel = params.get('kernel', 'rbf')
+        C = float(params.get('C', 1.0))
+
+        # Train model
+        model = SVC(kernel=kernel, C=C)
+        model.fit(X_train, y_train)
+
+        end_train_time = time.time()
+        training_time = end_train_time - start_train_time
+
+        # Track testing (prediction) time
+        start_test_time = time.time()
+
+        # Evaluate model
+        predictions = model.predict(X_test)
+
+        end_test_time = time.time()
+        testing_time = end_test_time - start_test_time
+
+        # Generate plots (optional)
+        plots = generate_visualizations(X_train, X_test, y_train, y_test, model)
+
+        # Calculate classification metrics
+        accuracy = accuracy_score(y_test, predictions)
+        precision = precision_score(y_test, predictions, average='weighted', zero_division=1)
+        recall = recall_score(y_test, predictions, average='weighted', zero_division=1)
+        f1 = f1_score(y_test, predictions, average='weighted')
+
+        metric_results = {
+            "accuracy": accuracy,
+            "precision": precision,
+            "recall": recall,
+            "f1_score": f1,
+            "training time": training_time,
+            "testing time": testing_time,
+        }
+
+        return {
+            "metric_results": remove_none_values(metric_results),
+            "plots": remove_none_values(plots),
+            "model": model,  # Include the trained model
+        }
+    else:
+        raise Exception('Target column is required for SVM classification.')
+
+
+import xgboost as xgb
+
+def train_classification_xgboost(preprocesseddata, params, target_column=None):
+    if target_column:
+        X_train, X_test, y_train, y_test = encode_categorical_data(preprocesseddata, supervised=True)
+
+        # Track training time
+        start_train_time = time.time()
+        print('training started XGBoost')
+
+        # Set hyperparameters
+        n_estimators = int(params.get('nEstimators', 100))
+        max_depth = int(params.get('maxDepth', 5))
+
+        # Train model
+        model = xgb.XGBClassifier(n_estimators=n_estimators, max_depth=max_depth)
+        model.fit(X_train, y_train)
+
+        end_train_time = time.time()
+        training_time = end_train_time - start_train_time
+
+        # Track testing (prediction) time
+        start_test_time = time.time()
+
+        # Evaluate model
+        predictions = model.predict(X_test)
+
+        end_test_time = time.time()
+        testing_time = end_test_time - start_test_time
+
+        # Generate plots (optional)
+        plots = generate_visualizations(X_train, X_test, y_train, y_test, model)
+
+        # Calculate classification metrics
+        accuracy = accuracy_score(y_test, predictions)
+        precision = precision_score(y_test, predictions, average='weighted', zero_division=1)
+        recall = recall_score(y_test, predictions, average='weighted', zero_division=1)
+        f1 = f1_score(y_test, predictions, average='weighted')
+
+        metric_results = {
+            "accuracy": accuracy,
+            "precision": precision,
+            "recall": recall,
+            "f1_score": f1,
+            "training time": training_time,
+            "testing time": testing_time,
+        }
+
+        return {
+            "metric_results": remove_none_values(metric_results),
+            "plots": remove_none_values(plots),
+            "model": model,  # Include the trained model
+        }
+    else:
+        raise Exception('Target column is required for XGBoost classification.')
+
+
+def train_classification_reseau_neuron(preprocesseddata, params, target_column=None):
+    if target_column:
+        # Encode categorical data
+        X_train, X_test, y_train, y_test = encode_categorical_data(preprocesseddata, supervised=True)
+
+        # Track training time
+        start_train_time = time.time()
+        print('Training started for Neural Network')
+
+        # Get hyperparameters
+        hidden_layer_sizes = tuple(map(int, params.get("hidden_layer_sizes", "100").split(',')))
+        activation = params.get("activation", "relu")
+        solver = params.get("solver", "adam")
+        max_iter = int(params.get("max_iter", 200))
+
+        # Train model
+        model = MLPClassifier(hidden_layer_sizes=hidden_layer_sizes, activation=activation,
+                              solver=solver, max_iter=max_iter)
+        model.fit(X_train, y_train)
+
+        end_train_time = time.time()
+        training_time = end_train_time - start_train_time
+
+        # Track testing (prediction) time
+        start_test_time = time.time()
+
+        # Evaluate model
+        predictions = model.predict(X_test)
+
+        end_test_time = time.time()
+        testing_time = end_test_time - start_test_time
+
+        # Calculate classification metrics
+        accuracy = accuracy_score(y_test, predictions)
+        precision = precision_score(y_test, predictions, average='weighted', zero_division=1)
+        recall = recall_score(y_test, predictions, average='weighted', zero_division=1)
+        f1 = f1_score(y_test, predictions, average='weighted')
+
+        # Generate plots (optional)
+        plots = generate_visualizations(X_train, X_test, y_train, y_test, model)
+
+        # Prepare the results
+        metric_results = {
+            "accuracy": accuracy,
+            "precision": precision,
+            "recall": recall,
+            "f1_score": f1,
+            "training time": training_time,
+            "testing time": testing_time,
+        }
+
+        return {
+            "metric_results": remove_none_values(metric_results),
+            "plots": remove_none_values(plots),
+            "model": model,  # Include the trained model
+        }
+    else:
+        raise Exception('Target column is required for Neural Network Classification.')
 

@@ -1,3 +1,6 @@
+from django.shortcuts import render, get_object_or_404
+from django.http import HttpResponse
+from .models import RawDataset, PreprocessedDataset, DataVisualization
 from django.http import HttpResponse
 from django.contrib.auth import authenticate, login
 from django.contrib.auth import get_user_model
@@ -5,17 +8,17 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.views.decorators.csrf import csrf_exempt
 import pandas as pd
-
+import json
 from .forms import SignupForm  # Import your SignupForm
-
 from django.http import HttpResponseRedirect, JsonResponse
 from django.urls import reverse
 from django.contrib.auth.decorators import user_passes_test
 from django.core.files.base import File
 from joblib import dump
 from sklearn.metrics import accuracy_score, f1_score, mean_squared_error, mean_absolute_error
-
 from .models import RawDataset, PreprocessedDataset, DataVisualization
+
+
 
 
 def login_required_custom(view_func):
@@ -249,30 +252,32 @@ def clustering(request):
 from .ML_Models import *
 
 # A dictionary mapping model names to their corresponding functions
+# MODEL_FUNCTIONS = {
 MODEL_FUNCTIONS = {
     "Linear Regression": train_linear_regression,
-    "Logistic Regression": train_logistic_regression,
     "Regression LightGBM": train_regression_LightGBM,
-    "Classification LightGBM": train_classification_LightGBM,
-    "K-Means": KMeansClustering,
     "Decision Trees": decisionTreeCart,
     "Random Forest": train_random_forest,
     "K-Nearest Neighbors": train_knn,
     "Support Vector Machines (SVR)": train_svr,
     "XGBoost": train_xgboost,
     "Reseau Neuron": train_reseau_neuron,
-    # Add more models here as needed
-}
-# MODEL_FUNCTIONS = {
-#     "Linear Regression": train_linear_regression,
-#     "Logistic Regression": train_logistic_regression,
-#     "Regression LightGBM": train_regression_LightGBM,
-#     "Classification LightGBM": train_classification_LightGBM,
-#     "K-Means": KMeansClustering,
-#     # Add more models here as needed
-# }
 
-import json
+    "K-Means": KMeansClustering,
+
+    "Classification LightGBM": train_classification_LightGBM,
+    "Logistic Regression": train_logistic_regression,
+    "Naive bayes": train_classification_naiveBayes,
+    "Decision Tree": train_classification_cart_decision_tree,
+    "Random Forests": train_classification_random_forest,
+    "K Nearest Neighbors": train_classification_knn,
+    "Support Vector Machines (SVC)": train_classification_svc,
+    "XG Boost": train_classification_xgboost,
+    "Reseau Neurons": train_classification_reseau_neuron,
+    # Add more models here as needed
+
+}
+
 
 @login_required_custom
 @csrf_exempt
@@ -329,9 +334,6 @@ def train_model_view(request, model_name, processed_file_id, supervised):
 
         return render(request, 'train_result.html', context)
 
-from django.shortcuts import render, get_object_or_404
-from django.http import HttpResponse
-from .models import RawDataset, PreprocessedDataset, DataVisualization
 
 def visualize_data(request, datatype,dataset_id):
     """
@@ -364,5 +366,3 @@ def visualize_data(request, datatype,dataset_id):
             'dataset': dataset,
         })
 
-    # else:
-    #     return HttpResponse("Dataset not found.", status=404)
