@@ -330,7 +330,7 @@ def train_model_view(request, model_name, processed_file_id, supervised):
                 "modelName": model_name,
                 "dataCostumName": preprocessed_dataset.raw_dataset.datasetCostumName
             }
-            raise e
+            # raise e
 
         return render(request, 'train_result.html', context)
 
