@@ -60,6 +60,10 @@
             line-height: 1;
             cursor: pointer;
         }
+
+        .params-inputs {
+            display: none; /* Hide by default */
+        }
     </style>
 
     <!-- Main content -->
@@ -121,14 +125,29 @@
                             </select>
                         </div>
 
-                        <!-- Hyperparameter inputs for K-Means -->
+                        <!-- Hyperparameter selection: Auto or Manual -->
                         <div class="mb-3">
-                            <label for="nClusters" class="form-label">Number of Clusters</label>
-                            <input type="number" class="form-control" id="nClusters" value="5" min="2" required>
+                            <label for="autoTune" class="form-label">Hyperparameter Tuning</label>
+                            <div>
+                                <input type="radio" id="autoTune" name="hyperparam" value="auto" checked onclick="toggleParamsInputs(false)">
+                                <label for="autoTune">Auto</label>
+                            </div>
+                            <div>
+                                <input type="radio" id="manualTune" name="hyperparam" value="manual" onclick="toggleParamsInputs(true)">
+                                <label for="manualTune">Manual</label>
+                            </div>
                         </div>
-                        <div class="mb-3">
-                            <label for="maxIterations" class="form-label">Max Iterations</label>
-                            <input type="number" class="form-control" id="maxIterations" value="300" min="1" required>
+
+                        <!-- Manual hyperparameter inputs -->
+                        <div class="params-inputs">
+                            <div class="mb-3">
+                                <label for="nClusters" class="form-label">Number of Clusters</label>
+                                <input type="number" class="form-control" id="nClusters" value="5" min="2" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="maxIterations" class="form-label">Max Iterations</label>
+                                <input type="number" class="form-control" id="maxIterations" value="300" min="1" required>
+                            </div>
                         </div>
                     </form>
                 </div>
@@ -153,12 +172,27 @@
             modal.style.display = 'none'; // Hide modal
         }
 
+        function toggleParamsInputs(show) {
+            const paramsInputs = document.querySelector('.params-inputs');
+            if (show) {
+                paramsInputs.style.display = 'block'; // Show manual hyperparameters
+            } else {
+                paramsInputs.style.display = 'none'; // Hide manual hyperparameters
+            }
+        }
+
         function startTraining() {
             // Get the selected dataset ID and model name from the DOM
             const processedFileId = document.getElementById('ChosentrainingFile').value;
             let modelName = document.getElementById('modelName').value;
-            let nClusters = document.getElementById('nClusters').value; // Get the number of clusters
-            let maxIterations = document.getElementById('maxIterations').value; // Get max iterations
+            const autoTune = document.querySelector('input[name="hyperparam"]:checked').value === "auto"; // Check if Auto or Manual
+            let nClusters, maxIterations;
+
+            if (!autoTune) {
+                // Get the manual hyperparameters
+                nClusters = document.getElementById('nClusters').value;
+                maxIterations = document.getElementById('maxIterations').value;
+            }
 
             // Create a form dynamically and submit it
             const form = document.createElement("form");
@@ -171,17 +205,33 @@
             csrfInput.value = csrfToken;
             form.appendChild(csrfInput);
 
-            // Add a hidden input for the hyperparameters (e.g., 'n_clusters' and 'max_iterations')
-            const paramsInput = document.createElement("input");
-            paramsInput.type = "hidden";
-            paramsInput.name = "params";
+            // Add a hidden input for the "auto" flag (boolean)
+            const autoInput = document.createElement("input");
+            autoInput.type = "hidden";
+            autoInput.name = "auto";
+            autoInput.value = autoTune ? "true" : "false";
+            form.appendChild(autoInput);
 
-            paramsInput.value = JSON.stringify({
-                'n_clusters': Number(nClusters),
-                'max_iter': Number(maxIterations),
-            });
-
-            form.appendChild(paramsInput);
+            // Add a hidden input for the hyperparameters if auto is false
+            if (!autoTune) {
+                const paramsInput = document.createElement("input");
+                paramsInput.type = "hidden";
+                paramsInput.name = "params";
+                paramsInput.value = JSON.stringify({
+                    'auto': "true",
+                    'n_clusters': Number(nClusters),
+                    'max_iter': Number(maxIterations),
+                });
+                form.appendChild(paramsInput);
+            }else {
+                const paramsInput = document.createElement("input");
+                paramsInput.type = "hidden";
+                paramsInput.name = "params";
+                paramsInput.value = JSON.stringify({
+                    'auto': "false",
+                });
+                form.appendChild(paramsInput);
+            }
 
             // Append the form to the document
             document.body.appendChild(form);

@@ -12,7 +12,6 @@
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.10/css/all.css">
     <link href="{% static 'css/style.css' %}" rel="stylesheet">
 </head>
-
 <body>
 
     <div id="preloader">
@@ -24,12 +23,10 @@
     </div>
 
     <div id="main-wrapper" style="min-height: 130vh !important;">
-
         {% include "navbar.html" %}
         {% include "sideBar.html" %}
 
         <div class="content-body">
-
             <div class="container-fluid">
                 <h3 style="padding: 10px">Choose a Machine Learning Model To Train</h3>
                 <div class="row">
@@ -70,25 +67,23 @@
                         </div>
                     </div>
 
-
-                    <div class="col-3 ">
+                    <div class="col-3">
                         <div class="card">
                             <div class="card-body">
                                 <div class="text-center">
                                     <span class="display-5">
                                         <i class="fas fa-file-alt" data-fa-transform="shrink-2 up-4"></i>
-                                        </span>
+                                    </span>
                                     <h2 class="mt-1">LightGBM</h2>
                                     <p>Regression</p>
                                     <button class="btn gradient-8 btn-md border-0 btn-rounded px-5"
-                                    onclick="openModal(this)">
-                                    Train
+                                            onclick="openModal(this)">
+                                        Train
                                     </button>
                                 </div>
                             </div>
                         </div>
                     </div>
-
 
                 </div>
             </div>
@@ -98,191 +93,215 @@
     </div>
 
     <!-- Modal -->
-<div class="modal" id="trainModal" style="display: none;">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="trainModalLabel">Train Model</h5>
-                <button type="button" class="btn-close" onclick="closeModal()">×</button>
-            </div>
-            <div class="modal-body">
-                <form id="trainForm">
+    <div class="modal" id="trainModal" style="display: none;">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="trainModalLabel">Train Model</h5>
+                    <button type="button" class="btn-close" onclick="closeModal()">×</button>
+                </div>
+                <div class="modal-body">
+                    <form id="trainForm">
                         {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="modelName" class="form-label">Model</label>
+                            <input type="text" class="form-control" id="modelName" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label for="ChosentrainingFile" class="form-label">Select Training Dataset</label>
+                            <select style="width: 100% ; padding: 6px" name="ChosentrainingFile" id="ChosentrainingFile">
+                                {% for file in processeddatasets %}
+                                    {% if file.raw_dataset.TargetColumn %}
+                                        <option value="{{file.id}}">{{file.raw_dataset.datasetCostumName}}</option>
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                        </div>
 
-                    <div class="mb-3">
-                        <label for="modelName" class="form-label">Model</label>
-                        <input type="text" class="form-control" id="modelName" readonly>
-                    </div>
-                    <div class="mb-3">
-                        <label for="ChosentrainingFile" class="form-label">Select Training Dataset</label>
-<!--                        <input type="file" class="form-control" id="trainingFile" required>-->
-                        <select style="width: 100% ; padding: 6px" name="ChosentrainingFile" id="ChosentrainingFile">
-                        {% for file in processeddatasets %}
-                            {% if file.raw_dataset.TargetColumn %}
+                        <!-- Hyperparameter Tuning Type (manual or automatic) -->
+                        <div class="mb-3">
+                            <label for="tuningType" class="form-label">Hyperparameter Tuning</label>
+                            <select id="tuningType" class="form-control" onchange="toggleHyperparameters()">
+                                <option value="auto">Automatic (Grid Search)</option>
+                                <option value="manual">Manual</option>
+                            </select>
+                        </div>
 
-                            <option value="{{file.id}}">{{file.raw_dataset.datasetCostumName}}</option>
+                        <!-- Manual Hyperparameters Inputs (hidden by default) -->
+                        <div id="manualParams" style="display: none;">
+                            <!-- Parameters for Linear Regression -->
+                            <div id="linearRegressionParams" style="display: none;">
+                                <div class="mb-3">
+                                    <label for="alpha" class="form-label">Regularization Alpha</label>
+                                    <input type="number" class="form-control" id="alpha" name="alpha" value="1.0" step="0.01">
+                                </div>
+                            </div>
 
-                            {% endif %}
+                            <!-- Parameters for Logistic Regression -->
+                            <div id="logisticRegressionParams" style="display: none;">
+                                <div class="mb-3">
+                                    <label for="C" class="form-label">Regularization Strength (C)</label>
+                                    <input type="number" class="form-control" id="C" name="C" value="1.0" step="0.01">
+                                </div>
+                            </div>
 
-                        {% endfor %}
-                        </select>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" onclick="closeModal()">Close</button>
-                <button type="button" class="btn btn-primary" onclick="startTraining()">Start Training</button>
+                            <!-- Parameters for LightGBM -->
+                            <div id="lightGBMParams" style="display: none;">
+                                <div class="mb-3">
+                                    <label for="learningRate" class="form-label">Learning Rate</label>
+                                    <input type="number" class="form-control" id="learningRate" name="learningRate" step="0.01" value="0.01">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="numLeaves" class="form-label">Number of Leaves</label>
+                                    <input type="number" class="form-control" id="numLeaves" name="numLeaves" value="31">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="featureFraction" class="form-label">Feature Fraction</label>
+                                    <input type="number" class="form-control" id="featureFraction" name="featureFraction" step="0.01" value="0.9">
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Close</button>
+                    <button type="button" class="btn btn-primary" onclick="startTraining()">Start Training</button>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
     <style>
         .modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    display: none; /* Hidden by default */
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-}
-
-.modal-dialog {
-    background: transparent;
-    border-radius: 5px;
-    width: 100%;
-    max-width: 500px;
-    padding: 20px;
-}
-
-.modal-content {
-    position: relative;
-    background: white;
-    border-radius: 10px;
-}
-
-.modal-header,
-.modal-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.btn-close {
-    background: transparent;
-    border: none;
-    font-size: 1.5rem;
-    line-height: 1;
-    cursor: pointer;
-}
-
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal-dialog {
+            background: transparent;
+            border-radius: 5px;
+            width: 100%;
+            max-width: 500px;
+            padding: 20px;
+        }
+        .modal-content {
+            position: relative;
+            background: white;
+            border-radius: 10px;
+        }
+        .modal-header, .modal-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .btn-close {
+            background: transparent;
+            border: none;
+            font-size: 1.5rem;
+            line-height: 1;
+            cursor: pointer;
+        }
     </style>
 
     <script>
-      function openModal(clickedmodel) {
-    modelNameElement = clickedmodel.parentNode.querySelector('h2');
-    document.getElementById('modelName').value = modelNameElement.innerText;
-    const modal = document.getElementById('trainModal');
-    modal.style.display = 'flex'; // Show modal
-}
-
-function closeModal() {
-    const modal = document.getElementById('trainModal');
-    modal.style.display = 'none'; // Hide modal
-}
-
-
-function startTraining() {
-    // Get the selected dataset ID and model name from the DOM
-    const processedFileId = document.getElementById('ChosentrainingFile').value;
-    let modelName = document.getElementById('modelName').value;
-
-    // Create a form dynamically and submit it
-    const form = document.createElement("form");
-
-    // Add a hidden input for the CSRF token
-    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-    const csrfInput = document.createElement("input");
-    csrfInput.type = "hidden";
-    csrfInput.name = "csrfmiddlewaretoken";
-    csrfInput.value = csrfToken;
-    form.appendChild(csrfInput);
-
-    // Add a hidden input for any POST body data (e.g., 'params')
-    const paramsInput = document.createElement("input");
-    paramsInput.type = "hidden";
-    paramsInput.name = "params";
-
-    /*
-       params = {
-            'objective': 'regression',
-            'metric': 'l2',
-            'boosting_type': 'gbdt',
-            'num_leaves': 31,
-            'learning_rate': 0.01,
-            'feature_fraction': 0.9,
+        function openModal(clickedmodel) {
+            modelNameElement = clickedmodel.parentNode.querySelector('h2');
+            document.getElementById('modelName').value = modelNameElement.innerText;
+            const modal = document.getElementById('trainModal');
+            modal.style.display = 'flex'; // Show modal
+            showModelParams(modelNameElement.innerText);
         }
-    * */
 
-    if (modelName === "LightGBM") {
-        modelName = "Regression LightGBM";
-        paramsInput.value = JSON.stringify({
-            'objective': 'regression',
-            'metric': 'l2',
-            'boosting_type': 'gbdt',
-            'num_leaves': 31,
-            'learning_rate': 0.01,
-            'feature_fraction': 0.9,
-        });
-        form.appendChild(paramsInput);
-    }else if (modelName === "Linear Regression"){
-        paramsInput.value = JSON.stringify({
-              'key':'val',
+        function closeModal() {
+            const modal = document.getElementById('trainModal');
+            modal.style.display = 'none'; // Hide modal
+        }
 
-        });
-        form.appendChild(paramsInput);
+        function toggleHyperparameters() {
+            const tuningType = document.getElementById('tuningType').value;
+            const manualParams = document.getElementById('manualParams');
 
-    }else if (modelName === "Logistic Regression"){
-          paramsInput.value = JSON.stringify({
-              'key':'val',
-                });
-          form.appendChild(paramsInput);
+            if (tuningType === 'manual') {
+                manualParams.style.display = 'block';
+            } else {
+                manualParams.style.display = 'none';
+            }
+        }
 
-    }
+        function showModelParams(modelName) {
+            document.getElementById('linearRegressionParams').style.display = 'none';
+            document.getElementById('logisticRegressionParams').style.display = 'none';
+            document.getElementById('lightGBMParams').style.display = 'none';
 
-    // Append the form to the document
-    document.body.appendChild(form);
+            if (modelName === "Linear Regression") {
+                document.getElementById('linearRegressionParams').style.display = 'block';
+            } else if (modelName === "Logistic Regression") {
+                document.getElementById('logisticRegressionParams').style.display = 'block';
+            } else if (modelName === "LightGBM") {
+                document.getElementById('lightGBMParams').style.display = 'block';
+            }
+        }
 
-    // Set the URL and submit the form
-    const url = `/train_model/${modelName}/${processedFileId}/supervised/`;
-    form.method = "POST";
-    form.action = url;
-    form.submit();
+        function startTraining() {
+            modelName = document.getElementById("modelName").value;
+            if (modelName == 'LightGBM'){
+                modelName = "Regression LightGBM"
+            }
+            const fileId = document.getElementById("ChosentrainingFile").value;
+            const params = {
+                tuningType: document.getElementById("tuningType").value,
+                alpha: document.getElementById("alpha") ? document.getElementById("alpha").value : undefined,
+                C: document.getElementById("C") ? document.getElementById("C").value : undefined,
+                learningRate: document.getElementById("learningRate") ? document.getElementById("learningRate").value : undefined,
+                numLeaves: document.getElementById("numLeaves") ? document.getElementById("numLeaves").value : undefined,
+                featureFraction: document.getElementById("featureFraction") ? document.getElementById("featureFraction").value : undefined
+            };
 
-    // Close the modal (optional)
-    closeModal();
+            // Creating the form dynamically and submitting it
+            const form = document.createElement("form");
+            const csrfInput = document.createElement("input");
+            csrfInput.type = "hidden";
+            csrfInput.name = "csrfmiddlewaretoken";
+            csrfInput.value = "{{ csrf_token }}";
+            form.appendChild(csrfInput);
 
-    // Start the preloader animation
-    const preloader = document.getElementById("preloader");
-    preloader.style.display = "block";
-}
+            // Add the hidden input for the params
+            const paramsInput = document.createElement("input");
+            paramsInput.type = "hidden";
+            paramsInput.name = "params";
+            paramsInput.value = JSON.stringify(params);
+            form.appendChild(paramsInput);
 
+            // Append the form to the document
+            document.body.appendChild(form);
 
+            // Set the URL and submit the form
+            const url = `/train_model/${modelName}/${fileId}/supervised/`;
+            form.method = "POST";
+            form.action = url;
+            form.submit();
+
+            // Close the modal (optional)
+            closeModal();
+
+            // Start the preloader animation
+            const preloader = document.getElementById("preloader");
+            preloader.style.display = "block";
+        }
     </script>
-
-
-
 
     <script src="{% static 'plugins/common/common.min.js' %}"></script>
     <script src="{% static 'js/custom.min.js' %}"></script>
     <script src="{% static 'js/settings.js' %}"></script>
     <script src="{% static 'js/gleek.js' %}"></script>
     <script src="{% static 'js/styleSwitcher.js' %}"></script>
-
 
 </body>
 

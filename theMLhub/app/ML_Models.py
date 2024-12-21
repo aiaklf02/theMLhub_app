@@ -257,14 +257,16 @@ def KMeansClustering(preprocesseddata, params, target_column=None):
         start_train_time = time.time()
         print('training started kmeans')
 
-        if params and "n_clusters" in params:
+        if 'auto' in params and params['auto'] == 'true':
             n_clusters = params.get('n_clusters', 3)
+            max_iter = params.get('max_iter', 1000)
         else:
             n_clusters = 3
+            max_iter = 1000
 
-        print(f'running kmeans with nclusters = {n_clusters}')
+        print(f'running kmeans with nclusters = {n_clusters}\n max iter {max_iter}')
         # Train the KMeans model
-        model = KMeans(n_clusters=n_clusters, random_state=42)
+        model = KMeans(n_clusters=n_clusters, max_iter=max_iter,random_state=42)
         model.fit(df)
 
         end_train_time = time.time()
