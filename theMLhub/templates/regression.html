@@ -132,16 +132,16 @@
                             <!-- Parameters for Linear Regression -->
                             <div id="linearRegressionParams" style="display: none;">
                                 <div class="mb-3">
-                                    <label for="alpha" class="form-label">Regularization Alpha</label>
-                                    <input type="number" class="form-control" id="alpha" name="alpha" value="1.0" step="0.01">
+                                    <label for="n_jobs" class="form-label">Number of Jobs</label>
+                                    <input type="number" class="form-control" id="n_jobs" name="n_jobs" value="3" step="3">
                                 </div>
                             </div>
 
                             <!-- Parameters for Logistic Regression -->
                             <div id="logisticRegressionParams" style="display: none;">
                                 <div class="mb-3">
-                                    <label for="C" class="form-label">Regularization Strength (C)</label>
-                                    <input type="number" class="form-control" id="C" name="C" value="1.0" step="0.01">
+                                    <label for="max_iter" class="form-label">Max Iteration</label>
+                                    <input type="number" class="form-control" id="max_iter" name="max_iter" value="2000" step="2000">
                                 </div>
                             </div>
 
@@ -256,9 +256,9 @@
             }
             const fileId = document.getElementById("ChosentrainingFile").value;
             const params = {
-                tuningType: document.getElementById("tuningType").value,
-                alpha: document.getElementById("alpha") ? document.getElementById("alpha").value : undefined,
-                C: document.getElementById("C") ? document.getElementById("C").value : undefined,
+                auto: document.getElementById("tuningType").value === "manual" ? 'false' : 'true' ,
+                n_jobs: document.getElementById("n_jobs") ? document.getElementById("n_jobs").value : undefined,
+                max_iter: document.getElementById("max_iter") ? document.getElementById("max_iter").value : undefined,
                 learningRate: document.getElementById("learningRate") ? document.getElementById("learningRate").value : undefined,
                 numLeaves: document.getElementById("numLeaves") ? document.getElementById("numLeaves").value : undefined,
                 featureFraction: document.getElementById("featureFraction") ? document.getElementById("featureFraction").value : undefined

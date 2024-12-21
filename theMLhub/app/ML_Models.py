@@ -80,7 +80,12 @@ def train_linear_regression(preprocesseddata, params, target_column=None):
         start_train_time = time.time()
         #
         print('training started')
-        model = LinearRegression()
+        if 'n_jobs' in params.keys():
+            n_jobs = int(params['n_jobs'])
+        else:
+            n_jobs = 3
+
+        model = LinearRegression(n_jobs=n_jobs)
         model.fit(X_train, y_train)
         #
         end_train_time = time.time()
@@ -126,8 +131,12 @@ def train_logistic_regression(preprocesseddata, params, target_column=None):
         start_train_time = time.time()
         print('training started')
         #
+        if 'C' in params.keys():
+            max_iter = int(params['max_iter'])
+        else:
+            max_iter = 1000
         # Train model
-        model = LogisticRegression(max_iter=2000)
+        model = LogisticRegression(max_iter=max_iter)
         model.fit(X_train, y_train)
         #
         end_train_time = time.time()
@@ -196,15 +205,16 @@ def train_regression_LightGBM(preprocesseddata, params, target_column=None):
         train_data = lgb.Dataset(X_train, label=y_train)
         test_data = lgb.Dataset(X_test, label=y_test, reference=train_data)
 
-        # Specify the parameters for regression
-        # params = {
-        #     'objective': 'regression',  # For regression tasks
-        #     'metric': 'l2',  # Mean squared error
-        #     'boosting_type': 'gbdt',
-        #     'num_leaves': 31,
-        #     'learning_rate': 0.01,
-        #     'feature_fraction': 0.9,
-        # }
+        if 'auto' in params.keys() and params['auto'] == "true":
+            params = None
+            params = {
+                'objective': 'regression',  # For regression tasks
+                'metric': 'l2',  # Mean squared error
+                'boosting_type': 'gbdt',
+                'num_leaves': 31,
+                'learning_rate': 0.01,
+                'feature_fraction': 0.9,
+            }
 
         # Train the model
         model = lgb.train(params, train_data, valid_sets=[test_data], num_boost_round=100)
