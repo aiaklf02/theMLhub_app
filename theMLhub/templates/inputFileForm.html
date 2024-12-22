@@ -147,26 +147,53 @@
       width:40%;
       align-self: center;
     }
+
+    .drag-over {
+    border: 2px dashed #562ac0;
+    background-color: #d4c7f8; /* Darker shade to indicate file drag */
+    transition: background-color 0.3s ease; /* Smooth transition */
+}
+
   </style>
   
+<!--  <div class="wrapper">-->
+<!--    <div class="container">-->
+<!--      <h1>Upload a Dataset</h1>-->
+<!--      <div class="upload-container">-->
+<!--        <div class="border-container">-->
+<!--          <div class="icons fa-4x">-->
+<!--            <i class="fas fa-file-image" data-fa-transform="shrink-3 down-2 left-6 rotate&#45;&#45;45"></i>-->
+<!--            <i class="fas fa-file-alt" data-fa-transform="shrink-2 up-4"></i>-->
+<!--            <i class="fas fa-file-pdf" data-fa-transform="shrink-3 down-2 right-6 rotate-45"></i>-->
+<!--          </div>-->
+<!--          <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">-->
+
+<!--          <input type="file" style="display: none" id="file-upload" accept=".csv, .xlsx, .xls">-->
+<!--          <p>Drag and drop files here, or <a onclick="uploadFile()" id="file-browser">browse</a> your computer.</p>-->
+<!--        </div>-->
+<!--      </div>-->
+<!--    </div>-->
+<!--  </div>-->
+
   <div class="wrapper">
     <div class="container">
-      <h1>Upload a Dataset</h1>
-      <div class="upload-container">
-        <div class="border-container">
-          <div class="icons fa-4x">
-            <i class="fas fa-file-image" data-fa-transform="shrink-3 down-2 left-6 rotate--45"></i>
-            <i class="fas fa-file-alt" data-fa-transform="shrink-2 up-4"></i>
-            <i class="fas fa-file-pdf" data-fa-transform="shrink-3 down-2 right-6 rotate-45"></i>
-          </div>
-          <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+        <h1>Upload a Dataset</h1>
+        <div class="upload-container">
+            <div class="border-container" id="drop-zone">
+                <div class="icons fa-4x">
+                    <i class="fas fa-file-image" data-fa-transform="shrink-3 down-2 left-6 rotate--45"></i>
+                    <i class="fas fa-file-alt" data-fa-transform="shrink-2 up-4"></i>
+                    <i class="fas fa-file-pdf" data-fa-transform="shrink-3 down-2 right-6 rotate-45"></i>
+                </div>
+                <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
 
-          <input type="file" style="display: none" id="file-upload" accept=".csv, .xlsx, .xls">
-          <p>Drag and drop files here, or <a onclick="uploadFile()" id="file-browser">browse</a> your computer.</p>
+                <input type="file" style="display: none" id="file-upload" accept=".csv, .xlsx, .xls">
+                <p>Drag and drop files here, or <a onclick="uploadFile()" id="file-browser">browse</a> your computer.</p>
+            </div>
         </div>
-      </div>
     </div>
-  </div>
+</div>
+
 
   <div id="modal" class="modal" style="display: none;">
     <div class="modal-content">
@@ -210,9 +237,49 @@
   <script>
     let columns = [];
 
-    function uploadFile() {
-      document.getElementById('file-upload').click();
+    const dropZone = document.getElementById('drop-zone');
+const fileInput = document.getElementById('file-upload');
+
+// Function to handle file upload when browsing
+function uploadFile() {
+    fileInput.click();
+}
+
+// Add drag-and-drop functionality
+dropZone.addEventListener('dragenter', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dropZone.classList.add('drag-over');
+});
+
+dropZone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dropZone.classList.add('drag-over');
+});
+
+dropZone.addEventListener('dragleave', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dropZone.classList.remove('drag-over');
+});
+
+dropZone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dropZone.classList.remove('drag-over');
+
+    const files = e.dataTransfer.files;
+    if (files.length) {
+        fileInput.files = files; // Assign files to the input element
+        console.log('Files uploaded:', files[0]); // Handle file processing logic here
+        ReadFileColumns()
     }
+});
+
+    // function uploadFile() {
+    //   document.getElementById('file-upload').click();
+    // }
 
     document.getElementById('file-upload').addEventListener('change', ReadFileColumns);
 
@@ -333,8 +400,11 @@
       // Hide the preloader after the request is complete
       preloader.style.display = 'none';
 
+      closeModal()
+
       if (data.error) {
         alert(data.error);
+
       } else {
         alert(data.message);
         window.location.href = data.preprocessing_url;

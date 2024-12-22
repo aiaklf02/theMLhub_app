@@ -37,19 +37,22 @@
                     <ul class="clearfix">
 
                         <li class="icons dropdown">
-                            <div class="user-img c-pointer position-relative"   data-toggle="dropdown">
-                                <span class="activity active"></span>
-                                <img src="{{ MEDIA_URL }}{{ user.profile_picture_path }}" height="40" width="40" alt="">
+                            <div class="user-img c-pointer position-relative" data-toggle="dropdown" style="padding-top: 12px">
+                                <img src="{{ MEDIA_URL }}{{ user.profile_picture_path }}" style="height: 65px;width: 65px" alt="">
                             </div>
                             <div class="drop-down dropdown-profile   dropdown-menu">
                                 <div class="dropdown-content-body">
                                     <ul>
-                                        <li>
+                                          <li>
                                             <a href="{% url 'app_profile' %}"><i class="icon-user"></i> <span>Profile</span></a>
+                                        </li>
+                                        <hr class="my-2">
+                                        <li>
+                                            <a href="{% url 'home' %}"><i class="icon-home"></i> <span>Home</span></a>
                                         </li>
 
                                         <hr class="my-2">
-                                        <li><a href="{% url 'page-login' %}"><i class="icon-key"></i> <span>Logout</span></a></li>
+                                        <li><a href="{% url 'Logout' %}"><i class="icon-key"></i> <span>Logout</span></a></li>
                                     </ul>
                                 </div>
                             </div>

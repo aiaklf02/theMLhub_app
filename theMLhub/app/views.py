@@ -17,8 +17,8 @@ from django.core.files.base import File
 from joblib import dump
 from sklearn.metrics import accuracy_score, f1_score, mean_squared_error, mean_absolute_error
 from .models import RawDataset, PreprocessedDataset, DataVisualization
+from django.contrib.auth import logout as auth_logout
 
-modelsTrained = 0
 
 
 
@@ -30,13 +30,22 @@ def login_required_custom(view_func):
 
     return _wrapped_view
 
+@login_required_custom
+def logout(request):
+    auth_logout(request)
+    return redirect('page-login')
 
-# @login_required_custom
+@login_required_custom
 def my_view(request):
     raw , prep = getUploadedDatasets(request)
+    modelsTrained = Result.objects.filter(utilisateur=request.user)
+    sup = prep.filter(raw_dataset__TargetColumn__isnull=False).count()
+    unsup = prep.count() - sup
     context = {'dataUploaded': raw.count(),
                'preproccessedData': prep.count(),
-               'modelsTrained':modelsTrained,
+               'modelsTrained': modelsTrained.count(),
+               'supervisedData':sup,
+               'unsupervisedData':unsup,
                }
     return render(request, 'Dashboard.html', context)
 
@@ -58,7 +67,10 @@ def page_login(request):
 
 
 def page_register(request):
-    if request.method == 'POST':
+    if request.user.is_authenticated:
+        return redirect('index')
+
+    elif request.method == 'POST':
         form = SignupForm(request.POST, request.FILES)
         if form.is_valid():
             form.save()
@@ -68,6 +80,7 @@ def page_register(request):
             print(form.errors)  # Add this to log the errors
 
             messages.error(request, 'There were errors in your form. Please check.')
+
     else:
            form = SignupForm(initial={
             'username': '',
@@ -83,47 +96,47 @@ def page_register(request):
     return render(request, 'page-register.html', {'form': form})
 
 
-# @login_required_custom
+@login_required_custom
 def chart_peity(request):
     return render(request, 'chart-peity.html')
 
 
-# @login_required_custom
+@login_required_custom
 def chart_sparkline(request):
     return render(request, 'chart-sparkline.html')
 
 
-# @login_required_custom
+@login_required_custom
 def chart_chartist(request):
     return render(request, 'chart-chartist.html')
 
 
-# @login_required_custom
+@login_required_custom
 def chart_chartjs(request):
     return render(request, 'chart-chartjs.html')
 
 
-# @login_required_custom
+@login_required_custom
 def chart_morris(request):
     return render(request, 'chart-morris.html')
 
 
-# @login_required_custom
+@login_required_custom
 def chart_flot(request):
     return render(request, 'chart-flot.html')
 
 
-# @login_required_custom
+@login_required_custom
 def tablePage(request):
     return render(request, 'tablePage.html')
 
 
-# @login_required_custom
+@login_required_custom
 def tableData(request):
     return render(request, 'table-datatable.html')
 
 
-# @login_required_custom
+@login_required_custom
 def app_profile(request):
     return render(request, 'app-profile.html')
 
@@ -131,6 +144,7 @@ import chardet
 
 import os
 @csrf_exempt    
+@login_required_custom
 
 def uploadDataFile(request):
     if request.method == 'POST':
@@ -289,7 +303,6 @@ MODEL_FUNCTIONS = {
 @login_required_custom
 @csrf_exempt
 def train_model_view(request, model_name, processed_file_id, supervised):
-    global modelsTrained
     if request.method == "POST":
         # Extract 'params' from the POST body
         params = request.POST.get("params")  # Use this if the data is form-encoded
@@ -321,7 +334,6 @@ def train_model_view(request, model_name, processed_file_id, supervised):
         try:
             # Execute the associated function, passing the file path and target column
             result = model_function(processedData,params=params_dict, target_column=target_column)
-            modelsTrained = modelsTrained +1
 
             context = {
                 "message": f"Model trained successfully",
@@ -400,7 +412,7 @@ def visualize_data(request, datatype,dataset_id):
             'dataset': dataset,
         })
 
-
+@login_required_custom
 def Results(request):
     results = Result.objects.filter(utilisateur=request.user).order_by('-id')
     return render(request,'modelsresults.html',{'results':results})
@@ -411,3 +423,7 @@ def visualize_result(request, resultID):
     context = json.loads(result.resultobject)
     print(f'returning context as {context}')
     return render(request,'train_result.html',context)
+
+
+def home(request):
+    return render(request,'homePage.html')

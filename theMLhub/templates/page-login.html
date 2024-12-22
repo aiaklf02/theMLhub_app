@@ -8,7 +8,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>Quixlab - Bootstrap Admin Dashboard Template by Themefisher.com</title>
+    <title>TheMLhub Login</title>
     <!-- Favicon icon -->
     <link rel="icon" type="image/png" sizes="16x16" href="{% static '../../assets/images/favicon.png' %}">
     <!-- <link rel="stylesheet" href="{% static 'https://use.fontawesome.com/releases/v5.5.0/css/all.css' %}" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous"> -->
@@ -17,19 +17,27 @@
 </head>
 
 <body class="h-100">
+<!--  <style>-->
+
+<!--.login-form-bg {-->
+<!--    background-image: url('static/images/2655.jpg');-->
+<!--    background-size: cover;-->
+<!--    background-position: center;-->
+<!--    height: 100%;-->
+<!--    display: flex;-->
+<!--    justify-content: center;-->
+<!--    align-items: center;-->
+<!--}-->
+<!--    </style>-->
+
   <style>
 
-.login-form-bg {
-    background-image: url('static/images/2655.jpg');
-    background-size: cover;
-    background-position: center;
-    height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-    </style>
+      body {
+    background: linear-gradient(to left, #562ac0, #8d78d0);
+          height: 100%;
+      }
 
+    </style>
     <!--*******************
         Preloader start
     ********************-->
@@ -54,7 +62,7 @@
                     <div class="form-input-content">
                         <div class="card login-form mb-0">
                             <div class="card-body pt-5">
-                                <a class="text-center" href="{% url 'index' %}"> <h1 style="color: #7571f9">TheMLHub</h1></a>
+                                <a class="text-center" href="{% url 'index' %}"> <h1 style="color: #562ac0">TheMLHub</h1></a>
         
                                 <form class="mt-5 mb-5 login-input" method="POST">
                                     {% csrf_token %}

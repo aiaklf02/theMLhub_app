@@ -42,10 +42,10 @@
                         <div class="card">
                             <div class="card-body">
                                 <div class="text-center">
-                                    <span class="display-5">
-                                        <i class="fas fa-file-alt" aria-hidden="true"></i>
+                                    <span class="display-5" style="padding-bottom: 15px">
+                                        <img width="80" height="80" src="https://img.icons8.com/external-smashingstocks-mixed-smashing-stocks/80/external-Dataset-web-hosting-smashingstocks-mixed-smashing-stocks.png" alt="external-Dataset-web-hosting-smashingstocks-mixed-smashing-stocks"/>
                                     </span>
-                                    <h4 class="mt-1" title="{{ file.preprocessedCostumName }}">{{ file.preprocessedCostumName }}</h4>
+                                    <h4 style="margin-top: 30px" title="{{ file.preprocessedCostumName }}">{{ file.preprocessedCostumName }}</h4>
                                     <p>Processed: {{ file.processed_at }}</p>
                                     <button class="btn gradient-8 btn-md border-0 btn-rounded px-5" onclick="visualizeprepData({{ file.id }})">
                                         Visualise
@@ -56,20 +56,20 @@
                     </div>
                     {% endfor %}
                 </div>
-                <button id="processed-toggle" class="btn btn-primary">View More</button>
+                <a id="processed-toggle" class="p-3" style="color: #7b31ec;font-size: 15px;cursor: pointer;" >View More</a>
 
                 <!-- Raw Datasets Section -->
-                <h3 style="padding: 10px">My Raw DataSets</h3>
+                <h3 style="padding: 10px;padding-top: 20px">My Raw DataSets</h3>
                 <div class="row raw-datasets">
                    {% for file in uploadedfiles %}
                    <div class="col-md-3 col-sm-6 dataset-item">
                         <div class="card">
                             <div class="card-body">
                                 <div class="text-center">
-                                    <span class="display-5">
-                                        <i class="fas fa-file-alt" aria-hidden="true"></i>
+                                    <span class="display-5" >
+                                        <img width="80" height="80" src="https://img.icons8.com/external-outline-black-m-oki-orlando/80/external-dataset-data-science-outline-outline-black-m-oki-orlando.png" alt="external-dataset-data-science-outline-outline-black-m-oki-orlando"/>
                                     </span>
-                                    <h4 class="mt-1" title="{{ file.datasetCostumName }}">{{ file.datasetCostumName }}</h4>
+                                    <h4 style="margin-top: 30px" title="{{ file.datasetCostumName }}">{{ file.datasetCostumName }}</h4>
                                     <p>Uploaded: {{ file.uploaded_at }}</p>
                                     <button class="btn gradient-8 btn-md border-0 btn-rounded px-5" onclick="visualizerawData({{ file.id }})">
                                         Visualise
@@ -80,12 +80,11 @@
                     </div>
                     {% endfor %}
                 </div>
-                <button id="raw-toggle" class="btn btn-primary">View More</button>
+                <a id="raw-toggle" class="p-3" style="color: #7b31ec;font-size: 15px;cursor: pointer;">View More</a>
 
             </div>
         </div>
 
-        {% include "footer.html" %}
     </div>
 
     <!-- Scripts -->
