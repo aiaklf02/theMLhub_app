@@ -28,7 +28,8 @@ urlpatterns = [
     path('All-Results', views.Results, name='All-Results'),
     path('visualise-data/<str:datatype>/<int:dataset_id>/', views.visualize_data, name='visualize_data'),
 
-    
+    path('visualise-result/<int:resultID>/', views.visualize_result, name='visualize_result'),
+
 ]
 
 if settings.DEBUG:

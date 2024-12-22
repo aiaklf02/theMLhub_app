@@ -136,7 +136,7 @@ def train_linear_regression(preprocesseddata, params, target_column=None):
         obj = {
             "metric_results": remove_none_values(metric_results),
             "plots": remove_none_values(plots),
-            "model": model,  # Include the trained model
+            # "model": model,  # Include the trained model
         }
 
         return obj
@@ -200,7 +200,7 @@ def train_regression_LightGBM(preprocesseddata, params, target_column=None):
         obj = {
             "metric_results": remove_none_values(metric_results),
             "plots": remove_none_values(plots),
-            "model": model,  # Include the trained model
+            # "model": model,  # Include the trained model
         }
 
         return obj
@@ -247,7 +247,7 @@ def decisionTreeCart(preprocesseddata, params, target_column=None):
         return {
             "metric_results": remove_none_values(metric_results),
             "plots": remove_none_values(plots),
-            "model": model,
+            # "model": model,
         }
     else:
         raise Exception('Target column is required for Decision Tree Regression.')
@@ -291,7 +291,7 @@ def train_random_forest(preprocesseddata, params, target_column=None):
         return {
             "metric_results": remove_none_values(metric_results),
             "plots": remove_none_values(plots),
-            "model": model,
+            # "model": model,
         }
     else:
         raise Exception('Target column is required for Random Forest Regression.')
@@ -334,7 +334,7 @@ def train_knn(preprocesseddata, params, target_column=None):
         return {
             "metric_results": remove_none_values(metric_results),
             "plots": remove_none_values(plots),
-            "model": model,
+            # "model": model,
         }
     else:
         raise Exception('Target column is required for KNN Regression.')
@@ -377,7 +377,7 @@ def train_svr(preprocesseddata, params, target_column=None):
         return {
             "metric_results": remove_none_values(metric_results),
             "plots": remove_none_values(plots),
-            "model": model,
+            # "model": model,
         }
     else:
         raise Exception('Target column is required for SVR.')
@@ -421,7 +421,7 @@ def train_xgboost(preprocesseddata, params, target_column=None):
         return {
             "metric_results": remove_none_values(metric_results),
             "plots": remove_none_values(plots),
-            "model": model,
+            # "model": model,
         }
     else:
         raise Exception('Target column is required for XGBoost Regression.')
@@ -470,7 +470,7 @@ def train_reseau_neuron(preprocesseddata, params, target_column=None):
         return {
             "metric_results": remove_none_values(metric_results),
             "plots": remove_none_values(plots),
-            "model": model,
+            # "model": model,
         }
     else:
         raise Exception('Target column is required for Neural Network Regression.')
@@ -527,7 +527,7 @@ def KMeansClustering(preprocesseddata, params, target_column=None):
         obj = {
             "metric_results": remove_none_values(metric_results),
             "plots": remove_none_values(plots),
-            "model": model,  # Include the trained model
+            # "model": model,  # Include the trained model
         }
 
         return obj
@@ -593,7 +593,7 @@ def train_logistic_regression(preprocesseddata, params, target_column=None):
         obj = {
             "metric_results": remove_none_values(metric_results),
             "plots": remove_none_values(plots),
-            "model": model,  # Include the trained model
+            # "model": model,  # Include the trained model
 
         }
 
@@ -685,7 +685,7 @@ def train_classification_LightGBM(preprocesseddata, params, target_column=None):
             obj = {
                 "metric_results": remove_none_values(metric_results),
                 "plots": remove_none_values(plots),
-                "model": model,  # Include the trained model
+                # "model": model,  # Include the trained model
             }
 
             return obj
@@ -746,7 +746,7 @@ def train_classification_naiveBayes(preprocesseddata, params, target_column=None
         return {
             "metric_results": remove_none_values(metric_results),
             "plots": remove_none_values(plots),
-            "model": model,  # Include the trained model
+            # "model": model,  # Include the trained model
         }
     else:
         raise Exception('Target column is required for Naive Bayes classification.')
@@ -803,7 +803,7 @@ def train_classification_cart_decision_tree(preprocesseddata, params, target_col
         return {
             "metric_results": remove_none_values(metric_results),
             "plots": remove_none_values(plots),
-            "model": model,  # Include the trained model
+            # "model": model,  # Include the trained model
         }
     else:
         raise Exception('Target column is required for Decision Tree classification.')
@@ -860,7 +860,7 @@ def train_classification_random_forest(preprocesseddata, params, target_column=N
         return {
             "metric_results": remove_none_values(metric_results),
             "plots": remove_none_values(plots),
-            "model": model,  # Include the trained model
+            # "model": model,  # Include the trained model
         }
     else:
         raise Exception('Target column is required for Random Forest classification.')
@@ -918,7 +918,7 @@ def train_classification_knn(preprocesseddata, params, target_column=None):
         return {
             "metric_results": remove_none_values(metric_results),
             "plots": remove_none_values(plots),
-            "model": model,  # Include the trained model
+            # "model": model,  # Include the trained model
         }
     else:
         raise Exception('Target column is required for KNN classification.')
@@ -975,7 +975,7 @@ def train_classification_svc(preprocesseddata, params, target_column=None):
         return {
             "metric_results": remove_none_values(metric_results),
             "plots": remove_none_values(plots),
-            "model": model,  # Include the trained model
+            # "model": model,  # Include the trained model
         }
     else:
         raise Exception('Target column is required for SVM classification.')
@@ -1034,7 +1034,7 @@ def train_classification_xgboost(preprocesseddata, params, target_column=None):
         return {
             "metric_results": remove_none_values(metric_results),
             "plots": remove_none_values(plots),
-            "model": model,  # Include the trained model
+            # "model": model,  # Include the trained model
         }
     else:
         raise Exception('Target column is required for XGBoost classification.')
@@ -1095,7 +1095,7 @@ def train_classification_reseau_neuron(preprocesseddata, params, target_column=N
         return {
             "metric_results": remove_none_values(metric_results),
             "plots": remove_none_values(plots),
-            "model": model,  # Include the trained model
+            # "model": model,  # Include the trained model
         }
     else:
         raise Exception('Target column is required for Neural Network Classification.')

@@ -330,6 +330,9 @@ def train_model_view(request, model_name, processed_file_id, supervised):
                 "modelName": model_name,
                 "dataCostumName": preprocessed_dataset.raw_dataset.datasetCostumName
             }
+            # Serialize the context into a JSON string
+            context_json = json.dumps(context)
+
             # Check if the model already exists
             mlmodel = AiModel.objects.filter(name=model_name, model_params=params_dict).first()
 
@@ -339,7 +342,7 @@ def train_model_view(request, model_name, processed_file_id, supervised):
                     utilisateur=request.user,
                     ai_model=mlmodel,
                     preprocessed_dataset=preprocessed_dataset,
-                    resultobject=context
+                    resultobject=context_json  # Store the serialized JSON string
                 )
             else:
                 # Create the AiModel and associate it with a new Result entry
@@ -351,9 +354,8 @@ def train_model_view(request, model_name, processed_file_id, supervised):
                     utilisateur=request.user,
                     ai_model=mlmodel,
                     preprocessed_dataset=preprocessed_dataset,
-                    resultobject=context
+                    resultobject=context_json  # Store the serialized JSON string
                 )
-
         except Exception as e:
             context = {
                 "message": f"Error during training",
@@ -362,7 +364,7 @@ def train_model_view(request, model_name, processed_file_id, supervised):
                 "modelName": model_name,
                 "dataCostumName": preprocessed_dataset.raw_dataset.datasetCostumName
             }
-            # raise e
+            raise e
 
         return render(request, 'train_result.html', context)
 
@@ -400,5 +402,12 @@ def visualize_data(request, datatype,dataset_id):
 
 
 def Results(request):
-    results = Result.objects.filter(utilisateur=request.user)
-    return render('modelsresults.html',{'results': results})
+    results = Result.objects.filter(utilisateur=request.user).order_by('-id')
+    return render(request,'modelsresults.html',{'results':results})
+
+
+def visualize_result(request, resultID):
+    result = Result.objects.filter(id=resultID).first()
+    context = json.loads(result.resultobject)
+    print(f'returning context as {context}')
+    return render(request,'train_result.html',context)
