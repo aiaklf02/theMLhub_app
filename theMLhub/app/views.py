@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse
-from .models import RawDataset, PreprocessedDataset, DataVisualization
+from .models import RawDataset, PreprocessedDataset, DataVisualization, AiModel
 from django.http import HttpResponse
 from django.contrib.auth import authenticate, login
 from django.contrib.auth import get_user_model
@@ -18,6 +18,7 @@ from joblib import dump
 from sklearn.metrics import accuracy_score, f1_score, mean_squared_error, mean_absolute_error
 from .models import RawDataset, PreprocessedDataset, DataVisualization
 
+modelsTrained = 0
 
 
 
@@ -32,7 +33,12 @@ def login_required_custom(view_func):
 
 # @login_required_custom
 def my_view(request):
-    return render(request, 'Dashboard.html')
+    raw , prep = getUploadedDatasets(request)
+    context = {'dataUploaded': raw.count(),
+               'preproccessedData': prep.count(),
+               'modelsTrained':modelsTrained,
+               }
+    return render(request, 'Dashboard.html' , context)
 
 
 def page_login(request):
@@ -283,6 +289,7 @@ MODEL_FUNCTIONS = {
 @login_required_custom
 @csrf_exempt
 def train_model_view(request, model_name, processed_file_id, supervised):
+    global modelsTrained
     if request.method == "POST":
         # Extract 'params' from the POST body
         params = request.POST.get("params")  # Use this if the data is form-encoded
@@ -314,6 +321,7 @@ def train_model_view(request, model_name, processed_file_id, supervised):
         try:
             # Execute the associated function, passing the file path and target column
             result = model_function(processedData,params=params_dict, target_column=target_column)
+            modelsTrained = modelsTrained +1
 
             context = {
                 "message": f"Model trained successfully",
@@ -322,6 +330,27 @@ def train_model_view(request, model_name, processed_file_id, supervised):
                 "modelName": model_name,
                 "dataCostumName": preprocessed_dataset.raw_dataset.datasetCostumName
             }
+            # Check if the model already exists
+            mlmodel = AiModel.objects.filter(name=model_name, model_params=params_dict).first()
+
+            if mlmodel:
+                # Create a new Result entry if the model exists
+                Result.objects.create(
+                    ai_model=mlmodel,
+                    preprocessed_dataset=preprocessed_dataset,
+                    resultobject=context
+                )
+            else:
+                # Create the AiModel and associate it with a new Result entry
+                mlmodel = AiModel.objects.create(
+                    name=model_name,
+                    model_params=params_dict
+                )
+                Result.objects.create(
+                    ai_model=mlmodel,
+                    preprocessed_dataset=preprocessed_dataset,
+                    resultobject=context
+                )
 
         except Exception as e:
             context = {
@@ -331,7 +360,7 @@ def train_model_view(request, model_name, processed_file_id, supervised):
                 "modelName": model_name,
                 "dataCostumName": preprocessed_dataset.raw_dataset.datasetCostumName
             }
-            raise e
+            # raise e
 
         return render(request, 'train_result.html', context)
 
@@ -367,3 +396,6 @@ def visualize_data(request, datatype,dataset_id):
             'dataset': dataset,
         })
 
+
+# def Results(request):
+    # return render('')

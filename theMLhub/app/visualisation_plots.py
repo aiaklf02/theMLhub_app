@@ -21,16 +21,35 @@ def generate_silhouette_plot(silhouette):
 
 # Function to generate cluster plot
 def generate_cluster_plot(X_test, model):
-    """Generate a 2D cluster plot for the test data with cluster assignments."""
+    """Generate an enhanced 2D cluster plot for the test data with cluster assignments and centroids."""
     cluster_labels = model.predict(X_test)
 
-    plt.figure(figsize=(8, 6))
-    # Use .iloc or .values to extract the features correctly for DataFrame
-    sns.scatterplot(x=X_test.iloc[:, 0], y=X_test.iloc[:, 1], hue=cluster_labels, palette='Set1', s=100,
-                    edgecolor='black')
-    plt.title('Cluster Plot')
-    plt.xlabel('Feature 1')
-    plt.ylabel('Feature 2')
+    plt.figure(figsize=(10, 8))
+    # Use PCA for dimensionality reduction if the number of features is greater than 2
+    if X_test.shape[1] > 2:
+        from sklearn.decomposition import PCA
+        pca = PCA(n_components=2)
+        reduced_data = pca.fit_transform(X_test)
+        x, y = reduced_data[:, 0], reduced_data[:, 1]
+        xlabel, ylabel = "PCA Component 1", "PCA Component 2"
+    else:
+        x, y = X_test.iloc[:, 0], X_test.iloc[:, 1]
+        xlabel, ylabel = X_test.columns[0], X_test.columns[1]
+
+    sns.scatterplot(x=x, y=y, hue=cluster_labels, palette='viridis', s=120, edgecolor='black', alpha=0.8)
+
+    # Add centroids if available
+    if hasattr(model, 'cluster_centers_'):
+        centroids = model.cluster_centers_
+        if X_test.shape[1] > 2:
+            centroids = pca.transform(centroids)
+        plt.scatter(centroids[:, 0], centroids[:, 1], s=250, c='red', marker='X', label='Centroids')
+
+    plt.title('Enhanced Cluster Plot')
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
+    plt.legend(loc='best')
+    plt.grid(alpha=0.3)
 
     return save_plot_to_base64()
 

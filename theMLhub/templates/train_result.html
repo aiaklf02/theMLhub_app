@@ -87,11 +87,22 @@
             <div class="container-fluid">
 
               {% if status == 'failed' %}
-                <div class="result-message failure">
-                    <h2>Training {{modelName}} using {{dataCostumName}} Failed</h2>
-                    <p>{{ result }}</p>
+                <div class="result-message failure" >
+                    <div style="padding: 10px;display: flex;justify-content: center;align-content: center">
+                        <h2>Training {{modelName}} using {{dataCostumName}} Failed</h2>
+                    </div>
+                    <div style="padding: 10px;display: flex;justify-content: center;align-content: center">
+
+                        <img style="max-height: 50vh" src="{{STATIC_URL}}/static/images/webmaintenance.png">
+                    </div>
+                    <div style="padding: 10px;display: flex;justify-content: center;align-content: center">
+                        <p>{{ result }}</p>
+                    </div>
+
                 </div>
             {% endif %}
+
+
 
             {% if status == 'success' %}
                 <div class="result-message success">
@@ -165,7 +176,6 @@
             </div>
         </div>
 
-        {% include "footer.html" %}
     </div>
 
     <!-- Scripts -->

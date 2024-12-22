@@ -337,7 +337,7 @@ const hyperparameterOptions = {
     ],
 
     "Naive bayes": [
-        { name: "Smoothing", type: "number", id: "smoothing", default: 1.0 }
+        { name: "Smoothing", type: "number", id: "Smoothing", default: 1.0 }
     ],
     "Decision Tree": [
         { name: "Max Depth", type: "number", id: "maxDepth", default: 5 },
@@ -353,7 +353,7 @@ const hyperparameterOptions = {
         { name: "number of class", type: "number", id: "num_class", default: "2" },
     ],
     "XG Boost": [
-        { name: "Learning Rate", type: "number", id: "learningRate", default: 0.3 },
+        { name: "nEstimators", type: "number", id: "nEstimators", default: 20 },
         { name: "Max Depth", type: "number", id: "maxDepth", default: 6 }
     ],
     "Support Vector Machines (SVC)": [
@@ -471,7 +471,7 @@ function openModal(clickedmodel) {
             const input = document.createElement('input');
             input.type = param.type;
             input.id = param.id;
-            input.name = param.id;
+            input.name = param.name;
             input.value = param.default;
             input.classList.add('form-control');
 

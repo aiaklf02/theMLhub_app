@@ -17,6 +17,18 @@
 </head>
 
 <body class="h-100">
+  <style>
+
+.login-form-bg {
+    background-image: url('static/images/2655.jpg');
+    background-size: cover;
+    background-position: center;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+    </style>
 
     <!--*******************
         Preloader start
@@ -32,7 +44,6 @@
         Preloader end
     ********************-->
 
-    
 
 
 
@@ -43,7 +54,7 @@
                     <div class="form-input-content">
                         <div class="card login-form mb-0">
                             <div class="card-body pt-5">
-                                <a class="text-center" href="{% url 'index' %}"> <h4>TheMLHub</h4></a>
+                                <a class="text-center" href="{% url 'index' %}"> <h1 style="color: #7571f9">TheMLHub</h1></a>
         
                                 <form class="mt-5 mb-5 login-input" method="POST">
                                     {% csrf_token %}

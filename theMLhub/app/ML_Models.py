@@ -488,12 +488,12 @@ def KMeansClustering(preprocesseddata, params, target_column=None):
         start_train_time = time.time()
         print('training started kmeans')
 
-        if 'auto' in params.keys() and params['auto'] == 'true':
-            n_clusters = params.get('n_clusters', 3)
-            max_iter = params.get('max_iter', 1000)
+        if 'auto' in params.keys() and params['auto'] == 'false':
+            n_clusters = params.get('nClusters', 3)
+            max_iter = params.get('maxIterations', 100)
         else:
             n_clusters = 3
-            max_iter = 1000
+            max_iter = 100
 
         print(f'running kmeans with nclusters = {n_clusters}\n max iter {max_iter}')
         # Train the KMeans model
@@ -543,12 +543,10 @@ def train_logistic_regression(preprocesseddata, params, target_column=None):
 
         # Track training time
         start_train_time = time.time()
-        print('training started')
+        print(f'training started with params {params}')
         #
-        if 'max_iter' in params.keys():
-            max_iter = int(params['max_iter'])
-        else:
-            max_iter = 1000
+        max_iter = int(params.get('hyperparameters',params).get('max_iter',50))
+        print(f'maxiteration {max_iter}')
         # Train model
         model = LogisticRegression(max_iter=max_iter)
         model.fit(X_train, y_train)
@@ -580,7 +578,7 @@ def train_logistic_regression(preprocesseddata, params, target_column=None):
         # Generate plots
         plots = generate_visualizations(X_train, X_test, y_train, y_test, model)
 
-        plots['confusion_matrix'] = generate_confusion_matrix_plot(y_test, predictions, model)
+        plots['confusion matrix'] = generate_confusion_matrix_plot(y_test, predictions, model)
 
         metric_results = {
             "accuracy": accuracy,
@@ -705,10 +703,11 @@ def train_classification_naiveBayes(preprocesseddata, params, target_column=None
 
         # Track training time
         start_train_time = time.time()
-        print('training started Naive Bayes')
+        print(f'training started Naive Bayes with params {params}')
 
         # Set smoothing parameter (default is 1.0)
-        smoothing = float(params.get('smoothing', 1.0))
+        smoothing = float(params.get('hyperparameters',params).get('Smoothing', 1.0))
+        print(f'smoothing {smoothing}')
 
         # Train model
         model = GaussianNB(var_smoothing=smoothing)
@@ -763,8 +762,9 @@ def train_classification_cart_decision_tree(preprocesseddata, params, target_col
         print('training started Decision Tree')
 
         # Set hyperparameters
-        max_depth = int(params.get('maxDepth', 5))
-        min_samples_split = int(params.get('minSamplesSplit', 2))
+        max_depth = int(params.get('hyperparameters',params).get('maxDepth', 5))
+        min_samples_split = int(params.get('hyperparameters',params).get('minSamplesSplit', 2))
+        print(f'max depth {max_depth} min samples split {min_samples_split}')
 
         # Train model
         model = DecisionTreeClassifier(max_depth=max_depth, min_samples_split=min_samples_split)
@@ -817,12 +817,12 @@ def train_classification_random_forest(preprocesseddata, params, target_column=N
 
         # Track training time
         start_train_time = time.time()
-        print('training started Random Forest')
+        print(f'training started Random Forest with params {params}')
 
         # Set hyperparameters
-        n_estimators = int(params.get('nEstimators', 100))
-        max_depth = int(params.get('maxDepth', 5))
-
+        n_estimators = int(params.get('hyperparameters',params).get('nEstimators', 100))
+        max_depth = int(params.get('hyperparameters',params).get('maxDepth', 5))
+        print(f'n estimators {n_estimators} max depth {max_depth}')
         # Train model
         model = RandomForestClassifier(n_estimators=n_estimators, max_depth=max_depth)
         model.fit(X_train, y_train)
@@ -874,11 +874,12 @@ def train_classification_knn(preprocesseddata, params, target_column=None):
 
         # Track training time
         start_train_time = time.time()
-        print('training started KNN')
+        print(f'training started KNN with params {params}')
 
         # Set hyperparameters
-        n_neighbors = int(params.get('nNeighbors', 5))
-        weights = params.get('weights', 'uniform')
+        n_neighbors = int(params.get('hyperparameters',params).get('nNeighbors', 5))
+        weights = params.get('hyperparameters',params).get('weights', 'uniform')
+        print(f'n neighbors {n_neighbors} weights {weights} ')
 
         # Train model
         model = KNeighborsClassifier(n_neighbors=n_neighbors, weights=weights)
@@ -931,12 +932,12 @@ def train_classification_svc(preprocesseddata, params, target_column=None):
 
         # Track training time
         start_train_time = time.time()
-        print('training started SVM')
+        print(f'training started SVM with params {params}')
 
         # Set hyperparameters
-        kernel = params.get('kernel', 'rbf')
-        C = float(params.get('C', 1.0))
-
+        kernel = params.get('hyperparameters',params).get('Kernel', 'rbf')
+        C = float(params.get('hyperparameters',params).get('C', 1.0))
+        print(f'kernel {kernel}  C = {C}')
         # Train model
         model = SVC(kernel=kernel, C=C)
         model.fit(X_train, y_train)
@@ -989,10 +990,12 @@ def train_classification_xgboost(preprocesseddata, params, target_column=None):
         # Track training time
         start_train_time = time.time()
         print('training started XGBoost')
+        print(f'params {params}')
 
         # Set hyperparameters
-        n_estimators = int(params.get('nEstimators', 100))
-        max_depth = int(params.get('maxDepth', 5))
+        n_estimators = int(params.get('hyperparameters',params).get('nEstimators', 100))
+        max_depth = int(params.get('hyperparameters',params).get('maxDepth', 5))
+        print(f'using these params n_estimators : {n_estimators} max depth {max_depth}')
 
         # Train model
         model = xgb.XGBClassifier(n_estimators=n_estimators, max_depth=max_depth)
@@ -1044,14 +1047,15 @@ def train_classification_reseau_neuron(preprocesseddata, params, target_column=N
 
         # Track training time
         start_train_time = time.time()
-        print('Training started for Neural Network')
+        print(f'Training started for Neural Network with following params {params}')
 
         # Get hyperparameters
-        hidden_layer_sizes = tuple(map(int, params.get("hidden_layer_sizes", "100").split(',')))
-        activation = params.get("activation", "relu")
-        solver = params.get("solver", "adam")
-        max_iter = int(params.get("max_iter", 200))
+        hidden_layer_sizes = tuple(map(int, params.get('hyperparameters',params).get("hidden_layer_sizes", "100").split(',')))
+        activation = params.get('hyperparameters',params).get("activation", "relu")
+        solver = params.get('hyperparameters',params).get("solver", "adam")
+        max_iter = int(params.get('hyperparameters',params).get("max_iter", 200))
 
+        print(f'hidden layer sizes {hidden_layer_sizes}  activation {activation} solver {solver} max iter {max_iter}')
         # Train model
         model = MLPClassifier(hidden_layer_sizes=hidden_layer_sizes, activation=activation,
                               solver=solver, max_iter=max_iter)
@@ -1223,12 +1227,12 @@ def train_h2o_supervised(preprocesseddata, params, target_column):
     X = [col for col in X_train.columns if col != target_column]
     y = target_column
 
+    print(f'auto ML supervised params {params}')
     # Set AutoML hyperparameters (using values from params if available)
     max_runtime_secs = int(params.get('max_runtime_secs', 60))  # Max time in seconds for training
     max_models = int(params.get('max_models', 3))  # Max models to train
     
     print(f'using *params* max_runtime_secs {max_runtime_secs}\n max_models {max_models}')
-    print(f'{params}')
     # Track training time
     start_train_time = time.time()
     print('Training started using H2O AutoML for supervised task')
@@ -1327,7 +1331,8 @@ def train_h2o_supervised(preprocesseddata, params, target_column):
         # Prediction vs Actual plot
         plt.figure(figsize=(8, 6))
         sns.scatterplot(x=y_test, y=y_pred)
-        plt.axhline(0, color='red', linestyle='--')
+        plt.plot([y_test.min(), y_test.max()], [y_test.min(), y_test.max()], color='red',
+                 linestyle='--')  # Diagonal line
         plt.title('Prediction vs Actual')
         plt.xlabel('Actual Values')
         plt.ylabel('Predicted Values')
@@ -1369,12 +1374,13 @@ def train_h2o_unsupervised(preprocesseddata, params):
 
     # Convert to H2O frame
     train_data = h2o.H2OFrame(df)
-
+    print(f'auto ml unsupervised params {params}')
     # Set AutoML hyperparameters (using values from params if available)
-    max_runtime_secs = int(params.get('max_runtime_secs', 3600))  # Max time in seconds for training
+    max_runtime_secs = int(params.get('max_runtime_secs', 30))  # Max time in seconds for training
     n_clusters = int(params.get('nClusters', 3))  # Number of clusters (for KMeans)
-    max_iterations = int(params.get('maxIterations', 300))  # Max iterations for KMeans
+    max_iterations = int(params.get('maxIterations', 3))  # Max iterations for KMeans
 
+    print(f'max runtime {max_runtime_secs} max iteration {max_iterations} nclusters {n_clusters}')
     # Initialize and train KMeans model for unsupervised learning
     start_train_time = time.time()
     kmeans_model = H2OKMeansEstimator(k=n_clusters, max_iterations=max_iterations, max_runtime_secs=max_runtime_secs)
@@ -1447,22 +1453,23 @@ def train_h2o_unsupervised(preprocesseddata, params):
     return {
         "metric_results": remove_none_values(metric_results),
         "plots": {
-            "cluster_plot": cluster_visualization_plot_base64,
+            "cluster plot": cluster_visualization_plot_base64,
             # Add other plots here as necessary
         }
     }
 
 
 def train_h2o_automl(preprocesseddata, params, target_column=None):
-    paramss = params['hyperparameters']
     h2o.init()
 
     if target_column:
+        paramss = params.get('hyperparameters', params)
+
         # Supervised task (classification or regression)
         result = train_h2o_supervised(preprocesseddata, paramss, target_column)
     else:
         # Unsupervised task (e.g., clustering)
-        result = train_h2o_unsupervised(preprocesseddata, paramss)
+        result = train_h2o_unsupervised(preprocesseddata, params)
 
     return result
 
@@ -1478,91 +1485,3 @@ def plot_clusters_with_centroids(df, centroids_info, n_clusters, kmeans_model):
                 c='red', marker='x', s=100, label='Centroids')
     plt.title('Cluster Visualization (PCA)')
     plt.legend()
-
-# def train_h2o_automl(preprocesseddata, params, target_column=None):
-#     if target_column:
-#         # Preprocess the data (ensure correct format for H2O)
-#         X_train, X_test, y_train, y_test = encode_categorical_data(preprocesseddata, supervised=True)
-#
-#         # Start the H2O cluster (only needs to be done once in the program)
-#         h2o.init()
-#
-#         # Convert the Pandas DataFrame to H2O Frame
-#         train_data = h2o.H2OFrame(X_train)
-#         train_data[target_column] = h2o.H2OFrame(y_train)  # Add target column to the training frame
-#         test_data = h2o.H2OFrame(X_test)
-#         test_data[target_column] = h2o.H2OFrame(y_test)  # Add target column to the testing frame
-#
-#         # Define X (features) and y (target)
-#         X = [col for col in X_train.columns if col != target_column]
-#         y = target_column
-#
-#         # Track training time
-#         start_train_time = time.time()
-#         print('Training started using H2O AutoML')
-#
-#         # Set AutoML hyperparameters
-#         max_runtime_secs = int(params.get('max_runtime_secs', 3600))  # Max time in seconds for training
-#         max_models = int(params.get('max_models', 20))  # Max models to train
-#
-#         # Initialize and train AutoML model
-#         aml = H2OAutoML(
-#             max_models=max_models,
-#             max_runtime_secs=max_runtime_secs,
-#             seed=42
-#         )
-#         aml.train(x=X, y=y, training_frame=train_data)
-#
-#         # End the training time
-#         end_train_time = time.time()
-#         training_time = end_train_time - start_train_time
-#
-#         # Get the leaderboard (ranking of models)
-#         leaderboard = aml.leaderboard
-#         print("Leaderboard:\n", leaderboard)
-#
-#         # Get the best model (leader model)
-#         model = aml.leader
-#
-#         # Track testing (prediction) time
-#         start_test_time = time.time()
-#
-#         # Predict using the leader model
-#         predictions = model.predict(test_data)
-#
-#         # Convert predictions to a format suitable for sklearn metrics
-#         y_pred = predictions.as_data_frame().values.flatten()
-#
-#         end_test_time = time.time()
-#         testing_time = end_test_time - start_test_time
-#
-#         # Evaluate model performance
-#         accuracy = accuracy_score(y_test, y_pred)
-#         precision = precision_score(y_test, y_pred, average='weighted', zero_division=1)
-#         recall = recall_score(y_test, y_pred, average='weighted', zero_division=1)
-#         f1 = f1_score(y_test, y_pred, average='weighted')
-#
-#         # Generate plots (optional)
-#         plots = generate_visualizations(X_train, X_test, y_train, y_test, model)
-#
-#         # Prepare the metric results
-#         metric_results = {
-#             "accuracy": accuracy,
-#             "precision": precision,
-#             "recall": recall,
-#             "f1_score": f1,
-#             "training time": training_time,
-#             "testing time": testing_time,
-#         }
-#
-#         # Shut down the H2O cluster
-#         h2o.shutdown()
-#
-#         return {
-#             "metric_results": remove_none_values(metric_results),
-#             "plots": remove_none_values(plots),
-#             "model": model,  # Include the best trained model
-#             "leaderboard": leaderboard  # Include the leaderboard for all models
-#         }
-#     else:
-#         raise Exception('Target column is required for H2O AutoML classification.')
