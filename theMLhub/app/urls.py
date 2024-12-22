@@ -29,8 +29,8 @@ urlpatterns = [
     path('chart-peity', views.chart_peity, name='chart-peity'),
     path('All-Results', views.Results, name='All-Results'),
     path('visualise-data/<str:datatype>/<int:dataset_id>/', views.visualize_data, name='visualize_data'),
-
     path('visualise-result/<int:resultID>/', views.visualize_result, name='visualize_result'),
+    path('download_report/<int:resultID>/', views.download_report, name='download_report'),
 
 ]
 

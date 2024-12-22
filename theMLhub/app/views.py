@@ -376,7 +376,7 @@ def train_model_view(request, model_name, processed_file_id, supervised):
                 "modelName": model_name,
                 "dataCostumName": preprocessed_dataset.raw_dataset.datasetCostumName
             }
-            raise e
+            # raise e
 
         return render(request, 'train_result.html', context)
 
@@ -427,3 +427,103 @@ def visualize_result(request, resultID):
 
 def home(request):
     return render(request,'homePage.html')
+
+
+import base64
+import os
+from io import BytesIO
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
+from django.http import HttpResponse
+import json
+from PIL import Image
+from reportlab.lib import colors
+
+
+def download_report(request, resultID):
+    # Fetch the result object
+    result = Result.objects.filter(id=resultID).first()
+    context = json.loads(result.resultobject)
+
+    # Prepare the PDF response
+    buffer = BytesIO()
+    p = canvas.Canvas(buffer, pagesize=letter)
+    width, height = letter
+
+    # Set font and size
+    p.setFont("Helvetica", 23)
+
+    # Add content to the PDF
+    p.drawString(115, height - 50, f" TheMLHub -  Model Training Report ")
+    p.drawString(50, height - 50, f"")
+    p.drawString(50, height - 50, f"")
+    p.drawString(50, height - 50, f"")
+    p.drawString(50, height - 50, f"")
+
+    p.setFont("Helvetica-Bold", 18)
+    p.drawString(50, height - 120, f"Model Name: {context.get('modelName', 'N/A')}")
+    p.drawString(50, height - 150, f"Dataset: {context.get('dataCostumName', 'N/A')}")
+
+    # Add Metrics
+    p.setFont("Helvetica-Bold", 16)
+    p.drawString(50, height - 180, "Metrics:")
+    y = height - 200
+    p.setFont("Helvetica", 10)
+    for metric, value in context['result']['metric_results'].items():
+        p.drawString(70, y, f"{metric}: {value}")
+        y -= 20
+
+    # Add Plots to the PDF, 2 plots per page
+    if context['result'].get('plots'):
+        plot_count = 0
+        p.showPage()  # Start with a new page for plots
+        p.setFont("Helvetica-Bold", 12)
+        p.drawString(50, height - 50, "Plots:")
+        y = height - 80
+        p.setFont("Helvetica", 10)
+
+        max_width = width * 0.7  # 70% of page width
+        max_height = height * 0.35  # 35% of page height
+
+        for plot_key, plot_value in context['result']['plots'].items():
+            # Decode the Base64 image data
+            image_data = base64.b64decode(plot_value)
+            image_file = BytesIO(image_data)
+
+            # Use PIL to open the image from BytesIO
+            image = Image.open(image_file)
+
+            # Save the image temporarily to a file
+            temp_file_path = f"/tmp/plot_{plot_key}.png"
+            image.save(temp_file_path)
+
+            # Calculate the position to center the image
+            x_pos = (width - max_width) / 2  # Horizontal center
+            y_pos = y - max_height  # Adjust Y for the image position
+
+            # Insert the plot image into the PDF
+            # p.drawString(x_pos, y+10, f"{plot_key}:")
+            p.drawImage(temp_file_path, x_pos, y_pos, width=max_width,
+                        height=max_height)  # Adjust image size and positioning
+            y -= max_height + 50  # Adjust spacing for next plot
+
+            # After two plots, add a new page
+            plot_count += 1
+            if plot_count % 2 == 0:
+                p.showPage()  # Start a new page for the next plot set
+                p.setFont("Helvetica", 10)
+                p.drawString(50, height - 50, "Plots:")
+                y = height - 70
+
+            # Clean up the temporary file after use
+            os.remove(temp_file_path)
+
+    # Close the PDF
+    p.showPage()
+    p.save()
+
+    # Create the response
+    buffer.seek(0)
+    response = HttpResponse(buffer, content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="report_{resultID}.pdf"'
+    return response

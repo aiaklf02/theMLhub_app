@@ -106,8 +106,14 @@
 
             {% if status == 'success' %}
                 <div class="result-message success">
-                    <h2>{{modelName}} Trained using {{dataCostumName}} DataSet</h2>
+                    <div style="margin: 20px;display: flex ; justify-content: space-between;align-content: center">
 
+                    <h2>{{modelName}} Trained using {{dataCostumName}} DataSet</h2>
+                    <!-- Download Report Button -->
+                    <div style="">
+                        <a id="download-report" class="btn btn-primary" href="#">Download Report</a>
+                    </div>
+                    </div>
 
 
                 {% if result.leaderboard %}
@@ -178,6 +184,24 @@
 
     </div>
 
+            <script>
+
+    document.addEventListener("DOMContentLoaded", function () {
+        // Get the current URL
+        const currentUrl = window.location.href;
+
+        // Extract the resultID (assuming it's the last part of the URL)
+        const resultId = currentUrl.split("/").filter(Boolean).pop();
+
+        // Update the download link
+        const downloadLink = document.getElementById("download-report");
+        if (downloadLink && resultId) {
+            downloadLink.href = `/download_report/${resultId}/`;
+        }
+    });
+</script>
+
+            </script>
     <!-- Scripts -->
     <script src="{% static 'plugins/common/common.min.js' %}"></script>
     <script src="{% static 'js/custom.min.js' %}"></script>
