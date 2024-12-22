@@ -17,24 +17,14 @@
 </head>
 
 <body>
-            <script src="https://unpkg.com/@dotlottie/player-component@2.7.12/dist/dotlottie-player.mjs" type="module"></script>
+    <script src="https://unpkg.com/@dotlottie/player-component@2.7.12/dist/dotlottie-player.mjs" type="module"></script>
 
-    <!--*******************
-        Preloader start
-    ********************-->
     <div id="preloader">
         <div class="loader" style="width: 500px ; height: 500px">
             <dotlottie-player src="https://lottie.host/5aaba2ad-18bb-48a9-bddf-dfacc58bab39/4gPgst4NZm.lottie" background="transparent" speed="1.5" style="width: 100%; height: 100%" loop autoplay></dotlottie-player>
         </div>
     </div>
-    <!--*******************
-        Preloader end
-    ********************-->
 
-    
-    <!--**********************************
-        Main wrapper start
-    ***********************************-->
     <div id="main-wrapper"  style="height: 120vh !important;">
 
 {% include "navbar.html" %}
@@ -42,20 +32,7 @@
 {% include "sideBar.html" %}
 
 
-        <!--**********************************
-            Content body start
-        ***********************************-->
         <div class="content-body">
-
-<!--            <div class="row page-titles mx-0">-->
-<!--                <div class="col p-md-0">-->
-<!--                    <ol class="breadcrumb">-->
-<!--                        <li class="breadcrumb-item"><a href="#">Dashboard</a></li>-->
-<!--                        <li class="breadcrumb-item active"><a href="#">Home</a></li>-->
-<!--                    </ol>-->
-<!--                </div>-->
-<!--            </div>-->
-            <!-- row -->
 
             <div class="container-fluid">
                 <div class="row">
@@ -64,22 +41,10 @@
             </div>
             <!-- #/ container -->
         </div>
-        <!--**********************************
-            Content body end
-        ***********************************-->
-        
-        
-{% include "footer.html" %}
 
 
     </div>
-    <!--**********************************
-        Main wrapper end
-    ***********************************-->
 
-    <!--**********************************
-        Scripts
-    ***********************************-->
     <script src="{% static 'plugins/common/common.min.js' %}"></script>
     <script src="{% static 'js/custom.min.js' %}"></script>
     <script src="{% static 'js/settings.js' %}"></script>

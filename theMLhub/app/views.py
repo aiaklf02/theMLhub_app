@@ -38,7 +38,7 @@ def my_view(request):
                'preproccessedData': prep.count(),
                'modelsTrained':modelsTrained,
                }
-    return render(request, 'Dashboard.html' , context)
+    return render(request, 'Dashboard.html', context)
 
 
 def page_login(request):
@@ -210,7 +210,7 @@ def uploadDataFile(request):
 
             # Return a success response
             return JsonResponse({'message': 'File uploaded and processed successfully!',
-                                 'preprocessing_url': '/preprocessing/'}, status=200)
+                                 'preprocessing_url': '/uploadedFiles'}, status=200)
 
         except Exception as e:
             # Log the exception for debugging
@@ -221,8 +221,8 @@ def uploadDataFile(request):
 
 
 def getUploadedDatasets(request):
-    uploadedfiles = RawDataset.objects.filter(utilisateur=request.user)
-    processeddatasets = PreprocessedDataset.objects.filter(raw_dataset__utilisateur=request.user)
+    uploadedfiles = RawDataset.objects.filter(utilisateur=request.user).order_by('-id')
+    processeddatasets = PreprocessedDataset.objects.filter(raw_dataset__utilisateur=request.user).order_by('-id')
     return uploadedfiles, processeddatasets
 
 
@@ -336,6 +336,7 @@ def train_model_view(request, model_name, processed_file_id, supervised):
             if mlmodel:
                 # Create a new Result entry if the model exists
                 Result.objects.create(
+                    utilisateur=request.user,
                     ai_model=mlmodel,
                     preprocessed_dataset=preprocessed_dataset,
                     resultobject=context
@@ -347,6 +348,7 @@ def train_model_view(request, model_name, processed_file_id, supervised):
                     model_params=params_dict
                 )
                 Result.objects.create(
+                    utilisateur=request.user,
                     ai_model=mlmodel,
                     preprocessed_dataset=preprocessed_dataset,
                     resultobject=context
@@ -397,5 +399,6 @@ def visualize_data(request, datatype,dataset_id):
         })
 
 
-# def Results(request):
-    # return render('')
+def Results(request):
+    results = Result.objects.filter(utilisateur=request.user)
+    return render('modelsresults.html',{'results': results})

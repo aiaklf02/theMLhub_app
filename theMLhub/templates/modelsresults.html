@@ -6,7 +6,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>Uploaded Files</title>
+    <title>Results</title>
     <!-- Favicon icon -->
     <link rel="icon" type="image/png" sizes="16x16" href="{% static 'images/favicon.png' %}">
     <!-- Custom Stylesheet -->
@@ -35,9 +35,9 @@
             <div class="container-fluid">
 
                 <!-- Processed Datasets Section -->
-                <h3 style="padding: 10px">My Pre-Processed DataSets</h3>
+                <h3 style="padding: 10px">My Training Results</h3>
                 <div class="row processed-datasets">
-                   {% for file in processeddatasets %}
+                   {% for result in results %}
                    <div class="col-md-3 col-sm-6 dataset-item">
                         <div class="card">
                             <div class="card-body">
@@ -45,9 +45,9 @@
                                     <span class="display-5">
                                         <i class="fas fa-file-alt" aria-hidden="true"></i>
                                     </span>
-                                    <h4 class="mt-1" title="{{ file.preprocessedCostumName }}">{{ file.preprocessedCostumName }}</h4>
-                                    <p>Processed: {{ file.processed_at }}</p>
-                                    <button class="btn gradient-8 btn-md border-0 btn-rounded px-5" onclick="visualizeprepData({{ file.id }})">
+                                    <h4 class="mt-1" title="{{ file.preprocessedCostumName }}">{{ result.preprocessed_dataset }}</h4>
+                                    <p>Trained with: {{ result.ai_model }}</p>
+                                    <button class="btn gradient-8 btn-md border-0 btn-rounded px-5" onclick="visualizeResult('{{ result.id }}')">
                                         Visualise
                                     </button>
                                 </div>
@@ -58,29 +58,6 @@
                 </div>
                 <button id="processed-toggle" class="btn btn-primary">View More</button>
 
-                <!-- Raw Datasets Section -->
-                <h3 style="padding: 10px">My Raw DataSets</h3>
-                <div class="row raw-datasets">
-                   {% for file in uploadedfiles %}
-                   <div class="col-md-3 col-sm-6 dataset-item">
-                        <div class="card">
-                            <div class="card-body">
-                                <div class="text-center">
-                                    <span class="display-5">
-                                        <i class="fas fa-file-alt" aria-hidden="true"></i>
-                                    </span>
-                                    <h4 class="mt-1" title="{{ file.datasetCostumName }}">{{ file.datasetCostumName }}</h4>
-                                    <p>Uploaded: {{ file.uploaded_at }}</p>
-                                    <button class="btn gradient-8 btn-md border-0 btn-rounded px-5" onclick="visualizerawData({{ file.id }})">
-                                        Visualise
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    {% endfor %}
-                </div>
-                <button id="raw-toggle" class="btn btn-primary">View More</button>
 
             </div>
         </div>
@@ -100,7 +77,7 @@
         function setupToggle(sectionClass, buttonId) {
             const items = document.querySelectorAll(`.${sectionClass} .dataset-item`);
             const button = document.getElementById(buttonId);
-            const limit = 4;
+            const limit = 8;
             let expanded = false;
 
             function updateVisibility() {
@@ -121,21 +98,15 @@
         setupToggle("processed-datasets", "processed-toggle");
         setupToggle("raw-datasets", "raw-toggle");
 
-        function visualizeprepData(fileId) {
+        function visualizeResult(resultID) {
+            resultID = Number(resultID)
             const loading = document.createElement("div");
             loading.textContent = "Loading...";
             loading.style.textAlign = "center";
             document.body.appendChild(loading);
-            window.location.href = `/visualise-data/preproccessed/${fileId}/`;
+            window.location.href = `/visualise-result/${resultID}/`;
         }
 
-         function visualizerawData(fileId) {
-            const loading = document.createElement("div");
-            loading.textContent = "Loading...";
-            loading.style.textAlign = "center";
-            document.body.appendChild(loading);
-            window.location.href = `/visualise-data/raw/${fileId}/`;
-        }
 
     </script>
 </body>

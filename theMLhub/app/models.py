@@ -35,6 +35,7 @@ class RawDataset(models.Model):
     datasetCostumName = models.CharField(max_length=100, default='DataSetFile' ,null=True, blank=True)
     uploaded_at = models.DateTimeField(auto_now_add=True)
     TargetColumn = models.CharField(max_length=255, null=True,blank=True,default='target')
+
     def __str__(self):
         return self.datasetCostumName
     #load the data from the file
@@ -329,14 +330,9 @@ class AiModel(models.Model):
 
 
 class Result(models.Model):
+    utilisateur = models.ForeignKey(Utilisateur, on_delete=models.CASCADE)
     ai_model = models.ForeignKey(AiModel, on_delete=models.CASCADE)  # Many-to-one with AiModel
     preprocessed_dataset = models.ForeignKey(PreprocessedDataset, on_delete=models.CASCADE)  # Many-to-one with PreprocessedDataset
-    resultobject = models.JSONField()
+    resultobject = models.JSONField(default=dict,null=True,blank=True)
     created_at = models.DateTimeField(auto_now_add=True)  # Track when the result was created
-
-
-class DataGraph(models.Model):
-    Graphname = models.CharField(max_length=100, default='Graph Name')
-    result = models.ForeignKey(Result, on_delete=models.CASCADE)
-    graph_file = models.FileField(upload_to='graphs/', null=True, blank=True)
 

@@ -14460,8 +14460,17 @@ html[dir="rtl"] [direction="rtl"][data-sidebar-style="compact"]:not([data-layout
 [data-theme-version="dark"] .card {
   background: #27394F;
   box-shadow: none; }
-  [data-theme-version="dark"] .card:hover {
+
+[data-theme-version="dark"] .card:hover {
     box-shadow: none; }
+
+.card:hover {
+    box-shadow: none;
+    transform: scale(1.08);
+    transition: transform 0.3s ease; /* Smooth transition effect */
+}
+
+
   [data-theme-version="dark"] .card.transparent-card {
     background: transparent; }
   [data-theme-version="dark"] .card-footer {
