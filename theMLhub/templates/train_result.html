@@ -191,25 +191,63 @@
 <!--    });-->
 <!--</script>-->
 
-
 <script>
-document.addEventListener("DOMContentLoaded", function () {
-    const currentUrl = window.location.href;
-    const resultId = currentUrl.split("/").filter(Boolean).pop();
+    document.addEventListener("DOMContentLoaded", function () {
+        const currentUrl = window.location.href;
 
-    // Update PDF download link
-    const pdfDownloadLink = document.getElementById("download-report-pdf");
-    if (pdfDownloadLink && resultId) {
-        pdfDownloadLink.href = `/download_report/${resultId}/`;
-    }
+        // Check if the URL contains 'visualise-result'
+        if (!currentUrl.includes('visualise-result')) {
+            // Hide both download links if 'visualise-result' is not in the URL
+            const pdfDownloadLink = document.getElementById("download-report-pdf");
+            const excelDownloadLink = document.getElementById("download-report-excel");
 
-    // Update Excel download link
-    const excelDownloadLink = document.getElementById("download-report-excel");
-    if (excelDownloadLink && resultId) {
-        excelDownloadLink.href = `/download_excel/${resultId}/`;
-    }
-});
+            if (pdfDownloadLink) pdfDownloadLink.style.display = "none";
+            if (excelDownloadLink) excelDownloadLink.style.display = "none";
+        } else {
+            // Extract the result ID from the URL
+            const resultId = currentUrl.split("/").filter(Boolean).pop();
+
+            // Update PDF download link
+            const pdfDownloadLink = document.getElementById("download-report-pdf");
+            if (pdfDownloadLink && resultId) {
+                pdfDownloadLink.href = `/download_report/${resultId}/`;
+            }
+
+            // Update Excel download link
+            const excelDownloadLink = document.getElementById("download-report-excel");
+            if (excelDownloadLink && resultId) {
+                excelDownloadLink.href = `/download_excel/${resultId}/`;
+            }
+        }
+    });
 </script>
+
+
+<!--<script>-->
+<!--    document.addEventListener("DOMContentLoaded", function () {-->
+<!--    if path dont contain 'visualise-result'-->
+<!--        hide both download links of pdf and excel-->
+<!--    });-->
+
+<!--    else-->
+
+<!--document.addEventListener("DOMContentLoaded", function () {-->
+<!--    const currentUrl = window.location.href;-->
+<!--    const resultId = currentUrl.split("/").filter(Boolean).pop();-->
+
+<!--    // Update PDF download link-->
+<!--    const pdfDownloadLink = document.getElementById("download-report-pdf");-->
+<!--    if (pdfDownloadLink && resultId) {-->
+<!--        pdfDownloadLink.href = `/download_report/${resultId}/`;-->
+<!--    }-->
+
+<!--    // Update Excel download link-->
+<!--    const excelDownloadLink = document.getElementById("download-report-excel");-->
+<!--    if (excelDownloadLink && resultId) {-->
+<!--        excelDownloadLink.href = `/download_excel/${resultId}/`;-->
+<!--    }-->
+<!--});-->
+<!--</script>-->
 
 
     <!-- Scripts -->
