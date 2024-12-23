@@ -31,6 +31,8 @@ urlpatterns = [
     path('visualise-data/<str:datatype>/<int:dataset_id>/', views.visualize_data, name='visualize_data'),
     path('visualise-result/<int:resultID>/', views.visualize_result, name='visualize_result'),
     path('download_report/<int:resultID>/', views.download_report, name='download_report'),
+    path('download_excel/<int:resultID>/', views.download_excel, name='download_excel'),
+    path('download_preproccessed_data/<int:prepdataID>/', views.downloadPreproccesseddata, name='downloadPreproccesseddata'),
 
 ]
 

@@ -1,3 +1,19 @@
+import chardet
+import base64
+import os
+from io import BytesIO
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
+from django.http import HttpResponse
+import json
+from PIL import Image
+from reportlab.lib import colors
+from openpyxl import Workbook
+from openpyxl.drawing.image import Image as ExcelImage
+from io import BytesIO
+import base64
+from django.http import HttpResponse, Http404
+from django.shortcuts import redirect
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse
 from .models import RawDataset, PreprocessedDataset, DataVisualization, AiModel
@@ -19,7 +35,35 @@ from sklearn.metrics import accuracy_score, f1_score, mean_squared_error, mean_a
 from .models import RawDataset, PreprocessedDataset, DataVisualization
 from django.contrib.auth import logout as auth_logout
 
+from .ML_Models import *
 
+
+
+# A dictionary mapping model names to their corresponding functions
+MODEL_FUNCTIONS = {
+    "Linear Regression": train_linear_regression,
+    "Regression LightGBM": train_regression_LightGBM,
+    "Decision Trees": decisionTreeCart,
+    "Random Forest": train_random_forest,
+    "K-Nearest Neighbors": train_knn,
+    "Support Vector Machines (SVR)": train_svr,
+    "XGBoost": train_xgboost,
+    "Reseau Neuron": train_reseau_neuron,
+
+    "K-Means": KMeansClustering,
+
+    "Classification LightGBM": train_classification_LightGBM,
+    "Logistic Regression": train_logistic_regression,
+    "Naive bayes": train_classification_naiveBayes,
+    "Decision Tree": train_classification_cart_decision_tree,
+    "Random Forests": train_classification_random_forest,
+    "K Nearest Neighbors": train_classification_knn,
+    "Support Vector Machines (SVC)": train_classification_svc,
+    "XG Boost": train_classification_xgboost,
+    "Reseau Neurons": train_classification_reseau_neuron,
+    "AutoML": train_h2o_automl,
+
+}
 
 
 def login_required_custom(view_func):
@@ -51,6 +95,9 @@ def my_view(request):
 
 
 def page_login(request):
+    if request.user.is_authenticated:
+        return redirect('index')
+
     if request.method == 'POST':
         username = request.POST['username']
         password = request.POST['password']
@@ -58,7 +105,7 @@ def page_login(request):
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
-            return redirect('index')  # Redirect to a success page (e.g., home)
+            return redirect('index')
         else:
             message = 'Invalid username or password'
             return render(request, 'page-login.html', {'f': 'Invalid username or password'})
@@ -140,12 +187,9 @@ def tableData(request):
 def app_profile(request):
     return render(request, 'app-profile.html')
 
-import chardet 
 
-import os
 @csrf_exempt    
 @login_required_custom
-
 def uploadDataFile(request):
     if request.method == 'POST':
         uploaded_file = request.FILES.get('file')
@@ -267,37 +311,6 @@ def clustering(request):
 
     return render(request, 'clustering.html', form)
 
-
-
-from .ML_Models import *
-
-# A dictionary mapping model names to their corresponding functions
-# MODEL_FUNCTIONS = {
-MODEL_FUNCTIONS = {
-    "Linear Regression": train_linear_regression,
-    "Regression LightGBM": train_regression_LightGBM,
-    "Decision Trees": decisionTreeCart,
-    "Random Forest": train_random_forest,
-    "K-Nearest Neighbors": train_knn,
-    "Support Vector Machines (SVR)": train_svr,
-    "XGBoost": train_xgboost,
-    "Reseau Neuron": train_reseau_neuron,
-
-    "K-Means": KMeansClustering,
-
-    "Classification LightGBM": train_classification_LightGBM,
-    "Logistic Regression": train_logistic_regression,
-    "Naive bayes": train_classification_naiveBayes,
-    "Decision Tree": train_classification_cart_decision_tree,
-    "Random Forests": train_classification_random_forest,
-    "K Nearest Neighbors": train_classification_knn,
-    "Support Vector Machines (SVC)": train_classification_svc,
-    "XG Boost": train_classification_xgboost,
-    "Reseau Neurons": train_classification_reseau_neuron,
-    "AutoML": train_h2o_automl,
-    # Add more models here as needed
-
-}
 
 
 @login_required_custom
@@ -425,19 +438,25 @@ def visualize_result(request, resultID):
     return render(request,'train_result.html',context)
 
 
-def home(request):
-    return render(request,'homePage.html')
+def downloadPreproccesseddata(request, prepdataID):
+    # Retrieve the dataset object
+    dataset = PreprocessedDataset.objects.filter(id=prepdataID).first()
 
+    # Check if the dataset and file exist
+    if dataset and dataset.file_preprocessed_data:
+        # Assuming `file_preprocessed_data` is a FileField or similar
+        file_path = dataset.file_preprocessed_data.path  # Get the file's path
 
-import base64
-import os
-from io import BytesIO
-from reportlab.lib.pagesizes import letter
-from reportlab.pdfgen import canvas
-from django.http import HttpResponse
-import json
-from PIL import Image
-from reportlab.lib import colors
+        try:
+            with open(file_path, 'rb') as file:
+                response = HttpResponse(file.read(), content_type='application/octet-stream')
+                response['Content-Disposition'] = f'attachment; filename="{dataset.file_preprocessed_data.name}"'
+                return response
+        except FileNotFoundError:
+            raise Http404("File not found.")
+
+    # Redirect to uploadedFiles page if the file or dataset is not found
+    return redirect('uploadedFiles')
 
 
 def download_report(request, resultID):
@@ -527,3 +546,59 @@ def download_report(request, resultID):
     response = HttpResponse(buffer, content_type='application/pdf')
     response['Content-Disposition'] = f'attachment; filename="report_{resultID}.pdf"'
     return response
+
+
+def download_excel(request, resultID):
+    # Fetch the result object
+    result = Result.objects.filter(id=resultID).first()
+    context = json.loads(result.resultobject)
+
+    # Create an Excel workbook
+    workbook = Workbook()
+    sheet = workbook.active
+    sheet.title = "THE MLHUB - Model Report"
+
+    # Add model info
+    sheet["A1"] = "THE MLHUB - Model Report"
+    sheet["A3"] = "Model Name:"
+    sheet["B3"] = context.get('modelName', 'N/A')
+    sheet["A4"] = "Dataset:"
+    sheet["B4"] = context.get('dataCostumName', 'N/A')
+
+    # Add metrics
+    sheet["A6"] = "Metrics"
+    row = 7
+    for metric, value in context['result']['metric_results'].items():
+        sheet[f"A{row}"] = metric
+        sheet[f"B{row}"] = value
+        row += 1
+
+    # Add plots
+    if context['result'].get('plots'):
+        sheet["A{row}".format(row=row + 2)] = "Plots"
+        row += 3
+        for plot_key, plot_value in context['result']['plots'].items():
+            # Decode Base64 image
+            image_data = base64.b64decode(plot_value)
+            image_file = BytesIO(image_data)
+            img = ExcelImage(image_file)
+
+            # Add image and label to sheet
+            sheet[f"A{row}"] = plot_key
+            img.anchor = f"A{row + 1}"  # Position of the image
+            sheet.add_image(img)
+            row += 35  # Adjust for image height
+
+    # Save the workbook to a BytesIO stream
+    output = BytesIO()
+    workbook.save(output)
+    output.seek(0)
+
+    # Return as Excel file response
+    response = HttpResponse(output, content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    response['Content-Disposition'] = f'attachment; filename="report_{resultID}.xlsx"'
+    return response
+
+
+def home(request):
+    return render(request,'homePage.html')

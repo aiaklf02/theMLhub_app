@@ -42,7 +42,7 @@
                         <div class="card">
                             <div class="card-body">
                                 <div class="text-center">
-                                    <span class="display-5" style="padding-bottom: 15px">
+                                    <span class="display-5" style="margin-left: -15px;padding-bottom: 15px">
                                         <img width="80" height="80" src="https://img.icons8.com/external-smashingstocks-mixed-smashing-stocks/80/external-Dataset-web-hosting-smashingstocks-mixed-smashing-stocks.png" alt="external-Dataset-web-hosting-smashingstocks-mixed-smashing-stocks"/>
                                     </span>
                                     <h4 style="margin-top: 30px" title="{{ file.preprocessedCostumName }}">{{ file.preprocessedCostumName }}</h4>
@@ -50,6 +50,12 @@
                                     <button class="btn gradient-8 btn-md border-0 btn-rounded px-5" onclick="visualizeprepData({{ file.id }})">
                                         Visualise
                                     </button>
+
+                                    <a class="btn gradient-1 btn-sm border-0 btn-rounded ml-3 px-5" href="{% url 'downloadPreproccesseddata' prepdataID=file.id %}">
+                                            <i class="fa fa-download" aria-hidden="true"></i>
+                                    </a>
+
+
                                 </div>
                             </div>
                         </div>

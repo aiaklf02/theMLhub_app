@@ -67,16 +67,6 @@
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 </style>
-    <!-- Preloader start -->
-<!--    <div id="preloader">-->
-<!--        <div class="loader">-->
-<!--            <svg class="circular" viewBox="25 25 50 50">-->
-<!--                <circle class="path" cx="50" cy="50" r="20" fill="none" stroke-width="3" stroke-miterlimit="10" />-->
-<!--            </svg>-->
-<!--<dotlottie-player src="https://lottie.host/8d7d3e2c-e660-4272-8242-8c476da1fab1/CiznDOT2RN.lottie" background="transparent" speed="1" style="width: 300px; height: 300px" loop autoplay></dotlottie-player>-->
-<!--        </div>-->
-<!--    </div>-->
-    <!-- Preloader end -->
 
     <div id="main-wrapper" style="min-height: 130vh !important;">
 
@@ -111,10 +101,10 @@
                     <h2>{{modelName}} Trained using {{dataCostumName}} DataSet</h2>
                     <!-- Download Report Button -->
                     <div style="">
-                        <a id="download-report" class="btn btn-primary" href="#">Download Report</a>
+                        <a id="download-report-pdf" class="btn btn-primary" href="#">Download PDF Report</a>
+                        <a id="download-report-excel" class="btn btn-success" href="#">Download Excel Report</a>
                     </div>
                     </div>
-
 
                 {% if result.leaderboard %}
                     <hr>
@@ -184,24 +174,44 @@
 
     </div>
 
-            <script>
+<!--            <script>-->
 
-    document.addEventListener("DOMContentLoaded", function () {
-        // Get the current URL
-        const currentUrl = window.location.href;
+<!--    document.addEventListener("DOMContentLoaded", function () {-->
+<!--        // Get the current URL-->
+<!--        const currentUrl = window.location.href;-->
 
-        // Extract the resultID (assuming it's the last part of the URL)
-        const resultId = currentUrl.split("/").filter(Boolean).pop();
+<!--        // Extract the resultID (assuming it's the last part of the URL)-->
+<!--        const resultId = currentUrl.split("/").filter(Boolean).pop();-->
 
-        // Update the download link
-        const downloadLink = document.getElementById("download-report");
-        if (downloadLink && resultId) {
-            downloadLink.href = `/download_report/${resultId}/`;
-        }
-    });
+<!--        // Update the download link-->
+<!--        const downloadLink = document.getElementById("download-report");-->
+<!--        if (downloadLink && resultId) {-->
+<!--            downloadLink.href = `/download_report/${resultId}/`;-->
+<!--        }-->
+<!--    });-->
+<!--</script>-->
+
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const currentUrl = window.location.href;
+    const resultId = currentUrl.split("/").filter(Boolean).pop();
+
+    // Update PDF download link
+    const pdfDownloadLink = document.getElementById("download-report-pdf");
+    if (pdfDownloadLink && resultId) {
+        pdfDownloadLink.href = `/download_report/${resultId}/`;
+    }
+
+    // Update Excel download link
+    const excelDownloadLink = document.getElementById("download-report-excel");
+    if (excelDownloadLink && resultId) {
+        excelDownloadLink.href = `/download_excel/${resultId}/`;
+    }
+});
 </script>
 
-            </script>
+
     <!-- Scripts -->
     <script src="{% static 'plugins/common/common.min.js' %}"></script>
     <script src="{% static 'js/custom.min.js' %}"></script>

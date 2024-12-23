@@ -611,7 +611,7 @@ def train_classification_LightGBM(preprocesseddata, params, target_column=None):
         hyperparameters = {}  # Default to empty dict when auto is True
     else:
         hyperparameters = params.get('hyperparameters', {})  # Handle missing hyperparameters
-        objective = 'binary' if hyperparameters.get('num_class', 2) == 2 else 'multiclass'
+        objective = 'binary' if hyperparameters.get('number of class', 2) == 2 else 'multiclass'
         print(objective)
 
     if target_column:
@@ -629,13 +629,13 @@ def train_classification_LightGBM(preprocesseddata, params, target_column=None):
             'objective': 'binary' if objective == 'binary' else 'multiclass',
             'metric': 'binary_error' if objective == 'binary' else 'multi_logloss',
             'boosting_type': 'gbdt',
-            'num_leaves': hyperparameters.get('nLeaves', 31),
-            'learning_rate': hyperparameters.get('learningRate', 0.05),
+            'num_leaves': hyperparameters.get('Number of Leaves', 31),
+            'learning_rate': hyperparameters.get('Learning Rate', 0.05),
             'feature_fraction': 0.9,
         }
 
         if objective == 'multiclass':
-            params['num_class'] = hyperparameters.get('num_class', 3)
+            params['num_class'] = hyperparameters.get('number of class', 3)
 
         try:
             # Train the model
@@ -784,6 +784,7 @@ def train_classification_cart_decision_tree(preprocesseddata, params, target_col
 
         # Generate plots (optional)
         plots = generate_visualizations(X_train, X_test, y_train, y_test, model)
+        plots['confusion matrix'] = generate_confusion_matrix_plot(y_test, predictions, model)
 
         # Calculate classification metrics
         accuracy = accuracy_score(y_test, predictions)
@@ -841,6 +842,7 @@ def train_classification_random_forest(preprocesseddata, params, target_column=N
 
         # Generate plots (optional)
         plots = generate_visualizations(X_train, X_test, y_train, y_test, model)
+        plots['confusion matrix'] = generate_confusion_matrix_plot(y_test, predictions, model)
 
         # Calculate classification metrics
         accuracy = accuracy_score(y_test, predictions)
@@ -899,6 +901,7 @@ def train_classification_knn(preprocesseddata, params, target_column=None):
 
         # Generate plots (optional)
         plots = generate_visualizations(X_train, X_test, y_train, y_test, model)
+        plots['confusion matrix'] = generate_confusion_matrix_plot(y_test, predictions, model)
 
         # Calculate classification metrics
         accuracy = accuracy_score(y_test, predictions)
@@ -956,6 +959,7 @@ def train_classification_svc(preprocesseddata, params, target_column=None):
 
         # Generate plots (optional)
         plots = generate_visualizations(X_train, X_test, y_train, y_test, model)
+        plots['confusion matrix'] = generate_confusion_matrix_plot(y_test, predictions, model)
 
         # Calculate classification metrics
         accuracy = accuracy_score(y_test, predictions)
@@ -1015,6 +1019,7 @@ def train_classification_xgboost(preprocesseddata, params, target_column=None):
 
         # Generate plots (optional)
         plots = generate_visualizations(X_train, X_test, y_train, y_test, model)
+        plots['confusion matrix'] = generate_confusion_matrix_plot(y_test, predictions, model)
 
         # Calculate classification metrics
         accuracy = accuracy_score(y_test, predictions)

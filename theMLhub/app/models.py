@@ -220,6 +220,7 @@ class PreprocessedDataset(models.Model):
         self.save()
 
         return df
+
     def generate_visualizations(self):
         # Vérifier si le fichier prétraité est associé à l'attribut
         if not self.file_preprocessed_data:
